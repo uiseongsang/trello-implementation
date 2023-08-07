@@ -1,6 +1,6 @@
-package com.winner.trelloimplementation.Comment.entity;
+package com.winner.trelloimplementation.comment.entity;
 
-import com.winner.trelloimplementation.Comment.dto.CommentRequestDto;
+import com.winner.trelloimplementation.comment.dto.CommentRequestDto;
 import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;

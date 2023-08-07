@@ -1,4 +1,4 @@
-package com.winner.trelloimplementation.Comment.dto;
+package com.winner.trelloimplementation.comment.dto;
 
 import lombok.Getter;
 

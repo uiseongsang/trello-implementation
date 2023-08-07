@@ -1,7 +1,9 @@
 package com.winner.trelloimplementation.card.dto;
 
 import com.winner.trelloimplementation.card.entity.Card;
+import lombok.Getter;
 
+@Getter
 public class CardResponseDto {
     private Long id;
     private String title;

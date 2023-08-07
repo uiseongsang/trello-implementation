@@ -1,11 +1,12 @@
-package com.winner.trelloimplementation.Comment.service;
+package com.winner.trelloimplementation.comment.service;
 
-import com.winner.trelloimplementation.Comment.dto.CommentRequestDto;
-import com.winner.trelloimplementation.Comment.dto.CommentResponseDto;
-import com.winner.trelloimplementation.Comment.entity.Comment;
-import com.winner.trelloimplementation.Comment.repository.CommentRepository;
+import com.winner.trelloimplementation.comment.dto.CommentRequestDto;
+import com.winner.trelloimplementation.comment.dto.CommentResponseDto;
+import com.winner.trelloimplementation.comment.entity.Comment;
+import com.winner.trelloimplementation.comment.repository.CommentRepository;
 import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.card.service.CardServiceImpl;
+import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,11 +29,20 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public ResponseEntity<CommentResponseDto> updateComment(CommentRequestDto requestDto, Long commentNo, User user) {
+    public ResponseEntity<CommentResponseDto> updateComment(User user, Long commentNo, CommentRequestDto requestDto) {
         Comment comment = getComment(commentNo);
         comment.setContent(requestDto.getContent());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommentResponseDto(comment));
+    }
+
+    @Override
+    public ResponseEntity<ApiResponseDto> deleteComment(User user, Long commentNo) {
+        Comment comment = getComment(commentNo);
+
+        commentRepository.delete(comment);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDto("댓글 삭제 완료", 200));
     }
 
     @Override

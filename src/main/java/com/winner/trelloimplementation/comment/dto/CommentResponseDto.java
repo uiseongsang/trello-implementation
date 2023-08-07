@@ -1,6 +1,6 @@
-package com.winner.trelloimplementation.Comment.dto;
+package com.winner.trelloimplementation.comment.dto;
 
-import com.winner.trelloimplementation.Comment.entity.Comment;
+import com.winner.trelloimplementation.comment.entity.Comment;
 import lombok.Getter;
 
 @Getter

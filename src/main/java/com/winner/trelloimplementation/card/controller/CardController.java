@@ -17,12 +17,12 @@ public class CardController {
     private final CardServiceImpl cardServiceImpl;
 
     @PostMapping("/column/{columnNo}/card")
-    public ResponseEntity<CardResponseDto> createCard(CardRequestDto requestDto, @PathVariable Long columnNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<CardResponseDto> createCard(@RequestBody CardRequestDto requestDto, @PathVariable Long columnNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return cardServiceImpl.createCard(requestDto, columnNo, userDetails.getUser());
     }
 
     @PatchMapping("/card/{cardNo}/deadline")
-    public ResponseEntity<ApiResponseDto> updateDeadline(CardRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponseDto> updateDeadline(@RequestBody CardRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return cardServiceImpl.updateDeadline(requestDto, cardNo, userDetails.getUser());
     }
 }
