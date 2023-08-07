@@ -1,20 +1,20 @@
 package com.winner.trelloimplementation.common.dto;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.Setter;
 
 @Getter
-@ToString
+@Setter
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponseDto {
     private String msg;
-    private int status;
+    private Integer statusCode;
 
-    @Builder
-    public ApiResponseDto (String msg, int status) {
+    public ApiResponseDto(String msg, Integer statusCode) {
         this.msg = msg;
-        this.status = status;
+        this.statusCode = statusCode;
     }
 }
