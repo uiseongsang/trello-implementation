@@ -1,6 +1,7 @@
 package com.winner.trelloimplementation.board.controller;
 
 import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.board.service.BoardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
@@ -55,4 +56,9 @@ public class BoardController {
                     .body(new ApiResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
     }
+
+//    @GetMapping ("/boards/{boardNo}")
+//    public GetOneBoardResponseDto getOneBoard (@PathVariable Long boardNo) {
+//        boardServiceImpl.getOneBoard(boardNo);
+//    }
 }

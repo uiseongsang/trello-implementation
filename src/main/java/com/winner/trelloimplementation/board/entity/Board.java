@@ -45,8 +45,8 @@ public class Board {
      */
 
 //    @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
-//    private List<> columns = new ArrayList<>();
-//
+//    private List<ColumnEntity> columns = new ArrayList<>();
+
     @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<BoardMember> members = new ArrayList<>();
 
