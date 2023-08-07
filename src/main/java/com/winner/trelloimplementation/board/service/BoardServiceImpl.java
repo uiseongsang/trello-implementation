@@ -1,34 +1,79 @@
 package com.winner.trelloimplementation.board.service;
 
 import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.board.entity.BoardMember;
+import com.winner.trelloimplementation.board.entity.MemberRoleEnum;
+import com.winner.trelloimplementation.board.repository.BoardMemberRepository;
 import com.winner.trelloimplementation.board.repository.BoardRepository;
 import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final UserRepository userRepository;
+    private final BoardMemberRepository boardMemberRepository;
 
-    public BoardServiceImpl (BoardRepository boardRepository, UserRepository userRepository) {
+    public BoardServiceImpl (BoardRepository boardRepository, UserRepository userRepository, BoardMemberRepository boardMemberRepository) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
+        this.boardMemberRepository = boardMemberRepository;
     }
 
     @Override
     public void createBoard(User user, CreateBoardRequestDto createBoardRequestDto) {
 
         userRepository.findById(user.getId()).orElseThrow(
-                () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
+                () -> new NullPointerException("회원이 존재하지 않습니다.")
         );
 
-        // createBoard에서 받아온 정보로 Board 생성
+        // createBoard 받아온 정보로 Board 생성
         Board board = new Board(createBoardRequestDto.getTitle(), createBoardRequestDto.getDescription(), createBoardRequestDto.getColor());
 
-        // board 저장
+        BoardMember member = new BoardMember(user, board, MemberRoleEnum.ADMIN);
+
+        board.addMember(member);
+
+        board.addUser(user);
+
         boardRepository.save(board);
+
+        boardMemberRepository.save(member);
+
+    }
+
+    @Override
+    @Transactional
+    public void modifyBoard(User user, ModifyBoardRequestDto modifyBoardRequestDto, Long boardNo) {
+
+        Board board = boardRepository.findById(boardNo).orElseThrow(
+                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
+        );
+
+        if (!board.getUser().getUsername().equals(user.getUsername())) {
+            throw new IllegalArgumentException("게시글을 작성한 유저가 아닙니다.");
+        }
+
+        board.update(modifyBoardRequestDto);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBoard(User user, Long boardNo) {
+
+        Board board = boardRepository.findById(boardNo).orElseThrow(
+                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
+        );
+
+        if (!board.getUser().getUsername().equals(user.getUsername())) {
+            throw new IllegalArgumentException("게시글을 작성한 유저가 아닙니다.");
+        }
+
+        boardRepository.delete(board);
     }
 }

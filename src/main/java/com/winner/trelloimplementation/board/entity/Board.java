@@ -1,11 +1,10 @@
 package com.winner.trelloimplementation.board.entity;
 
+import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
+import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Columns;
-import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,18 +44,27 @@ public class Board {
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.
      */
 
-//    @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+//    @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
 //    private List<> columns = new ArrayList<>();
 //
-//    @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<Member> members = new ArrayList<>();
+    @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<BoardMember> members = new ArrayList<>();
 
-    /**
-     * 연관관계 편의 메소드 - 반대쪽에는 연관관계 편의 메소드가 없도록 주의합니다.
-     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    User user;
 
+    public void update (ModifyBoardRequestDto modifyBoardRequestDto) {
+        this.title = modifyBoardRequestDto.getTitle();
+        this.description = modifyBoardRequestDto.getDescription();
+        this.color = modifyBoardRequestDto.getColor();
+    }
 
-    /**
-     * 서비스 메소드 - 외부에서 엔티티를 수정할 메소드를 정의합니다. (단일 책임을 가지도록 주의합니다.)
-     */
+    public void addMember (BoardMember boardMember) {
+        this.members.add(boardMember);
+    }
+
+    public void addUser (User user) {
+        this.user = user;
+    }
 }
