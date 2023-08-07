@@ -1,7 +1,7 @@
 package com.winner.trelloimplementation.card.entity;
 
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
-import com.winner.trelloimplementation.entity.User;
+import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
