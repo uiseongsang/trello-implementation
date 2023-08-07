@@ -19,4 +19,9 @@ public class CommentController {
     public ResponseEntity<CommentResponseDto> createComment(@RequestBody CommentRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return commentService.createComment(requestDto, cardNo, userDetails.getUser());
     }
+
+    @PatchMapping("/comment/{commentNo}")
+    public ResponseEntity<CommentResponseDto> updateComment(@RequestBody CommentRequestDto requestDto, @PathVariable Long commentNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.updateComment(requestDto, commentNo, userDetails.getUser());
+    }
 }

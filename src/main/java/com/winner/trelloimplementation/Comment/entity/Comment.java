@@ -32,4 +32,8 @@ public class Comment {
         this.user = user;
         this.card = card;
     }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
