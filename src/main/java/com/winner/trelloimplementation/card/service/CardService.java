@@ -12,5 +12,8 @@ public interface CardService {
 
     ResponseEntity<ApiResponseDto> updateDeadline(CardRequestDto requestDto, Long cardNo, User user);
 
+    ResponseEntity<ApiResponseDto> updateDescription(CardRequestDto requestDto, Long cardNo, User user);
+
     Card getCard(Long cardNo);
+
 }

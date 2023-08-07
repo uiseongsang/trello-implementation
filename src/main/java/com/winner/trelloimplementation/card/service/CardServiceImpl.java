@@ -31,10 +31,19 @@ public class CardServiceImpl implements CardService {
     public ResponseEntity<ApiResponseDto> updateDeadline(CardRequestDto requestDto, Long cardNo, User user) {
         Card card = getCard(cardNo);
 
-        card.setDeadline(requestDto.getDescription());
+        card.setDeadline(requestDto.getDeadline());
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("마감 설정 완료", 200));
     }
+
+    @Override
+    public ResponseEntity<ApiResponseDto> updateDescription(CardRequestDto requestDto, Long cardNo, User user) {
+        Card card = getCard(cardNo);
+
+        card.setDescription(requestDto.getDescription());
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("본문 작성 완료", 200));
+    };
 
     @Override
     public Card getCard(Long cardNo) {

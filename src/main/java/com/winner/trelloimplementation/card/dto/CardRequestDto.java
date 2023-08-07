@@ -8,4 +8,5 @@ import lombok.Setter;
 public class CardRequestDto {
     private String title;
     private String description;
+    private String deadline;
 }

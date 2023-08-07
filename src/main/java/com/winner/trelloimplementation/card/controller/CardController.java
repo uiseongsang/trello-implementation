@@ -2,6 +2,7 @@ package com.winner.trelloimplementation.card.controller;
 
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
+import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.card.service.CardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
@@ -24,5 +25,10 @@ public class CardController {
     @PatchMapping("/card/{cardNo}/deadline")
     public ResponseEntity<ApiResponseDto> updateDeadline(@RequestBody CardRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return cardServiceImpl.updateDeadline(requestDto, cardNo, userDetails.getUser());
+    }
+
+    @PatchMapping("/card/{cardNo}/description")
+    public ResponseEntity<ApiResponseDto> updateDescription(@RequestBody CardRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return cardServiceImpl.updateDescription(requestDto, cardNo, userDetails.getUser());
     }
 }
