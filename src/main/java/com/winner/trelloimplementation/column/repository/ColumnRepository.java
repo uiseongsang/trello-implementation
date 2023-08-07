@@ -1,7 +1,7 @@
 package com.winner.trelloimplementation.column.repository;
 
-import com.winner.trelloimplementation.column.entity.Column;
+import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ColumnRepository extends JpaRepository<Column, Long> {
+public interface ColumnRepository extends JpaRepository<ColumnEntity, Long> {
 }
