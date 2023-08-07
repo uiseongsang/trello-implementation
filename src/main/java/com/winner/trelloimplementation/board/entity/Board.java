@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Columns;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,6 @@ public class Board {
      * 생성자 - 약속된 형태로만 생성가능하도록 합니다.
      */
 
-    @Builder
     public Board (String title, String description, String color) {
         this.title = title;
         this.description = description;
