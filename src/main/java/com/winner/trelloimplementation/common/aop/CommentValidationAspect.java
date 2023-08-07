@@ -26,7 +26,7 @@ public class CommentValidationAspect {
     @Before("commentMethods() && args(commentNo, user, ..)")
     public void validateCommentOwner(UserDetailsImpl user, Long commentNo) {
         Comment comment = commentService.getComment(commentNo);
-        System.out.println(comment.getUser().getUsername());
+
         if (!comment.getUser().getUsername().equals(user.getUsername())) {
             throw new IllegalArgumentException("댓글 작성한 회원이 아닙니다.");
         }
