@@ -1,9 +1,6 @@
 package com.winner.trelloimplementation.board.controller;
 
-import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
-import com.winner.trelloimplementation.board.dto.GetBoardListResponseDto;
-import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
-import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.*;
 import com.winner.trelloimplementation.board.service.BoardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
@@ -11,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -69,4 +67,25 @@ public class BoardController {
     public List<GetBoardListResponseDto> getBoardList () {
         return boardServiceImpl.getBoardList();
     }
+
+    @PostMapping ("/board/{boardNo}/invitation")
+    public ResponseEntity<ApiResponseDto> sendEmailToInviteUser (@PathVariable Long boardNo, @RequestBody EmailRequestDto emailRequestDto) {
+        try {
+            boardServiceImpl.sendEmailToInviteUser(boardNo, emailRequestDto);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ApiResponseDto(emailRequestDto.getEmail() +  " 초대 완료", HttpStatus.OK.value()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
+
+    }
+
+//    @GetMapping ("/board/invitation/{boardNo}")
+//    public void checkUserInfo (@PathVariable Long boardNo, @RequestParam("email") String email) {
+//        // 우선 해당 유저가 존재하는지 확인
+//        // 존재한다면 -> 해당 이메일을 가진 유저를 BoardMember에 추가 -> 로그인하도록 redirect
+//        // 존재하지 않는다면 -> 회원가입하도록 (이 부분은 따로 만들어야 할 수도) -> 회원가입 후에 해당 이메일을 가진 유저를 BoardMember에 추가
+//        boardServiceImpl.checkUserInfo(boardNo, email);
+//    }
 }
