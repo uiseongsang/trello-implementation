@@ -23,12 +23,17 @@ public class CardController {
     }
 
     @PatchMapping("/card/{cardNo}/deadline")
-    public ResponseEntity<ApiResponseDto> updateDeadline(@RequestBody CardRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponseDto> updateDeadline(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
         return cardServiceImpl.updateDeadline(requestDto, cardNo, userDetails.getUser());
     }
 
     @PatchMapping("/card/{cardNo}/description")
-    public ResponseEntity<ApiResponseDto> updateDescription(@RequestBody CardRequestDto requestDto, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<ApiResponseDto> updateDescription(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
         return cardServiceImpl.updateDescription(requestDto, cardNo, userDetails.getUser());
+    }
+
+    @DeleteMapping("/card/{cardNo}")
+    public ResponseEntity<ApiResponseDto> deleteCard(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return cardServiceImpl.deleteCard(cardNo, userDetails);
     }
 }

@@ -4,6 +4,7 @@ import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
+import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.entity.User;
 import org.springframework.http.ResponseEntity;
 
@@ -16,4 +17,5 @@ public interface CardService {
 
     Card getCard(Long cardNo);
 
+    ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails);
 }
