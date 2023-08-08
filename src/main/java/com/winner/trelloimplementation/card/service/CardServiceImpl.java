@@ -7,6 +7,7 @@ import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.card.repository.CardRepository;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.column.service.ColumnService;
+import com.winner.trelloimplementation.column.service.ColumnServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.entity.User;
@@ -16,19 +17,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
 
-    private final ColumnService columnService;
+    private final ColumnServiceImpl columnService;
 
     @Override
     public ResponseEntity<CardResponseDto> createCard(CardRequestDto requestDto, Long columnNo, User user) {
         ColumnEntity column = columnService.findColumnEntity(columnNo);
 
-        Card card = new Card(requestDto, user, column);
+        Long position = getPosition(column);
+
+        Card card = new Card(requestDto, user, column, position);
         cardRepository.save(card);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CardResponseDto(card));
@@ -71,7 +77,7 @@ public class CardServiceImpl implements CardService {
 
         card.setTitle(requestDto.getTitle());
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 색상 적용 완료", 200));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 제목 적용 완료", 200));
     }
 
     @Override
@@ -79,18 +85,34 @@ public class CardServiceImpl implements CardService {
     public ResponseEntity<ApiResponseDto> updateColumn(CardRequestDto requestDto, Long cardNo, User user) {
         ColumnEntity column = columnService.findColumnEntity(requestDto.getColumn());
 
+        Long position = getPosition(column);
+
         Card card = findCard(cardNo);
 
+        card.setPosition(position);
         card.setColumn(column);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 이동 완료", 200));
     }
 
     @Override
-    public ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails) {
+    @Transactional
+    public ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails, Long columnNo) {
+        ColumnEntity column = columnService.findColumnEntity(columnNo);
+        Optional<List<Card>> cardsOptional = cardRepository.findByColumnEntity(column);
+
         Card card = findCard(cardNo);
 
         cardRepository.delete(card);
+
+        if (cardsOptional.isPresent()) {
+            List<Card> cards = cardsOptional.get();
+            for (Card cardInfo : cards) {
+                if (cardInfo.getPosition() > card.getPosition()) {
+                    cardInfo.setPosition(cardInfo.getPosition() - 1);
+                }
+            }
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 삭제 완료", 200));
     }
@@ -107,5 +129,21 @@ public class CardServiceImpl implements CardService {
         Card card = findCard(cardNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(new CardDetailResponseDto(card));
+    }
+
+    @Override
+    public Long getPosition(ColumnEntity column) {
+        Optional<List<Card>> cards = cardRepository.findByColumnEntity(column);
+
+        Long position;
+
+        if(cards.isPresent()) {
+            List<Card> cardList = cards.get();
+
+            position = (long) cardList.size();
+        } else {
+            position = 0L;
+        }
+        return position;
     }
 }
