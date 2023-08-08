@@ -23,7 +23,7 @@ public class CardMemberServiceImpl implements CardMemberService {
     private final UserRepository userRepository;
     @Override
     public ResponseEntity<ApiResponseDto> addMember(Long cardNo, CardMemberRequestDto requestDto) {
-        Card card = cardService.getCard(cardNo);
+        Card card = cardService.findCard(cardNo);
 
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(()->{
             throw new IllegalArgumentException("존재하지 않는 회원입니다");
@@ -36,7 +36,7 @@ public class CardMemberServiceImpl implements CardMemberService {
 
     @Override
     public ResponseEntity<ApiResponseDto> deleteMember(Long cardNo, CardMemberRequestDto requestDto) {
-        Card card = cardService.getCard(cardNo);
+        Card card = cardService.findCard(cardNo);
 
         cardMemberRepository.findCardMemberByCardAndUserEmail(card, requestDto.getEmail()).orElseThrow(()->{
             throw new IllegalArgumentException("유저가 존재하지 않습니다");

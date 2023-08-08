@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.card.service;
 
+import com.winner.trelloimplementation.card.dto.CardDetailResponseDto;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
@@ -30,7 +31,7 @@ public class CardServiceImpl implements CardService {
     @Override
     @Transactional
     public ResponseEntity<ApiResponseDto> updateDeadline(CardRequestDto requestDto, Long cardNo, User user) {
-        Card card = getCard(cardNo);
+        Card card = findCard(cardNo);
 
         card.setDeadline(requestDto.getDeadline());
 
@@ -39,7 +40,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public ResponseEntity<ApiResponseDto> updateDescription(CardRequestDto requestDto, Long cardNo, User user) {
-        Card card = getCard(cardNo);
+        Card card = findCard(cardNo);
 
         card.setDescription(requestDto.getDescription());
 
@@ -48,7 +49,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails) {
-        Card card = getCard(cardNo);
+        Card card = findCard(cardNo);
 
         cardRepository.delete(card);
 
@@ -56,9 +57,16 @@ public class CardServiceImpl implements CardService {
     };
 
     @Override
-    public Card getCard(Long cardNo) {
+    public Card findCard(Long cardNo) {
         return cardRepository.findById(cardNo).orElseThrow(()->{
            throw new IllegalArgumentException("카드를 찾을 수 없습니다.");
         });
+    }
+
+    @Override
+    public ResponseEntity<CardDetailResponseDto> getCard(Long cardNo) {
+        Card card = findCard(cardNo);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new CardDetailResponseDto(card));
     }
 }

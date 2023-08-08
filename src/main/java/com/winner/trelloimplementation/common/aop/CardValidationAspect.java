@@ -24,7 +24,7 @@ public class CardValidationAspect {
 
     @Before("cardMethods() && args(cardNo, user, ..)")
     public void validateCardOwner(UserDetailsImpl user, Long cardNo) {
-        Card card = cardService.getCard(cardNo);
+        Card card = cardService.findCard(cardNo);
 
         if (!card.getUser().getUsername().equals(user.getUsername())) {
             throw new IllegalArgumentException("카드를 작성한 회원이 아닙니다.");

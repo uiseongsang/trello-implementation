@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.card.controller;
 
+import com.winner.trelloimplementation.card.dto.CardDetailResponseDto;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
@@ -20,6 +21,11 @@ public class CardController {
     @PostMapping("/column/{columnNo}/card")
     public ResponseEntity<CardResponseDto> createCard(@RequestBody CardRequestDto requestDto, @PathVariable Long columnNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return cardServiceImpl.createCard(requestDto, columnNo, userDetails.getUser());
+    }
+
+    @GetMapping("/card/{cardNo}")
+    public ResponseEntity<CardDetailResponseDto> getCard(@PathVariable Long cardNo) {
+        return cardServiceImpl.getCard(cardNo);
     }
 
     @PatchMapping("/card/{cardNo}/deadline")

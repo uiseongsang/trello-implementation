@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.card.service;
 
+import com.winner.trelloimplementation.card.dto.CardDetailResponseDto;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
@@ -15,7 +16,9 @@ public interface CardService {
 
     ResponseEntity<ApiResponseDto> updateDescription(CardRequestDto requestDto, Long cardNo, User user);
 
-    Card getCard(Long cardNo);
+    Card findCard(Long cardNo);
 
     ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails);
+
+    ResponseEntity<CardDetailResponseDto> getCard(Long cardNo);
 }

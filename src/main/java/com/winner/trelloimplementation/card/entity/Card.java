@@ -1,10 +1,15 @@
 package com.winner.trelloimplementation.card.entity;
 
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
+import com.winner.trelloimplementation.cardMember.entity.CardMember;
+import com.winner.trelloimplementation.comment.entity.Comment;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -27,6 +32,12 @@ public class Card {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
+    private Set<Comment> commentList = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
+    private Set<CardMember> cardMemberList = new LinkedHashSet<>();
 
     public Card(CardRequestDto requestDto, User user) {
         this.title = requestDto.getTitle();

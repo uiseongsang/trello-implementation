@@ -21,7 +21,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     @Override
     public ResponseEntity<CommentResponseDto> createComment(CommentRequestDto requestDto, Long cardNo, User user) {
-        Card card = cardService.getCard(cardNo);
+        Card card = cardService.findCard(cardNo);
         Comment comment = new Comment(requestDto, user, card);
         commentRepository.save(comment);
         return ResponseEntity.status(HttpStatus.CREATED).body(new CommentResponseDto(comment));
