@@ -1,6 +1,7 @@
 package com.winner.trelloimplementation.board.service;
 
 import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.board.entity.Board;
 import com.winner.trelloimplementation.board.entity.BoardMember;
@@ -76,4 +77,14 @@ public class BoardServiceImpl implements BoardService {
 
         boardRepository.delete(board);
     }
+
+//    @Override
+//    public void getOneBoard(Long boardNo) {
+//
+//        Board board = boardRepository.findById(boardNo).orElseThrow(
+//                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
+//        );
+//
+//        return GetOneBoardResponseDto(board);
+//    }
 }

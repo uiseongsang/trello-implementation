@@ -55,7 +55,7 @@ public class Board {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    private User user;
 
     public void update (ModifyBoardRequestDto modifyBoardRequestDto) {
         this.title = modifyBoardRequestDto.getTitle();

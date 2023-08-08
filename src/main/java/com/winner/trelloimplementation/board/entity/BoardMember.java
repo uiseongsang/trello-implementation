@@ -17,11 +17,11 @@ public class BoardMember {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id", nullable = false)
-    Board boards;
+    private Board boards;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    User user;
+    private User user;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)

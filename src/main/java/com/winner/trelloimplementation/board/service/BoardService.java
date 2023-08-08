@@ -27,4 +27,10 @@ public interface BoardService {
      * @param boardNo 삭제할 보드 아이디
      */
     void deleteBoard(User user, Long boardNo);
+
+    /**
+     * 보드 읽기
+     * @param boardNo 읽고자 하자 보드
+     */
+//    void getOneBoard(Long boardNo);
 }
