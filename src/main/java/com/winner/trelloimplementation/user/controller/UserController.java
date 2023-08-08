@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,8 +53,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "bad request operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponseDto> signup(@Valid @RequestBody SignupRequestDto requestDto) {
-        return userServiceImpl.signup(requestDto);
+    public ResponseEntity<ApiResponseDto> signup(@Valid @RequestBody SignupRequestDto requestDto, @Nullable @RequestParam("boardNo") Long boardNo) {
+        return userServiceImpl.signup(requestDto, boardNo);
     }
 
     @Operation(summary = "유저 프로필 조회 메서드", description = "유저 프로필 조회 메서드입니다.")
