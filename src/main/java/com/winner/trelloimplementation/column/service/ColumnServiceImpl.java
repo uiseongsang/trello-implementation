@@ -10,6 +10,8 @@ import com.winner.trelloimplementation.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class ColumnServiceImpl implements ColumnService {
 
@@ -57,6 +59,25 @@ public class ColumnServiceImpl implements ColumnService {
         ColumnEntity column = findColumn(columnNo);
 
         column.update(requestDto);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long columnNo) {
+        ColumnEntity column = findColumn(columnNo);
+
+        Long deletedPosition = column.getPosition();
+
+        columnRepository.delete(column);
+
+        List<ColumnEntity> remainedColumns = columnRepository.findAll();
+        for(ColumnEntity remainedColumn : remainedColumns) {
+            Long currentPosition = remainedColumn.getPosition();
+            if(currentPosition > deletedPosition) {
+                remainedColumn.setPosition(currentPosition-1);
+                columnRepository.save(remainedColumn);
+            }
+         }
     }
 
     @Override

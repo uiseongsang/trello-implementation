@@ -33,23 +33,25 @@ public class ColumnController {
                                                  @RequestBody ColumnRequestDto requestDto,
                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
         columnService.update(columnNo,requestDto,userDetails.getUser());
-        return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 수정 되었습니다", HttpStatus.OK.value()));
+        return ResponseEntity.status(202).body(new ApiResponseDto("컬럼이 수정 되었습니다", HttpStatus.ACCEPTED.value()));
     }
 
     // 삭제시 순서를 맞춰야함 -> 1,2,3,4에서 3이 삭제가 된다면 1,2,4가 아니고 1,2,3이 되어야함(컬럼 이동 떄문에)
-//    @DeleteMapping("/{columnNo}")
-//    public ResponseEntity<ApiResponseDto> delete() {
-//
-//    }
+    @DeleteMapping("/{columnNo}")
+    public ResponseEntity<ApiResponseDto> delete(@PathVariable Long columnNo) {
+        columnService.delete(columnNo);
+        return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 삭제 되었습니다", HttpStatus.OK.value()));
+    }
 //
 //    @PatchMapping("/{columnNo}/{newPosition}")
 //    public ResponseEntity<ApiResponseDto> move(@PathVariable Long columnNo, @PathVariable Long newPosition){
 //        columnService.move(columnNo, newPosition);
 //
 //    }
-//
+
+      // card 병합후 생성
 //    @GetMapping("/{columnNo}")
-//    public ResponseEntity<ApiResponseDto> getByNo(){
+//    public ResponseEntity<ApiResponseDto> getOneColumn(){
 //
 //    }
 }
