@@ -42,12 +42,13 @@ public class ColumnController {
         columnService.delete(columnNo);
         return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 삭제 되었습니다", HttpStatus.OK.value()));
     }
-//
-//    @PatchMapping("/{columnNo}/{newPosition}")
-//    public ResponseEntity<ApiResponseDto> move(@PathVariable Long columnNo, @PathVariable Long newPosition){
-//        columnService.move(columnNo, newPosition);
-//
-//    }
+
+    @PatchMapping("/{currentPosition}/{newPosition}")
+    public ResponseEntity<ApiResponseDto> move(@PathVariable Long currentPosition, @PathVariable Long newPosition){
+        columnService.move(currentPosition, newPosition);
+        return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 이동이 되엇습니다", HttpStatus.OK.value()));
+
+    }
 
       // card 병합후 생성
 //    @GetMapping("/{columnNo}")

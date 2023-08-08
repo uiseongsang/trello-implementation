@@ -81,6 +81,38 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
+    @Transactional
+    public void move(Long currentPosition, Long newPosition) {
+        if(currentPosition.equals(newPosition)) {
+            return;
+        }
+
+        ColumnEntity column = columnRepository.findByPosition(currentPosition).orElseThrow(
+                () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
+        );
+
+        // setPosion할떄 하나씩 -1을 해줄지 +1를 해줄지 알려주는 디렉션 변수
+        int direction = currentPosition.compareTo(newPosition);
+
+        if(direction < 0) {
+            // 포지션 하나씩 감소
+            List<ColumnEntity> columnsToUpdate = columnRepository.findColumnsBetweenPositions(currentPosition, newPosition);
+            for (ColumnEntity c : columnsToUpdate) {
+                c.setPosition(c.getPosition() - 1);
+            }
+        } else if (direction > 0) {
+            // 포지션 하나씩 증가
+            List<ColumnEntity> columnsToUpdate = columnRepository.findColumnsBetweenPositions(newPosition, currentPosition);
+            for (ColumnEntity c : columnsToUpdate) {
+                c.setPosition(c.getPosition() + 1);
+            }
+        }
+
+        // 이동된 컬럼 업데이트
+        column.setPosition(newPosition);
+    }
+
+    @Override
     public void checkUser(User user) {
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
@@ -93,8 +125,4 @@ public class ColumnServiceImpl implements ColumnService {
                 () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
         );
     }
-//    @Override
-//    public void move(Long columnNo, Long newPosition) {
-//
-//    }
 }

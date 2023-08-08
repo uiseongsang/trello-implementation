@@ -28,7 +28,7 @@ public class ColumnEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "position", nullable = false, unique = true)
+    @Column(name = "position", nullable = false)
     private Long position;
 
     /**

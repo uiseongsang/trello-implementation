@@ -32,6 +32,14 @@ public interface ColumnService {
     void delete(Long columnNo);
 
     /**
+     * 컬럼 이동
+     *
+     * @param currentPosition 현재 포지션
+     * @param newPosition 이동 할 포지션
+     */
+    void move(Long currentPosition, Long newPosition);
+
+    /**
      * 유저 검사
      *
      * @param user 찾고자 하는 유저
@@ -46,10 +54,5 @@ public interface ColumnService {
      */
     ColumnEntity findColumn(Long columnNo);
 
-//    /**
-//     *
-//     * @param columnNo
-//     * @param newPosition
-//     */
-//    void move(Long columnNo, Long newPosition);
+
 }
