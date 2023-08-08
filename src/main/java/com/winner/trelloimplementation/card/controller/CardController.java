@@ -52,8 +52,13 @@ public class CardController {
         return cardServiceImpl.updateColumn(requestDto, cardNo, userDetails.getUser());
     }
 
-    @DeleteMapping("/card/{cardNo}")
-    public ResponseEntity<ApiResponseDto> deleteCard(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return cardServiceImpl.deleteCard(cardNo, userDetails);
+    @PatchMapping("/column/{columnNo}/card/{cardNo}/change-card/{changeCardNo}")
+    public ResponseEntity<ApiResponseDto> updatePosition(@PathVariable Long columnNo, @PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long changeCardNo) {
+        return cardServiceImpl.updatePosition(columnNo,cardNo,userDetails, changeCardNo);
+    }
+
+    @DeleteMapping("/column/{columnNo}/card/{cardNo}")
+    public ResponseEntity<ApiResponseDto> deleteCard(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long columnNo) {
+        return cardServiceImpl.deleteCard(cardNo, userDetails, columnNo);
     }
 }
