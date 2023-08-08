@@ -2,6 +2,7 @@ package com.winner.trelloimplementation.card.entity;
 
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.cardMember.entity.CardMember;
+import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.comment.entity.Comment;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
@@ -33,8 +34,12 @@ public class Card {
     private String color;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_no")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "column_no")
+    private ColumnEntity columnEntity;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
     private Set<Comment> commentList = new LinkedHashSet<>();
@@ -42,9 +47,10 @@ public class Card {
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
     private Set<CardMember> cardMemberList = new LinkedHashSet<>();
 
-    public Card(CardRequestDto requestDto, User user) {
+    public Card(CardRequestDto requestDto, User user, ColumnEntity columnEntity) {
         this.title = requestDto.getTitle();
         this.user = user;
+        this.columnEntity = columnEntity;
     }
 
     public void setDescription(String description) {
@@ -61,5 +67,9 @@ public class Card {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public void setColumn(ColumnEntity columnEntity) {
+        this.columnEntity = columnEntity;
     }
 }

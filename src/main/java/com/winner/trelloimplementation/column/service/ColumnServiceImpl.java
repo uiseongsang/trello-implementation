@@ -38,6 +38,12 @@ public class ColumnServiceImpl implements ColumnService {
         columnRepository.save(column);
     }
 
+    @Override
+    public ColumnEntity findColumnEntity(Long columnNo) {
+        return columnRepository.findById(columnNo).orElseThrow(()->{
+            throw new IllegalArgumentException("컬럼이 존재하지 않습니다.");
+        });
+    };
 //    @Override
 //    public void move(Long columnNo, Long newPosition) {
 //

@@ -1,6 +1,7 @@
 package com.winner.trelloimplementation.column.service;
 
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
+import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.user.entity.User;
 
 public interface ColumnService {
@@ -14,6 +15,7 @@ public interface ColumnService {
      */
     void create(Long lastPosition, ColumnRequestDto requestDto, User user);
 
+    ColumnEntity findColumnEntity(Long columnNo);
 //    /**
 //     *
 //     * @param columnNo

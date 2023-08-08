@@ -3,7 +3,6 @@ package com.winner.trelloimplementation.card.controller;
 import com.winner.trelloimplementation.card.dto.CardDetailResponseDto;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
-import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.card.service.CardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
@@ -46,6 +45,11 @@ public class CardController {
     @PatchMapping("/card/{cardNo}/color")
     public ResponseEntity<ApiResponseDto> updateColor(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
         return cardServiceImpl.updateColor(requestDto, cardNo, userDetails.getUser());
+    }
+
+    @PatchMapping("/card/{cardNo}")
+    public ResponseEntity<ApiResponseDto> updateColumn(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
+        return cardServiceImpl.updateColumn(requestDto, cardNo, userDetails.getUser());
     }
 
     @DeleteMapping("/card/{cardNo}")

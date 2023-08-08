@@ -25,6 +25,8 @@ public class CardMemberServiceImpl implements CardMemberService {
     public ResponseEntity<ApiResponseDto> addMember(Long cardNo, CardMemberRequestDto requestDto) {
         Card card = cardService.findCard(cardNo);
 
+        // 보드에 속해있는 사람만 카드의 멤버로 추가 할 수 있으므로 테이블이 만들어지면 예외처리 작업 예정.
+
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(()->{
             throw new IllegalArgumentException("존재하지 않는 회원입니다");
         });
@@ -36,7 +38,7 @@ public class CardMemberServiceImpl implements CardMemberService {
         cardMemberRepository.save(new CardMember(user, card));
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("멤버 추가 성공", 200));
-    };
+    }
 
     @Override
     public ResponseEntity<ApiResponseDto> deleteMember(Long cardNo, CardMemberRequestDto requestDto) {

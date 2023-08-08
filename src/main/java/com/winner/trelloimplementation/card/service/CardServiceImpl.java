@@ -5,6 +5,8 @@ import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.card.repository.CardRepository;
+import com.winner.trelloimplementation.column.entity.ColumnEntity;
+import com.winner.trelloimplementation.column.service.ColumnService;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.entity.User;
@@ -20,9 +22,13 @@ public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
 
+    private final ColumnService columnService;
+
     @Override
     public ResponseEntity<CardResponseDto> createCard(CardRequestDto requestDto, Long columnNo, User user) {
-        Card card = new Card(requestDto, user);
+        ColumnEntity column = columnService.findColumnEntity(columnNo);
+
+        Card card = new Card(requestDto, user, column);
         cardRepository.save(card);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new CardResponseDto(card));
@@ -46,7 +52,7 @@ public class CardServiceImpl implements CardService {
         card.setDescription(requestDto.getDescription());
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("본문 작성 완료", 200));
-    };
+    }
 
     @Override
     @Transactional
@@ -69,13 +75,25 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional
+    public ResponseEntity<ApiResponseDto> updateColumn(CardRequestDto requestDto, Long cardNo, User user) {
+        ColumnEntity column = columnService.findColumnEntity(requestDto.getColumn());
+
+        Card card = findCard(cardNo);
+
+        card.setColumn(column);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 이동 완료", 200));
+    }
+
+    @Override
     public ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails) {
         Card card = findCard(cardNo);
 
         cardRepository.delete(card);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 삭제 완료", 200));
-    };
+    }
 
     @Override
     public Card findCard(Long cardNo) {
