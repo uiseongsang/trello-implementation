@@ -39,6 +39,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ApiResponseDto> updateDescription(CardRequestDto requestDto, Long cardNo, User user) {
         Card card = findCard(cardNo);
 
@@ -46,6 +47,26 @@ public class CardServiceImpl implements CardService {
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("본문 작성 완료", 200));
     };
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponseDto> updateColor(CardRequestDto requestDto, Long cardNo, User user) {
+        Card card = findCard(cardNo);
+
+        card.setColor(requestDto.getColor());
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 색상 적용 완료", 200));
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<ApiResponseDto> updateTitle(CardRequestDto requestDto, Long cardNo, User user) {
+        Card card = findCard(cardNo);
+
+        card.setTitle(requestDto.getTitle());
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 색상 적용 완료", 200));
+    }
 
     @Override
     public ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails) {

@@ -29,6 +29,9 @@ public class Card {
     @Column
     private String deadline;
 
+    @Column
+    private String color;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -50,5 +53,13 @@ public class Card {
 
     public void setDeadline(String deadline) {
         this.deadline = deadline;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

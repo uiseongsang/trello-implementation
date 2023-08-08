@@ -17,6 +17,7 @@ public class CardDetailResponseDto {
     private String title;
     private String description;
     private String deadline;
+    private String color;
     private Set<CommentResponseDto> commentList = new LinkedHashSet<>();
     private Set<CardMemberResponseDto> cardMemberList = new LinkedHashSet<>();
 
@@ -25,6 +26,7 @@ public class CardDetailResponseDto {
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.deadline = card.getDeadline();
+        this.color = card.getColor();
         for(Comment comment : card.getCommentList()) {
             commentList.add(new CommentResponseDto(comment));
         }

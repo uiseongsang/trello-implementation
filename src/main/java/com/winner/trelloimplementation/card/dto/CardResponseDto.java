@@ -9,11 +9,12 @@ public class CardResponseDto {
     private String title;
     private String description;
     private String deadline;
-
+    private String color;
     public CardResponseDto(Card card) {
         this.id = card.getId();
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.deadline = card.getDeadline();
+        this.color = card.getColor();
     }
 }

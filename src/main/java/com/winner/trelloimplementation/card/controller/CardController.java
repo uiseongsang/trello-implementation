@@ -28,6 +28,11 @@ public class CardController {
         return cardServiceImpl.getCard(cardNo);
     }
 
+    @PatchMapping("/card/{cardNo}/title")
+    public ResponseEntity<ApiResponseDto> updateTitle(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
+        return cardServiceImpl.updateTitle(requestDto, cardNo, userDetails.getUser());
+    }
+
     @PatchMapping("/card/{cardNo}/deadline")
     public ResponseEntity<ApiResponseDto> updateDeadline(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
         return cardServiceImpl.updateDeadline(requestDto, cardNo, userDetails.getUser());
@@ -36,6 +41,11 @@ public class CardController {
     @PatchMapping("/card/{cardNo}/description")
     public ResponseEntity<ApiResponseDto> updateDescription(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
         return cardServiceImpl.updateDescription(requestDto, cardNo, userDetails.getUser());
+    }
+
+    @PatchMapping("/card/{cardNo}/color")
+    public ResponseEntity<ApiResponseDto> updateColor(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardRequestDto requestDto) {
+        return cardServiceImpl.updateColor(requestDto, cardNo, userDetails.getUser());
     }
 
     @DeleteMapping("/card/{cardNo}")

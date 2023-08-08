@@ -21,4 +21,8 @@ public interface CardService {
     ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails);
 
     ResponseEntity<CardDetailResponseDto> getCard(Long cardNo);
+
+    ResponseEntity<ApiResponseDto> updateColor(CardRequestDto requestDto, Long cardNo, User user);
+
+    ResponseEntity<ApiResponseDto> updateTitle(CardRequestDto requestDto, Long cardNo, User user);
 }

@@ -16,12 +16,12 @@ public class CardMemberController {
     private final CardMemberServiceImpl cardMemberService;
 
     @PostMapping("/card/{cardNo}/member")
-    public ResponseEntity<ApiResponseDto> addMember(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardMemberRequestDto requestDto) {
+    public ResponseEntity<ApiResponseDto> addMember(@PathVariable Long cardNo, @RequestBody CardMemberRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return cardMemberService.addMember(cardNo, requestDto);
     }
 
     @DeleteMapping("/card/{cardNo}/member")
-    public ResponseEntity<ApiResponseDto> deleteMember(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody CardMemberRequestDto requestDto) {
+    public ResponseEntity<ApiResponseDto> deleteMember(@PathVariable Long cardNo, @RequestBody CardMemberRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return cardMemberService.deleteMember(cardNo, requestDto);
     }
 }
