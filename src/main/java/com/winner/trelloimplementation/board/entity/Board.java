@@ -31,6 +31,7 @@ public class Board {
 
     @Column(name = "color", nullable = false)
     private String color;
+
     /**
      * 생성자 - 약속된 형태로만 생성가능하도록 합니다.
      */
