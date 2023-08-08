@@ -1,9 +1,6 @@
 package com.winner.trelloimplementation.board.controller;
 
-import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
-import com.winner.trelloimplementation.board.dto.GetBoardListResponseDto;
-import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
-import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.*;
 import com.winner.trelloimplementation.board.service.BoardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
@@ -68,5 +65,18 @@ public class BoardController {
     @GetMapping ("/boards")
     public List<GetBoardListResponseDto> getBoardList () {
         return boardServiceImpl.getBoardList();
+    }
+
+    @PostMapping ("/board/{boardNo}/invitation")
+    public ResponseEntity<ApiResponseDto> sendEmailToInviteUser (@PathVariable Long boardNo, @RequestBody EmailRequestDto emailRequestDto) {
+        try {
+            boardServiceImpl.sendEmailToInviteUser(boardNo, emailRequestDto);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ApiResponseDto(emailRequestDto.getEmail() +  " 초대 완료", HttpStatus.OK.value()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+        }
+
     }
 }
