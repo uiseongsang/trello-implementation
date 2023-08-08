@@ -118,22 +118,38 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeCardNo) {
+    public ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeNo) {
         ColumnEntity column = columnService.findColumnEntity(columnNo);
+        Optional<List<Card>> cardsOptional = cardRepository.findByColumnEntity(column);
 
         Card currentCard = cardRepository.findByColumnEntityAndId(column, cardNo).orElseThrow(()->{
            throw new IllegalArgumentException("바꿀 카드가 존재하지 않습니다.");
         });
 
-        Card changeCard = cardRepository.findByColumnEntityAndId(column, changeCardNo).orElseThrow(()->{
-            throw new IllegalArgumentException("바뀔 카드가 존재하지 않습니다.");
-        });
+        if (cardsOptional.get().size() - 1 < changeNo) {
+            throw new IllegalArgumentException("카드의 길이를 넘어갔습니다.");
+        }
 
-        Long currentCardPosition = currentCard.getPosition();
-        Long changeCardPosition = changeCard.getPosition();
+        int direction = currentCard.getPosition().compareTo(changeNo);
 
-        currentCard.setPosition(changeCardPosition);
-        changeCard.setPosition(currentCardPosition);
+        if (cardsOptional.isPresent()) {
+            List<Card> cards = cardsOptional.get();
+            if (direction > 0) {
+                for (Card cardInfo : cards) {
+                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() > cardInfo.getPosition() || cardInfo.getPosition() <= changeNo) {
+                        cardInfo.setPosition(cardInfo.getPosition() + 1);
+                    }
+                }
+            } else {
+                for (Card cardInfo : cards) {
+                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() < cardInfo.getPosition() || cardInfo.getPosition() >= changeNo) {
+                        cardInfo.setPosition(cardInfo.getPosition() - 1);
+                    }
+                }
+            }
+        }
+
+        currentCard.setPosition(changeNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 바꿈 완료", 200));
     }
