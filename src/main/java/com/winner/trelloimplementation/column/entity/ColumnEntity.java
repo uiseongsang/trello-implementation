@@ -1,9 +1,11 @@
 package com.winner.trelloimplementation.column.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.winner.trelloimplementation.board.entity.Board;
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
 import com.winner.trelloimplementation.card.entity.Card;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +42,9 @@ public class ColumnEntity {
     /**
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.
      */
-    @ManyToOne
-    @JoinColumn(name = "board_no", nullable = false)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_no")
     private Board boards;
 
 
