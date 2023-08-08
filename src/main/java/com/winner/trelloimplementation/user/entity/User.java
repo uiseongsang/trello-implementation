@@ -1,11 +1,14 @@
 package com.winner.trelloimplementation.user.entity;
 
+import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.board.entity.BoardMember;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,8 +42,8 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-//    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
-//    private List<Board> boardList;
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    private List<Board> boardList;
 
     public User(String username, String nickname, String password, String email, String introduction, UserRoleEnum role) {
         this.username = username;
