@@ -1,8 +1,8 @@
 package com.winner.trelloimplementation.column.entity;
 
 import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.card.entity.Card;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,8 +44,8 @@ public class ColumnEntity {
     private Board boards;
 
 
-//    @OneToMany(mappedBy = "cards", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<Card> cardList = new ArrayList<>();
+    @OneToMany(mappedBy = "columnEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Card> cardList = new ArrayList<>();
 
     /**
      * 연관관계 편의 메소드 - 반대쪽에는 연관관계 편의 메소드가 없도록 주의합니다.
