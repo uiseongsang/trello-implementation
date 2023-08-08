@@ -1,6 +1,7 @@
 package com.winner.trelloimplementation.board.controller;
 
 import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.GetBoardListResponseDto;
 import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.board.service.BoardServiceImpl;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -57,8 +60,13 @@ public class BoardController {
         }
     }
 
-//    @GetMapping ("/boards/{boardNo}")
-//    public GetOneBoardResponseDto getOneBoard (@PathVariable Long boardNo) {
-//        boardServiceImpl.getOneBoard(boardNo);
-//    }
+    @GetMapping ("/boards/{boardNo}")
+    public GetOneBoardResponseDto getOneBoard (@PathVariable Long boardNo) {
+        return boardServiceImpl.getOneBoard(boardNo);
+    }
+
+    @GetMapping ("/boards")
+    public List<GetBoardListResponseDto> getBoardList () {
+        return boardServiceImpl.getBoardList();
+    }
 }
