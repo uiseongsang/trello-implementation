@@ -8,5 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CardRepository extends JpaRepository<Card, Long> {
-    Optional<List<Card>> findByColumnEntity(ColumnEntity Column);
+    Optional<List<Card>> findByColumnEntity(ColumnEntity column);
+    Optional<Card> findByColumnEntityAndId(ColumnEntity column, Long id);
 }

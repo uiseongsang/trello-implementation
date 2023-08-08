@@ -27,6 +27,8 @@ public interface CardService {
 
     ResponseEntity<CardDetailResponseDto> getCard(Long cardNo);
 
+    ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeCardNo);
+
     Card findCard(Long cardNo);
 
     Long getPosition(ColumnEntity column);

@@ -6,7 +6,6 @@ import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
 import com.winner.trelloimplementation.card.repository.CardRepository;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
-import com.winner.trelloimplementation.column.service.ColumnService;
 import com.winner.trelloimplementation.column.service.ColumnServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
@@ -118,6 +117,28 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
+    @Transactional
+    public ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeCardNo) {
+        ColumnEntity column = columnService.findColumnEntity(columnNo);
+
+        Card currentCard = cardRepository.findByColumnEntityAndId(column, cardNo).orElseThrow(()->{
+           throw new IllegalArgumentException("바꿀 카드가 존재하지 않습니다.");
+        });
+
+        Card changeCard = cardRepository.findByColumnEntityAndId(column, changeCardNo).orElseThrow(()->{
+            throw new IllegalArgumentException("바뀔 카드가 존재하지 않습니다.");
+        });
+
+        Long currentCardPosition = currentCard.getPosition();
+        Long changeCardPosition = changeCard.getPosition();
+
+        currentCard.setPosition(changeCardPosition);
+        changeCard.setPosition(currentCardPosition);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 바꿈 완료", 200));
+    }
+
+    @Override
     public Card findCard(Long cardNo) {
         return cardRepository.findById(cardNo).orElseThrow(()->{
            throw new IllegalArgumentException("카드를 찾을 수 없습니다.");
@@ -135,12 +156,12 @@ public class CardServiceImpl implements CardService {
     public Long getPosition(ColumnEntity column) {
         Optional<List<Card>> cards = cardRepository.findByColumnEntity(column);
 
-        Long position;
+        long position;
 
         if(cards.isPresent()) {
             List<Card> cardList = cards.get();
 
-            position = (long) cardList.size();
+            position = cardList.size();
         } else {
             position = 0L;
         }
