@@ -1,5 +1,7 @@
 package com.winner.trelloimplementation.column.service;
 
+import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.board.repository.BoardRepository;
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.column.repository.ColumnRepository;
@@ -13,17 +15,27 @@ public class ColumnServiceImpl implements ColumnService {
     private final ColumnRepository columnRepository;
 
     private final UserRepository userRepository;
+    private final BoardRepository boardRepository;
 
-    public ColumnServiceImpl(ColumnRepository columnRepository, UserRepository userRepository) {
+    public ColumnServiceImpl(ColumnRepository columnRepository, UserRepository userRepository, BoardRepository boardRepository) {
         this.columnRepository = columnRepository;
         this.userRepository = userRepository;
+        this.boardRepository = boardRepository;
     }
 
     @Override
     public void create(Long lastPosition, ColumnRequestDto requestDto, User user) {
 
-        userRepository.findById(user.getId()).orElseThrow(
+//        userRepository.findById(user.getId()).orElseThrow(
+//                () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
+//        );
+
+        User userInfo = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
+        );
+
+        Board board = boardRepository.findByUser(userInfo).orElseThrow(
+                () -> new NullPointerException("해당 보드가 존재하지 않습니다.")
         );
 
         ColumnEntity column = new ColumnEntity(requestDto.getTitle());
@@ -34,6 +46,8 @@ public class ColumnServiceImpl implements ColumnService {
             Long checkLastPosition = columnRepository.findMaxPosition();
             column.setPosition(checkLastPosition != null ? checkLastPosition + 1 : 1);
         }
+
+        column.addBoard(board);
 
         columnRepository.save(column);
     }
