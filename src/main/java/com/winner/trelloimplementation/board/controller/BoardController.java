@@ -4,6 +4,7 @@ import com.winner.trelloimplementation.board.dto.*;
 import com.winner.trelloimplementation.board.service.BoardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
+import com.winner.trelloimplementation.user.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,13 +60,13 @@ public class BoardController {
     }
 
     @GetMapping ("/boards/{boardNo}")
-    public GetOneBoardResponseDto getOneBoard (@PathVariable Long boardNo) {
-        return boardServiceImpl.getOneBoard(boardNo);
+    public GetOneBoardResponseDto getOneBoard (@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long boardNo) {
+        return boardServiceImpl.getOneBoard(userDetails.getUser(), boardNo);
     }
 
     @GetMapping ("/boards")
-    public List<GetBoardListResponseDto> getBoardList () {
-        return boardServiceImpl.getBoardList();
+    public List<GetBoardListResponseDto> getBoardList (@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
+        return boardServiceImpl.getBoardList(userDetailsImpl.getUser());
     }
 
     @PostMapping ("/board/{boardNo}/invitation")
