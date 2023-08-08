@@ -10,5 +10,5 @@ public interface UserService {
      * @param requestDto 회원가입 요청 정보
      */
 
-    ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto);
+    ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto, Long boardNo);
 }
