@@ -1,6 +1,7 @@
 package com.winner.trelloimplementation.board.service;
 
 import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.GetBoardListResponseDto;
 import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.board.entity.Board;
@@ -12,6 +13,9 @@ import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BoardServiceImpl implements BoardService {
@@ -78,13 +82,19 @@ public class BoardServiceImpl implements BoardService {
         boardRepository.delete(board);
     }
 
-//    @Override
-//    public void getOneBoard(Long boardNo) {
-//
-//        Board board = boardRepository.findById(boardNo).orElseThrow(
-//                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
-//        );
-//
-//        return GetOneBoardResponseDto(board);
-//    }
+    @Override
+    public GetOneBoardResponseDto getOneBoard(Long boardNo) {
+
+        Board board = boardRepository.findById(boardNo).orElseThrow(
+                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
+        );
+
+        return new GetOneBoardResponseDto(board);
+    }
+
+    @Override
+    public List<GetBoardListResponseDto> getBoardList() {
+
+        return boardRepository.findAll().stream().map(GetBoardListResponseDto::new).toList();
+    }
 }
