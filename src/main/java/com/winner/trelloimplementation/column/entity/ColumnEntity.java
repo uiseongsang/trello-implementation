@@ -1,8 +1,9 @@
 package com.winner.trelloimplementation.column.entity;
 
 import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
+import com.winner.trelloimplementation.card.entity.Card;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class ColumnEntity {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "position", nullable = false, unique = true)
+    @Column(name = "position", nullable = false)
     private Long position;
 
     /**
@@ -39,13 +40,13 @@ public class ColumnEntity {
     /**
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.
      */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_no")
+    @ManyToOne
+    @JoinColumn(name = "board_no", nullable = false)
     private Board boards;
 
 
-//    @OneToMany(mappedBy = "cards", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-//    private List<Card> cardList = new ArrayList<>();
+    @OneToMany(mappedBy = "columnEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<Card> cardList = new ArrayList<>();
 
     /**
      * 연관관계 편의 메소드 - 반대쪽에는 연관관계 편의 메소드가 없도록 주의합니다.
@@ -57,5 +58,13 @@ public class ColumnEntity {
      */
     public void setPosition(Long position) {
         this.position = position;
+    }
+
+    public void addBoard (Board boards) {
+        this.boards = boards;
+    }
+
+    public void update(ColumnRequestDto requestDto) {
+        this.title = requestDto.getTitle();
     }
 }
