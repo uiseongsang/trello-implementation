@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.board.entity;
 
+import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
@@ -44,8 +45,9 @@ public class Board {
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.
      */
 
-//    @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
-//    private List<ColumnEntity> columns = new ArrayList<>();
+    @OneToMany(mappedBy = "boards", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("position ASC")
+    private List<ColumnEntity> columns = new ArrayList<>();
 
     @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<BoardMember> members = new ArrayList<>();
