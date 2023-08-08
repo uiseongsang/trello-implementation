@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.board.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.user.entity.User;

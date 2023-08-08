@@ -120,16 +120,19 @@ public class BoardServiceImpl implements BoardService {
         String emailLink = "<a href='http://localhost:8080/api/boards'>";
         String signupLink = "<a href='http://localhost:8080/api/user/signup'>";
         // 만약 이미 가입한 유저라면 그냥 보드 멤버에 추가
-        User user = userRepository.findByEmail(emailRequestDto.getEmail());
-        if (user != null) {
-            Board board = boardRepository.findById(boardNo).orElseThrow(
-                    () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
-            );
+        User user = userRepository.findByEmail(emailRequestDto.getEmail()).orElseThrow(
+                () -> new NullPointerException("해당 유저가 존재하지 않습니다.")
+        );
 
-            BoardMember boardMember = new BoardMember(user, board, MemberRoleEnum.MEMBER);
 
-            boardMemberRepository.save(boardMember);
-        }
+        Board board = boardRepository.findById(boardNo).orElseThrow(
+                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
+        );
+
+        BoardMember boardMember = new BoardMember(user, board, MemberRoleEnum.MEMBER);
+
+        boardMemberRepository.save(boardMember);
+
 
         // 받는 사람 이메일 주소
         String receiverMail = emailRequestDto.getEmail();
