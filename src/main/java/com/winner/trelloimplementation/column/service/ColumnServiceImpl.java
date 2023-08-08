@@ -8,6 +8,7 @@ import com.winner.trelloimplementation.column.repository.ColumnRepository;
 import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ColumnServiceImpl implements ColumnService {
@@ -25,10 +26,6 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Override
     public void create(Long lastPosition, ColumnRequestDto requestDto, User user) {
-
-//        userRepository.findById(user.getId()).orElseThrow(
-//                () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
-//        );
 
         User userInfo = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
@@ -52,6 +49,29 @@ public class ColumnServiceImpl implements ColumnService {
         columnRepository.save(column);
     }
 
+    @Override
+    @Transactional
+    public void update(Long columnNo, ColumnRequestDto requestDto, User user) {
+        checkUser(user);
+
+        ColumnEntity column = findColumn(columnNo);
+
+        column.update(requestDto);
+    }
+
+    @Override
+    public void checkUser(User user) {
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
+        );
+    }
+
+    @Override
+    public ColumnEntity findColumn(Long columnNo) {
+       return columnRepository.findById(columnNo).orElseThrow(
+                () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
+        );
+    }
 //    @Override
 //    public void move(Long columnNo, Long newPosition) {
 //

@@ -28,11 +28,14 @@ public class ColumnController {
         return ResponseEntity.status(201).body(new ApiResponseDto("컬럼이 생성 되었습니다", HttpStatus.CREATED.value()));
     }
 
-//    @PutMapping("/{columnNo}")
-//    public ResponseEntity<ApiResponseDto> update(){
-//
-//    }
-//
+    @PutMapping("/{columnNo}")
+    public ResponseEntity<ApiResponseDto> update(@PathVariable Long columnNo,
+                                                 @RequestBody ColumnRequestDto requestDto,
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        columnService.update(columnNo,requestDto,userDetails.getUser());
+        return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 수정 되었습니다", HttpStatus.OK.value()));
+    }
+
     // 삭제시 순서를 맞춰야함 -> 1,2,3,4에서 3이 삭제가 된다면 1,2,4가 아니고 1,2,3이 되어야함(컬럼 이동 떄문에)
 //    @DeleteMapping("/{columnNo}")
 //    public ResponseEntity<ApiResponseDto> delete() {

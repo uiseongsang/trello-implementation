@@ -1,6 +1,7 @@
 package com.winner.trelloimplementation.column.entity;
 
 import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -62,5 +63,9 @@ public class ColumnEntity {
 
     public void addBoard (Board boards) {
         this.boards = boards;
+    }
+
+    public void update(ColumnRequestDto requestDto) {
+        this.title = requestDto.getTitle();
     }
 }
