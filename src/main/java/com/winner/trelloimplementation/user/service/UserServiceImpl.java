@@ -1,5 +1,11 @@
 package com.winner.trelloimplementation.user.service;
 
+import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.board.entity.BoardMember;
+import com.winner.trelloimplementation.board.entity.MemberRoleEnum;
+import com.winner.trelloimplementation.board.repository.BoardMemberRepository;
+import com.winner.trelloimplementation.board.repository.BoardRepository;
+import com.winner.trelloimplementation.board.service.BoardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.JwtAuthenticationFilter;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
@@ -25,10 +31,13 @@ import java.io.IOException;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final BoardServiceImpl boardServiceImpl;
+    private final BoardRepository boardRepository;
+    private final BoardMemberRepository boardMemberRepository;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Override
-    public ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto) {
+    public ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto, Long boardNo) {
         if (requestDto.getPassword().contains(requestDto.getUsername())) {
             throw new IllegalArgumentException("비밀번호에 닉네임이 포함되어 있습니다.");
         }
@@ -47,6 +56,19 @@ public class UserServiceImpl implements UserService {
         // 사용자 등록
         User user = new User(username, nickname, password, email, introduction, role);
         userRepository.save(user);
+
+        if (boardNo != null) {
+
+            Board board = boardRepository.findById(boardNo).orElseThrow(
+                    () -> new NullPointerException("해당 보드가 존재하지 않습니다.")
+            );
+
+            if (boardServiceImpl.getUserByEmail(email) != null) {
+                BoardMember boardMember = new BoardMember(user, board, MemberRoleEnum.MEMBER);
+                boardMemberRepository.save(boardMember);
+            }
+        }
+
         return ResponseEntity.status(201).body(new ApiResponseDto("회원가입 성공", HttpStatus.CREATED.value()));
     }
 

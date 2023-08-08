@@ -1,7 +1,7 @@
 package com.winner.trelloimplementation.board.entity;
 
 public enum MemberRoleEnum {
-    Member(Authority.MEMBER),  // 사용자 권한
+    MEMBER(Authority.MEMBER),  // 사용자 권한
     ADMIN(Authority.ADMIN);  // 관리자 권한
 
     private final String authority;

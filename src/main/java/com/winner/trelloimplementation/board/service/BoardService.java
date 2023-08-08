@@ -1,11 +1,11 @@
 package com.winner.trelloimplementation.board.service;
 
-import com.winner.trelloimplementation.board.dto.CreateBoardRequestDto;
-import com.winner.trelloimplementation.board.dto.GetBoardListResponseDto;
-import com.winner.trelloimplementation.board.dto.GetOneBoardResponseDto;
-import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
+import com.winner.trelloimplementation.board.dto.*;
 import com.winner.trelloimplementation.user.entity.User;
+import jakarta.mail.MessagingException;
+import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface BoardService {
@@ -34,14 +34,23 @@ public interface BoardService {
 
     /**
      * 보드 읽기
+     * @param user 현재 유저
      * @param boardNo 읽고자 하는 보드 아이디
      * @return GetOneBoardResponseDto
      */
-    GetOneBoardResponseDto getOneBoard(Long boardNo);
+    GetOneBoardResponseDto getOneBoard(User user, Long boardNo);
 
     /**
      * 보드 리스트 읽기
      * @return 보드 리스트
      */
-    List<GetBoardListResponseDto> getBoardList();
+    List<GetBoardListResponseDto> getBoardList(User user);
+
+    /**
+     * 이메일 전송 기능
+     * @param boardNo 전송할 때 줄 보드 아이디
+     * @param emailRequestDto 보낼 이메일 주소
+     */
+    void sendEmailToInviteUser(Long boardNo, EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException;
+
 }
