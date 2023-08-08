@@ -56,7 +56,7 @@ public class ColumnServiceImpl implements ColumnService {
     public void update(Long columnNo, ColumnRequestDto requestDto, User user) {
         checkUser(user);
 
-        ColumnEntity column = findColumn(columnNo);
+        ColumnEntity column = findColumnEntity(columnNo);
 
         column.update(requestDto);
     }
@@ -64,7 +64,7 @@ public class ColumnServiceImpl implements ColumnService {
     @Override
     @Transactional
     public void delete(Long columnNo) {
-        ColumnEntity column = findColumn(columnNo);
+        ColumnEntity column = findColumnEntity(columnNo);
 
         Long deletedPosition = column.getPosition();
 
@@ -120,7 +120,7 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    public ColumnEntity findColumn(Long columnNo) {
+    public ColumnEntity findColumnEntity(Long columnNo) {
        return columnRepository.findById(columnNo).orElseThrow(
                 () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
         );

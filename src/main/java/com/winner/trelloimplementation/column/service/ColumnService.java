@@ -52,7 +52,5 @@ public interface ColumnService {
      * @param columnNo 찾을 컬럼
      * @return 찾은 컬럼
      */
-    ColumnEntity findColumn(Long columnNo);
-
-
+    ColumnEntity findColumnEntity(Long columnNo);
 }
