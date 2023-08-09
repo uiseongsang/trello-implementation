@@ -88,17 +88,19 @@ public class ColumnServiceImpl implements ColumnService {
     @Transactional
     public void move(Long boardNo, Long currentPosition, Long newPosition) {
         Board board = findBoard(boardNo);
-        //board.getColumns().get()
 
         if (currentPosition.equals(newPosition)) {
             return;
         }
 
-        ColumnEntity column = columnRepository.findByBoardsAndPosition(board,currentPosition).orElseThrow(
+        // 바꿀 첫번쨰 컬럼 포지션 예외처리
+        ColumnEntity column = columnRepository.findByBoardsAndPosition(board, currentPosition).orElseThrow(
                 () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
         );
-
-        log.info("findByPositionByBoard" + column.getTitle());
+        // 바꿀 두번쨰 컬럼 포지션 예외처리: 컬럼이 1,2,3있을 떄 1 컬럼을 존재하지 않는 4에 move할 때 예외처리
+        columnRepository.findByBoardsAndPosition(board, newPosition).orElseThrow(
+                () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
+        );
 
         // setPosion할떄 하나씩 -1을 해줄지 +1를 해줄지 알려주는 디렉션 변수
         int direction = currentPosition.compareTo(newPosition);
