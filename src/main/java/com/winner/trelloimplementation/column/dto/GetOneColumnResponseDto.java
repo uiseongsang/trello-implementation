@@ -9,16 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class ColumnResponseDto {
+public class GetOneColumnResponseDto {
     private Long id;
     private String title;
-    private Integer cardListSize;
     private List<CardResponseDto> cardList = new ArrayList<CardResponseDto>();
 
-    public ColumnResponseDto(ColumnEntity columnEntity) {
+    public GetOneColumnResponseDto(ColumnEntity columnEntity) {
         this.id = columnEntity.getId();
         this.title = columnEntity.getTitle();
-        this.cardListSize = columnEntity.getCardList().size();
         for(Card card : columnEntity.getCardList()) {
             cardList.add(new CardResponseDto(card));
         }

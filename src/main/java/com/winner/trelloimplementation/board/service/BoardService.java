@@ -34,16 +34,17 @@ public interface BoardService {
 
     /**
      * 보드 읽기
+     * @param user 현재 유저
      * @param boardNo 읽고자 하는 보드 아이디
      * @return GetOneBoardResponseDto
      */
-    GetOneBoardResponseDto getOneBoard(Long boardNo);
+    GetOneBoardResponseDto getOneBoard(User user, Long boardNo);
 
     /**
      * 보드 리스트 읽기
      * @return 보드 리스트
      */
-    List<GetBoardListResponseDto> getBoardList();
+    List<GetBoardListResponseDto> getBoardList(User user);
 
     /**
      * 이메일 전송 기능

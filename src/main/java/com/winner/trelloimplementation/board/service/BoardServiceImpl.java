@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -99,7 +100,13 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public GetOneBoardResponseDto getOneBoard(Long boardNo) {
+    public GetOneBoardResponseDto getOneBoard(User user, Long boardNo) {
+
+        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo);
+
+        if (boardMember == null) {
+            throw new NullPointerException("해당 보드에 유저가 가입되어 있지 않거나, 해당 보드가 존재하지 않습니다.");
+        }
 
         Board board = boardRepository.findById(boardNo).orElseThrow(
                 () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
@@ -109,9 +116,17 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<GetBoardListResponseDto> getBoardList() {
+    public List<GetBoardListResponseDto> getBoardList(User user) {
 
-        return boardRepository.findAll().stream().map(GetBoardListResponseDto::new).toList();
+        List<BoardMember> boardMembers = boardMemberRepository.findByUserId(user.getId());
+
+        List<GetBoardListResponseDto> getBoardListResponseDtoList = new ArrayList<>();
+        for (BoardMember boardMember : boardMembers) {
+            GetBoardListResponseDto getBoardListResponseDto = new GetBoardListResponseDto(boardMember.getBoards());
+            getBoardListResponseDtoList.add(getBoardListResponseDto);
+        }
+
+        return getBoardListResponseDtoList;
     }
 
     @Override

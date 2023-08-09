@@ -50,6 +50,14 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
+    // header 토큰을 가져오기 Keys.hmacShaKeyFor(bytes);
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken= request.getHeader(AUTHORIZATION_HEADER);
+        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 
     // JWT 생성
     // 토큰 생성
@@ -79,6 +87,16 @@ public class JwtUtil {
         } catch (UnsupportedEncodingException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    // header 에서 JWT 가져오기
+    public String getJwtFromHeader(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        log.info(bearerToken);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     // Cookie에 들어있던 JWT 토큰을 Substring
