@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.card.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.cardMember.entity.CardMember;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
@@ -41,6 +42,7 @@ public class Card {
     @JoinColumn(name = "column_no")
     private ColumnEntity columnEntity;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
     private Set<Comment> commentList = new LinkedHashSet<>();
 

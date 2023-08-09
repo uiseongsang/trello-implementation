@@ -42,6 +42,7 @@ public interface BoardService {
 
     /**
      * 보드 리스트 읽기
+     * @param user 현재 유저
      * @return 보드 리스트
      */
     List<GetBoardListResponseDto> getBoardList(User user);

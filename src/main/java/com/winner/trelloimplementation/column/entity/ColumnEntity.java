@@ -47,7 +47,7 @@ public class ColumnEntity {
     @JoinColumn(name = "board_no")
     private Board boards;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "columnEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<Card> cardList = new ArrayList<>();
 
