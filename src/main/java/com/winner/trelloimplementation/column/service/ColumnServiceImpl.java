@@ -3,6 +3,7 @@ package com.winner.trelloimplementation.column.service;
 import com.winner.trelloimplementation.board.entity.Board;
 import com.winner.trelloimplementation.board.repository.BoardRepository;
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
+import com.winner.trelloimplementation.column.dto.GetOneColumnResponseDto;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.column.repository.ColumnRepository;
 import com.winner.trelloimplementation.user.entity.User;
@@ -121,6 +122,14 @@ public class ColumnServiceImpl implements ColumnService {
 
         // 이동된 컬럼 업데이트
         column.setPosition(newPosition);
+    }
+
+    @Override
+    public GetOneColumnResponseDto getOneColumn(Long columnNo) {
+        ColumnEntity columnEntity= findColumnEntity(columnNo);
+        //Board board = findBoard(columnEntity.getBoards().getId());
+
+        return new GetOneColumnResponseDto(columnEntity);
     }
 
     @Override

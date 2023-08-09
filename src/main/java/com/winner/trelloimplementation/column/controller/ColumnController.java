@@ -1,15 +1,13 @@
 package com.winner.trelloimplementation.column.controller;
 
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
-import com.winner.trelloimplementation.column.dto.ColumnResponseDto;
+import com.winner.trelloimplementation.column.dto.GetOneColumnResponseDto;
 import com.winner.trelloimplementation.column.service.ColumnService;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,9 +49,8 @@ public class ColumnController {
 
     }
 
-    // card 병합후 생성
-//    @GetMapping("/{columnNo}")
-//    public ResponseEntity<ApiResponseDto> getOneColumn(){
-//
-//    }
+    @GetMapping("/column/{columnNo}")
+    public GetOneColumnResponseDto getOneColumn(@PathVariable Long columnNo){
+        return columnService.getOneColumn(columnNo);
+    }
 }

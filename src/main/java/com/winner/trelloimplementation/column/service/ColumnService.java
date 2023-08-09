@@ -2,6 +2,7 @@ package com.winner.trelloimplementation.column.service;
 
 import com.winner.trelloimplementation.board.entity.Board;
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
+import com.winner.trelloimplementation.column.dto.GetOneColumnResponseDto;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.user.entity.User;
 
@@ -42,6 +43,14 @@ public interface ColumnService {
      * @param newPosition     이동 할 포지션
      */
     void move(Long boardNo, Long currentPosition, Long newPosition);
+
+    /**
+     * 컬럼 단건 조회
+     *
+     * @param columnNo 조회할 컬럼 숫자
+     * @return 컬럼 정보
+     */
+    GetOneColumnResponseDto getOneColumn(Long columnNo);
 
     /**
      * 유저 검사
