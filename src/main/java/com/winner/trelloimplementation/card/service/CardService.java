@@ -23,11 +23,11 @@ public interface CardService {
 
     ResponseEntity<ApiResponseDto> updateTitle(CardRequestDto requestDto, Long cardNo, User user);
 
-    ResponseEntity<ApiResponseDto> updateColumn(CardRequestDto requestDto, Long cardNo, User user);
+    ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user);
 
     ResponseEntity<CardDetailResponseDto> getCard(Long cardNo);
 
-    ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeCardNo);
+    ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changePositionNo);
 
     Card findCard(Long cardNo);
 

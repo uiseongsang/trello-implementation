@@ -11,6 +11,7 @@ public class CardResponseDto {
     private String deadline;
     private String color;
     private Long position;
+    private Integer commentSize;
 
     public CardResponseDto(Card card) {
         this.id = card.getId();
@@ -19,5 +20,6 @@ public class CardResponseDto {
         this.deadline = card.getDeadline();
         this.color = card.getColor();
         this.position = card.getPosition();
+        this.commentSize = card.getCommentList().size();
     }
 }
