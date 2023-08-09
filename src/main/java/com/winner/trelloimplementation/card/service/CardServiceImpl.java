@@ -16,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -153,6 +156,30 @@ public class CardServiceImpl implements CardService {
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 바꿈 완료", 200));
     }
+
+    @Override
+    @Transactional
+    public Integer updateIsDeadline() {
+        Optional<List<Card>> cardList = cardRepository.findByDeadlineIsNotNullAndIsdeadlineFalse();
+        int count = 0;
+        if (cardList.isPresent()) {
+            for (Card cardInfo : cardList.get()) {
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+                String currentDateTimeString = currentDateTime.format(formatter);
+                LocalDateTime parsedCurrentDateTime = LocalDateTime.parse(currentDateTimeString, formatter);
+                LocalDateTime parsedDeadline = LocalDateTime.parse(cardInfo.getDeadline(), formatter);
+
+                if (parsedCurrentDateTime.isAfter(parsedDeadline)) {
+                    cardInfo.setIsdeadline(true);
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
 
     @Override
     public Card findCard(Long cardNo) {

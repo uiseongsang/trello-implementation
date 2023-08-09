@@ -32,4 +32,6 @@ public interface CardService {
     Card findCard(Long cardNo);
 
     Long getPosition(ColumnEntity column);
+
+    Integer updateIsDeadline();
 }

@@ -8,6 +8,7 @@ import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 

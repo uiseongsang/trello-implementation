@@ -5,9 +5,11 @@ import com.winner.trelloimplementation.cardMember.dto.CardMemberResponseDto;
 import com.winner.trelloimplementation.cardMember.entity.CardMember;
 import com.winner.trelloimplementation.comment.dto.CommentResponseDto;
 import com.winner.trelloimplementation.comment.entity.Comment;
+import com.winner.trelloimplementation.common.entity.TimeStamped;
 import com.winner.trelloimplementation.user.entity.User;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -18,6 +20,8 @@ public class CardDetailResponseDto {
     private String description;
     private String deadline;
     private String color;
+    private String createdAt;
+    private String modifiedAt;
     private Set<CommentResponseDto> commentList = new LinkedHashSet<>();
     private Set<CardMemberResponseDto> cardMemberList = new LinkedHashSet<>();
 
@@ -27,6 +31,8 @@ public class CardDetailResponseDto {
         this.description = card.getDescription();
         this.deadline = card.getDeadline();
         this.color = card.getColor();
+        this.createdAt = card.getCreatedAtAsString();
+        this.modifiedAt = card.getModifiedAtAsString();
         for(Comment comment : card.getCommentList()) {
             commentList.add(new CommentResponseDto(comment));
         }
