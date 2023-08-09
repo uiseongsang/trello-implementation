@@ -4,6 +4,7 @@ import com.winner.trelloimplementation.card.dto.CardDetailResponseDto;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
 import com.winner.trelloimplementation.card.entity.Card;
+import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.entity.User;
@@ -16,7 +17,7 @@ public interface CardService {
 
     ResponseEntity<ApiResponseDto> updateDescription(CardRequestDto requestDto, Long cardNo, User user);
 
-    ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails);
+    ResponseEntity<ApiResponseDto> deleteCard(Long cardNo, UserDetailsImpl userDetails, Long columnNo);
 
     ResponseEntity<ApiResponseDto> updateColor(CardRequestDto requestDto, Long cardNo, User user);
 
@@ -26,7 +27,9 @@ public interface CardService {
 
     ResponseEntity<CardDetailResponseDto> getCard(Long cardNo);
 
+    ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeCardNo);
+
     Card findCard(Long cardNo);
 
-
+    Long getPosition(ColumnEntity column);
 }

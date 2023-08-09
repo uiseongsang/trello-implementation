@@ -1,5 +1,8 @@
 package com.winner.trelloimplementation.board.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.board.dto.ModifyBoardRequestDto;
 import com.winner.trelloimplementation.user.entity.User;
@@ -45,7 +48,7 @@ public class Board {
     /**
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.
      */
-
+//    @JsonIgnore
     @OneToMany(mappedBy = "boards", cascade = CascadeType.REMOVE, orphanRemoval = true)
     @OrderBy("position ASC")
     private List<ColumnEntity> columns = new ArrayList<>();
