@@ -7,11 +7,13 @@ import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.column.repository.ColumnRepository;
 import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class ColumnServiceImpl implements ColumnService {
 
@@ -27,13 +29,13 @@ public class ColumnServiceImpl implements ColumnService {
     }
 
     @Override
-    public void create(Long lastPosition, ColumnRequestDto requestDto, User user) {
+    public void create(Long boardNo, Long lastPosition, ColumnRequestDto requestDto, User user) {
 
         User userInfo = userRepository.findByUsername(user.getUsername()).orElseThrow(
                 () -> new NullPointerException("해당 회원이 존재하지 않습니다.")
         );
 
-        Board board = boardRepository.findByUser(userInfo).orElseThrow(
+        Board board = boardRepository.findById(boardNo).orElseThrow(
                 () -> new NullPointerException("해당 보드가 존재하지 않습니다.")
         );
 
@@ -42,7 +44,7 @@ public class ColumnServiceImpl implements ColumnService {
         // 컬럼 생성시 원하는 포지션값인 desiredPosition 값을 사용하여 position 설정
         if (lastPosition == null) {
             // 위치를 안 정해 졌을 경우 가장 마지막 위치에 넣기
-            Long checkLastPosition = columnRepository.findMaxPosition();
+            Long checkLastPosition = columnRepository.findMaxPositionByBoard(board);
             column.setPosition(checkLastPosition != null ? checkLastPosition + 1 : 1);
         }
 
@@ -67,42 +69,49 @@ public class ColumnServiceImpl implements ColumnService {
         ColumnEntity column = findColumnEntity(columnNo);
 
         Long deletedPosition = column.getPosition();
+        Long boardNo = column.getBoards().getId();
+        Board board = findBoard(boardNo);
 
         columnRepository.delete(column);
 
-        List<ColumnEntity> remainedColumns = columnRepository.findAll();
-        for(ColumnEntity remainedColumn : remainedColumns) {
+        List<ColumnEntity> remainedColumns = columnRepository.findAllByBoard(board);
+        for (ColumnEntity remainedColumn : remainedColumns) {
+            log.info(remainedColumn.getTitle());
             Long currentPosition = remainedColumn.getPosition();
-            if(currentPosition > deletedPosition) {
-                remainedColumn.setPosition(currentPosition-1);
-                columnRepository.save(remainedColumn);
+            if (currentPosition > deletedPosition) {
+                remainedColumn.setPosition(currentPosition - 1);
             }
-         }
+        }
     }
 
     @Override
     @Transactional
-    public void move(Long currentPosition, Long newPosition) {
-        if(currentPosition.equals(newPosition)) {
+    public void move(Long boardNo, Long currentPosition, Long newPosition) {
+        Board board = findBoard(boardNo);
+        //board.getColumns().get()
+
+        if (currentPosition.equals(newPosition)) {
             return;
         }
 
-        ColumnEntity column = columnRepository.findByPosition(currentPosition).orElseThrow(
+        ColumnEntity column = columnRepository.findByBoardsAndPosition(board,currentPosition).orElseThrow(
                 () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
         );
+
+        log.info("findByPositionByBoard" + column.getTitle());
 
         // setPosion할떄 하나씩 -1을 해줄지 +1를 해줄지 알려주는 디렉션 변수
         int direction = currentPosition.compareTo(newPosition);
 
-        if(direction < 0) {
+        if (direction < 0) {
             // 포지션 하나씩 감소
-            List<ColumnEntity> columnsToUpdate = columnRepository.findColumnsBetweenPositions(currentPosition, newPosition);
+            List<ColumnEntity> columnsToUpdate = columnRepository.findColumnsBetweenPositionsByBoard(currentPosition, newPosition, board);
             for (ColumnEntity c : columnsToUpdate) {
                 c.setPosition(c.getPosition() - 1);
             }
         } else if (direction > 0) {
             // 포지션 하나씩 증가
-            List<ColumnEntity> columnsToUpdate = columnRepository.findColumnsBetweenPositions(newPosition, currentPosition);
+            List<ColumnEntity> columnsToUpdate = columnRepository.findColumnsBetweenPositionsByBoard(newPosition, currentPosition, board);
             for (ColumnEntity c : columnsToUpdate) {
                 c.setPosition(c.getPosition() + 1);
             }
@@ -121,8 +130,15 @@ public class ColumnServiceImpl implements ColumnService {
 
     @Override
     public ColumnEntity findColumnEntity(Long columnNo) {
-       return columnRepository.findById(columnNo).orElseThrow(
-                () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
+        return columnRepository.findById(columnNo).orElseThrow(
+                () -> new NullPointerException("선택한 컬럼이 존재하지 않습니다.")
+        );
+    }
+
+    @Override
+    public Board findBoard(Long boardNo) {
+        return boardRepository.findById(boardNo).orElseThrow(
+                () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
         );
     }
 }
