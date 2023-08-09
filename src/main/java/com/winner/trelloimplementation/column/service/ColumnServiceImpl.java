@@ -96,11 +96,11 @@ public class ColumnServiceImpl implements ColumnService {
 
         // 바꿀 첫번쨰 컬럼 포지션 예외처리
         ColumnEntity column = columnRepository.findByBoardsAndPosition(board, currentPosition).orElseThrow(
-                () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
+                () -> new NullPointerException("선택한 컬럼이 존재하지 않습니다.")
         );
         // 바꿀 두번쨰 컬럼 포지션 예외처리: 컬럼이 1,2,3있을 떄 1 컬럼을 존재하지 않는 4에 move할 때 예외처리
         columnRepository.findByBoardsAndPosition(board, newPosition).orElseThrow(
-                () -> new NullPointerException("선택한 컬럼이가 존재하지 않습니다.")
+                () -> new NullPointerException("선택한 컬럼이 존재하지 않습니다.")
         );
 
         // setPosion할떄 하나씩 -1을 해줄지 +1를 해줄지 알려주는 디렉션 변수
