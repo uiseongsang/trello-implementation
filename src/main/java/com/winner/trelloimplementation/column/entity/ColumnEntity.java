@@ -1,11 +1,12 @@
 package com.winner.trelloimplementation.column.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.winner.trelloimplementation.board.entity.Board;
-import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
 import com.winner.trelloimplementation.card.entity.Card;
+import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +43,14 @@ public class ColumnEntity {
     /**
      * 연관관계 - Foreign Key 값을 따로 컬럼으로 정의하지 않고 연관 관계로 정의합니다.
      */
-    @JsonIgnore
+//    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_no")
     private Board boards;
 
 
-    @OneToMany(mappedBy = "columnEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "columnEntity", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OrderBy("position ASC")
     private List<Card> cardList = new ArrayList<>();
 
     /**
