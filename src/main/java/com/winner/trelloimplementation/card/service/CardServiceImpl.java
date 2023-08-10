@@ -126,7 +126,7 @@ public class CardServiceImpl implements CardService {
            throw new IllegalArgumentException("바꿀 카드가 존재하지 않습니다.");
         });
 
-        if (cardsOptional.get().size() - 1 < changeNo) {
+        if (cardsOptional.get().size() < changeNo) {
             throw new IllegalArgumentException("카드의 길이를 넘어갔습니다.");
         }
 
@@ -179,7 +179,7 @@ public class CardServiceImpl implements CardService {
 
             position = cardList.size();
         } else {
-            position = 0L;
+            position = 1L;
         }
         return position;
     }
