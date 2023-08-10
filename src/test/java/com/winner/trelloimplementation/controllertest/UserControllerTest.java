@@ -45,9 +45,6 @@ public class UserControllerTest {
 
     private static final String BASE_URL = "/api/user";
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
-
     @BeforeAll
     public void setup() {
         this.mvc = MockMvcBuilders
@@ -89,7 +86,7 @@ public class UserControllerTest {
 
     @Test
     @WithMockCustomUser
-    @DisplayName("회원 탈퇴 테스트")
+    @DisplayName("회원 탈퇴 테스트 - 쿠키 먼저 삭제하는 메서드 주석처리 하고 해야 가능")
     void signOutTest () throws Exception {
         // given
         String password = "testpass";
@@ -134,7 +131,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("로그 아웃 테스트")
+    @DisplayName("로그 아웃 테스트 - 쿠키 먼저 삭제하는 메서드 주석처리 하고 해야 가능")
     @WithMockCustomUser
     void logoutTest () throws Exception {
         // given
