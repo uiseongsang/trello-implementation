@@ -13,10 +13,21 @@ import java.io.IOException;
 
 public interface UserService {
     /**
+     * 로그인 API
+     * @param loginRequestDto 회원가입 요청 정보
+     */
+    ResponseEntity<ApiResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response);
+
+    /**
+     * 로그아웃 API
+     */
+    ResponseEntity<ApiResponseDto> logout(HttpServletResponse response, Authentication authResult) throws ServletException, IOException;
+
+
+    /**
      * 회원가입 API
      * @param requestDto 회원가입 요청 정보
      */
-
     ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto, Long boardNo);
 
     /**

@@ -1,7 +1,6 @@
 package com.winner.trelloimplementation.common.config;
 
 import com.winner.trelloimplementation.common.jwt.JwtUtil;
-import com.winner.trelloimplementation.common.security.JwtAuthenticationFilter;
 import com.winner.trelloimplementation.common.security.JwtAuthorizationFilter;
 import com.winner.trelloimplementation.common.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -37,13 +35,6 @@ public class WebSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
-        filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
-        return filter;
     }
 
     @Bean
@@ -68,14 +59,13 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
-        http.formLogin((formLogin) ->
-                formLogin
-                        .loginPage("/api/user/login-page").permitAll()
-        );
+//        http.formLogin((formLogin) ->
+//                formLogin
+//                        .loginPage("/api/user/login-page").permitAll()
+//        );
 
         // 필터 관리
-        http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
