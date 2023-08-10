@@ -1,9 +1,12 @@
 package com.winner.trelloimplementation.common.jwt;
 
+import com.winner.trelloimplementation.common.dto.ApiResponseDto;
+import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.entity.UserRoleEnum;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,9 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -75,28 +82,14 @@ public class JwtUtil {
     }
 
     // JWT Cookie 에 저장
-    public void addJwtToCookie(String token, HttpServletResponse res) {
-        try {
-            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+    public void addJwtToCookie(String token, HttpServletResponse res) throws UnsupportedEncodingException {
+        token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
 
-            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
-            cookie.setPath("/");
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
+        cookie.setPath("/");
 
-            // Response 객체에 Cookie 추가
-            res.addCookie(cookie);
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage());
-        }
-    }
-
-    // header 에서 JWT 가져오기
-    public String getJwtFromHeader(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        log.info(bearerToken);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7);
-        }
-        return null;
+        // Response 객체에 Cookie 추가
+        res.addCookie(cookie);
     }
 
     // Cookie에 들어있던 JWT 토큰을 Substring
@@ -151,18 +144,22 @@ public class JwtUtil {
         return null;
     }
 
-    public void deleteCookie(String token, HttpServletResponse res){
-        try {
-            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+    public void deleteCookie(HttpServletResponse response, Authentication authResult) throws UnsupportedEncodingException, IOException, ServletException {
+        log.info("JWT 쿠키삭제");
+        String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+        UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
-            cookie.setPath("/");
-            cookie.setMaxAge(0);
+        String token = createToken(username, role);
 
-            // Response 객체에 Cookie 추가
-            res.addCookie(cookie);
-        } catch (UnsupportedEncodingException e) {
-            logger.error(e.getMessage());
-        }
+        token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+
+        Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+
+        // Response 객체에 Cookie 추가
+        response.addCookie(cookie);
+
+//        response.sendRedirect("/"); // "/"로 리다이렉트
     }
 }
