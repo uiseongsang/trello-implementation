@@ -3,7 +3,6 @@ package com.winner.trelloimplementation.user.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.jwt.JwtUtil;
-import com.winner.trelloimplementation.common.security.JwtAuthenticationFilter;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.*;
 import com.winner.trelloimplementation.user.service.KakaoService;
@@ -33,8 +32,19 @@ import java.io.IOException;
 @RequestMapping("/api/user")
 public class UserController {
     private final UserServiceImpl userServiceImpl;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtUtil jwtUtil;
     private final KakaoService kakaoService;
+
+    @Operation(summary = "로그인 메서드", description = "로그인 메서드입니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "bad request operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
+    })
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        return userServiceImpl.login(loginRequestDto, response);
+    }
+
 
     @Operation(summary = "로그아웃 메서드", description = "JWT 쿠키를 삭제하여 로그아웃 합니다.")
     @ApiResponses(value = {
@@ -43,8 +53,7 @@ public class UserController {
     })
     @GetMapping("/logout")
     public ResponseEntity<ApiResponseDto> logout(HttpServletResponse response, Authentication authResult) throws ServletException, IOException {
-        jwtAuthenticationFilter.deleteAuthentication(response, authResult);
-        return ResponseEntity.status(200).body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
+        return userServiceImpl.logout(response, authResult);
     }
 
     @Operation(summary = "회원가입 메서드", description = "회원가입 메서드입니다.")

@@ -1,11 +1,11 @@
 package com.winner.trelloimplementation.user.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.winner.trelloimplementation.user.entity.UserRoleEnum;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class LoginRequestDto {
     private String username;
     private String password;
+    private UserRoleEnum role;
 }
