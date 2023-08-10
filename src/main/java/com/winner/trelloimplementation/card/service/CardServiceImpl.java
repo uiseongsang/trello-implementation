@@ -16,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,8 +84,8 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponseDto> updateColumn(CardRequestDto requestDto, Long cardNo, User user) {
-        ColumnEntity column = columnService.findColumnEntity(requestDto.getColumn());
+    public ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user) {
+        ColumnEntity column = columnService.findColumnEntity(columnNo);
 
         Long position = getPosition(column);
 
@@ -118,7 +121,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changeNo) {
+    public ResponseEntity<ApiResponseDto> updatePosition(Long columnNo, Long cardNo, UserDetailsImpl userDetails, Long changePositionNo) {
         ColumnEntity column = columnService.findColumnEntity(columnNo);
         Optional<List<Card>> cardsOptional = cardRepository.findByColumnEntity(column);
 
@@ -126,33 +129,57 @@ public class CardServiceImpl implements CardService {
            throw new IllegalArgumentException("바꿀 카드가 존재하지 않습니다.");
         });
 
-        if (cardsOptional.get().size() - 1 < changeNo) {
+        if (cardsOptional.get().size() < changePositionNo) {
             throw new IllegalArgumentException("카드의 길이를 넘어갔습니다.");
         }
 
-        int direction = currentCard.getPosition().compareTo(changeNo);
+        int direction = currentCard.getPosition().compareTo(changePositionNo);
 
         if (cardsOptional.isPresent()) {
             List<Card> cards = cardsOptional.get();
             if (direction > 0) {
                 for (Card cardInfo : cards) {
-                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() > cardInfo.getPosition() || cardInfo.getPosition() <= changeNo) {
+                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() > cardInfo.getPosition() || cardInfo.getPosition() <= changePositionNo) {
                         cardInfo.setPosition(cardInfo.getPosition() + 1);
                     }
                 }
             } else {
                 for (Card cardInfo : cards) {
-                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() < cardInfo.getPosition() || cardInfo.getPosition() >= changeNo) {
+                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() < cardInfo.getPosition() || cardInfo.getPosition() >= changePositionNo) {
                         cardInfo.setPosition(cardInfo.getPosition() - 1);
                     }
                 }
             }
         }
 
-        currentCard.setPosition(changeNo);
+        currentCard.setPosition(changePositionNo);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 바꿈 완료", 200));
     }
+
+    @Override
+    @Transactional
+    public Integer updateIsDeadline() {
+        Optional<List<Card>> cardList = cardRepository.findByDeadlineIsNotNullAndIsdeadlineFalse();
+        int count = 0;
+        if (cardList.isPresent()) {
+            for (Card cardInfo : cardList.get()) {
+                LocalDateTime currentDateTime = LocalDateTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+                String currentDateTimeString = currentDateTime.format(formatter);
+                LocalDateTime parsedCurrentDateTime = LocalDateTime.parse(currentDateTimeString, formatter);
+                LocalDateTime parsedDeadline = LocalDateTime.parse(cardInfo.getDeadline(), formatter);
+
+                if (parsedCurrentDateTime.isAfter(parsedDeadline)) {
+                    cardInfo.setIsdeadline(true);
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
 
     @Override
     public Card findCard(Long cardNo) {
@@ -179,7 +206,7 @@ public class CardServiceImpl implements CardService {
 
             position = cardList.size();
         } else {
-            position = 0L;
+            position = 1L;
         }
         return position;
     }

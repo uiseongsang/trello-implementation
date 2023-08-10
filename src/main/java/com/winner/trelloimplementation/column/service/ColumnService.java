@@ -1,6 +1,8 @@
 package com.winner.trelloimplementation.column.service;
 
+import com.winner.trelloimplementation.board.entity.Board;
 import com.winner.trelloimplementation.column.dto.ColumnRequestDto;
+import com.winner.trelloimplementation.column.dto.GetOneColumnResponseDto;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.user.entity.User;
 
@@ -9,11 +11,13 @@ public interface ColumnService {
     /**
      * 컬럼을 생성
      *
+     * @param boardNo      컬럼을 생성할 보드 숫자
      * @param lastPosition 마지막 위치에 넣기 위해 null값을 전달
      * @param requestDto   생성 할 title
      * @param user         생성할 유저
      */
-    void create(Long lastPosition, ColumnRequestDto requestDto, User user);
+    void create(Long boardNo, Long lastPosition, ColumnRequestDto requestDto, User user);
+
 
     /**
      * 컬럼을 수정
@@ -34,10 +38,19 @@ public interface ColumnService {
     /**
      * 컬럼 이동
      *
+     * @param boardNo         컬럼을 이동할 보드 숫자
      * @param currentPosition 현재 포지션
-     * @param newPosition 이동 할 포지션
+     * @param newPosition     이동 할 포지션
      */
-    void move(Long currentPosition, Long newPosition);
+    void move(Long boardNo, Long currentPosition, Long newPosition);
+
+    /**
+     * 컬럼 단건 조회
+     *
+     * @param columnNo 조회할 컬럼 숫자
+     * @return 컬럼 정보
+     */
+    GetOneColumnResponseDto getOneColumn(Long columnNo);
 
     /**
      * 유저 검사
@@ -53,4 +66,12 @@ public interface ColumnService {
      * @return 찾은 컬럼
      */
     ColumnEntity findColumnEntity(Long columnNo);
+
+    /**
+     * 보드 넘버를 통해 보드 찾기
+     *
+     * @param boardNo 찾을 보드
+     * @return 찾은 보드
+     */
+    Board findBoard(Long boardNo);
 }

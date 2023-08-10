@@ -7,8 +7,7 @@ import com.winner.trelloimplementation.board.repository.BoardMemberRepository;
 import com.winner.trelloimplementation.board.repository.BoardRepository;
 import com.winner.trelloimplementation.board.service.BoardServiceImpl;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
-import com.winner.trelloimplementation.common.security.JwtAuthenticationFilter;
-import com.winner.trelloimplementation.common.security.UserDetailsImpl;
+import com.winner.trelloimplementation.common.jwt.JwtUtil;
 import com.winner.trelloimplementation.user.dto.*;
 import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.entity.UserRoleEnum;
@@ -24,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 @Service
 @Slf4j
@@ -34,7 +34,43 @@ public class UserServiceImpl implements UserService {
     private final BoardServiceImpl boardServiceImpl;
     private final BoardRepository boardRepository;
     private final BoardMemberRepository boardMemberRepository;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtUtil jwtUtil;
+
+    @Override
+    public ResponseEntity<ApiResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        log.info("login 시도");
+        try {
+            String username = loginRequestDto.getUsername();
+            String password = loginRequestDto.getPassword();
+
+            User user = userRepository.findByUsername(username).orElseThrow(
+                    () -> new IllegalArgumentException("등록된 사용자가 없습니다"));
+
+            if(!passwordEncoder.matches(password, user.getPassword())){
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+
+            response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUsername(),loginRequestDto.getRole()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok().body(new ApiResponseDto("로그인에 실패했습니다.", HttpStatus.BAD_REQUEST.value()));
+        }
+
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUsername(),loginRequestDto.getRole()));
+        try {
+            jwtUtil.addJwtToCookie(response.getHeader(JwtUtil.AUTHORIZATION_HEADER), response);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        log.info(response.getHeader(JwtUtil.AUTHORIZATION_HEADER));
+        return ResponseEntity.ok().body(new ApiResponseDto("로그인에 성공했습니다.", HttpStatus.OK.value()));
+    }
+
+    @Override
+    public ResponseEntity<ApiResponseDto> logout(HttpServletResponse response, Authentication authResult) throws ServletException, IOException {
+        jwtUtil.deleteCookie(response, authResult);
+        return ResponseEntity.status(200).body(new ApiResponseDto("로그아웃 성공", HttpStatus.OK.value()));
+    }
 
     @Override
     public ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto, Long boardNo) {
@@ -99,7 +135,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ApiResponseDto> signout(User user, SignoutRequestDto signoutRequestDto, HttpServletResponse response, Authentication authResult) throws ServletException, IOException {
         if (passwordEncoder.matches(signoutRequestDto.getPassword(), user.getPassword())) {
-            jwtAuthenticationFilter.deleteAuthentication(response, authResult);
             userRepository.delete(user);
             return ResponseEntity.status(200).body(new ApiResponseDto("회원탈퇴 성공", HttpStatus.OK.value()));
         } else {

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="/css/board.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+        crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+          crossorigin="anonymous"></script>
+  <title>Trello</title>
+  <style>
+    .offcanvas {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      z-index: 1050;
+      display: none;
+      padding: 1rem;
+      overflow-y: auto;
+      background-color: rgba(236, 234, 238, 0.6);
+    }
+
+    .offcanvas.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<!-- Trello Clone -->
+<div class="app">
+  <!-- Main Header -->
+  <header class="app-header">
+    <div class="left">
+      <div class="btn"><i class="fas fa-home"></i></div>
+      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
+        <i class="fab fa-trello"></i> Boards
+      </button>
+      <div class="btn search">
+        Search
+        <i class="fas fa-search"></i>
+      </div>
+    </div>
+
+    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
+         id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Trello</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <p>여기에 보드 리스트들 해놓고 누르면 화면이 아예 해당 보드로 바뀌도록</p>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="logo"><i class="fab fa-trello"></i> Trello</div>
+    </div>
+    <div class="right">
+      <div class="btn"><i class="fas fa-plus"></i></div>
+      <div class="btn"><i class="fas fa-info-circle"></i></div>
+      <div class="btn"><i class="far fa-bell"></i></div>
+      <div class="btn"><i class="fas fa-cog"></i></div>
+      <div class="btn"><i class="fas fa-user-tie"></i></div>
+    </div>
+  </header>
+
+  <!-- App Board -->
+  <main class="app-board">
+    <header class="board-header">
+      <div class="left">
+        <div class="title" id="boardTitle"></div>
+        <div class="btn"><i class="far fa-star"></i></div>
+        <div class="btn">Personal</div>
+        <div class="btn btn-text"><i class="fas fa-lock"></i> Private</div>
+      </div>
+      <div class="right">
+        <div class="btn btn-text"><i class="fas fa-male"></i> Butler</div>
+        <div class="btn btn-text"><i class="fas fa-ellipsis-h"></i> Menu</div>
+      </div>
+    </header>
+
+    <!-- Board -->
+    <section class="board-body">
+      <div class="wrap-lists">
+        <div class="board-col">
+          <div class="list">
+            <h4 class="list-title">List title</h4>
+            <div class="card">Card 1</div>
+            <a class="btn-list" href="#">+ Add another card</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- App Tint -->
+  <div class="app-tint">
+    <input type="color" id="app-color">
+    <label for="app-color"><i class="fas fa-tint"></i></label>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.5.0/js/bootstrap.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.cookie.replace("jwt=", "Bearer ");
+    getBoardListInOffcanvas().then(data => {
+      if (data.length > 0) {
+        const firstBoardId = data[0].id;
+        fetchBoardDetails(firstBoardId);
+      }
+    });
+  });
+
+  const root = document.documentElement,
+      colorIn = document.getElementById('app-color');
+
+  // Color selection
+  colorIn.addEventListener('input', function () {
+    const color = this.value;
+    root.style.setProperty('--app-col', color);
+  })
+
+  const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
+  const offcanvasTrigger = document.querySelector('[data-bs-toggle="offcanvas"]');
+
+  offcanvasTrigger.addEventListener('click', function () {
+    if (!offcanvas.isShown) {
+      offcanvas.show();
+    } else {
+      offcanvas.hide();
+    }
+  });
+
+  async function getBoardListInOffcanvas() {
+    try {
+      const response = await fetch('/api/boards', {
+        credentials: 'same-origin',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      const data = await response.json();
+
+      const offcanvasBody = document.querySelector('.offcanvas-body');
+      offcanvasBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
+      data.forEach(board => {
+        const boardCol = document.createElement('div');
+        boardCol.className = 'list';
+        boardCol.innerHTML = `
+        <button class="btn btn-primary" type="button" data-board-id="${board.id}">${board.title}</button>
+      `;
+        offcanvasBody.appendChild(boardCol);
+      });
+
+      const boardButtons = document.querySelectorAll('.offcanvas-body button');
+      boardButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const boardId = button.dataset.boardId;
+          fetchBoardDetails(boardId);
+        });
+      });
+
+      return data; // 데이터 반환
+    } catch (error) {
+      console.error('Error fetching board list:', error);
+      return []; // 에러 발생 시 빈 배열 반환
+    }
+  }
+
+  function fetchBoardDetails(boardId) {
+    fetch(`/api/boards/${boardId}`, {
+      credentials: 'same-origin',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      const boardTitle = document.getElementById('boardTitle');
+      boardTitle.textContent = `${data.title}`;
+
+      const boardBody = document.querySelector('.board-body');
+      boardBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
+
+      const wrapLists = document.createElement('div');
+      wrapLists.className = 'wrap-lists';
+
+      data.columns.forEach(column => {
+        const boardCol = document.createElement('div');
+        boardCol.className = 'board-col';
+
+        const list = document.createElement('div');
+        list.className = 'list';
+
+        const listTitle = document.createElement('h4');
+        listTitle.className = 'list-title';
+        listTitle.textContent = column.title;
+        list.appendChild(listTitle);
+
+        column.cardList.forEach(card => {
+          const cardDiv = document.createElement('div');
+          cardDiv.className = 'card';
+          cardDiv.textContent = card.title; // 카드의 제목을 표시
+          list.appendChild(cardDiv);
+        });
+
+        const addCardLink = document.createElement('a');
+        addCardLink.className = 'btn-list';
+        addCardLink.href = '#';
+        addCardLink.textContent = '+ Add another card';
+        list.appendChild(addCardLink);
+
+        boardCol.appendChild(list);
+        wrapLists.appendChild(boardCol);
+      });
+
+      const addListCol = document.createElement('div');
+      addListCol.className = 'board-col';
+      const addListLink = document.createElement('a');
+      addListLink.className = 'btn-list';
+      addListLink.href = '#';
+      addListLink.textContent = '+ Add another list';
+      addListCol.appendChild(addListLink);
+      wrapLists.appendChild(addListCol);
+
+      const boardSection = document.createElement('section');
+      boardSection.className = 'board-body';
+      boardSection.appendChild(wrapLists);
+      boardBody.appendChild(boardSection);
+    })
+    .catch(error => console.error('Error fetching board details:', error));
+  }
+
+</script>
+</body>
+</html>
