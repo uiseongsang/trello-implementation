@@ -2,11 +2,15 @@ package com.winner.trelloimplementation.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.winner.trelloimplementation.common.jwt.JwtUtil;
+import com.winner.trelloimplementation.common.security.UserDetailsImpl;
+import com.winner.trelloimplementation.user.dto.ProfileResponseDto;
 import com.winner.trelloimplementation.user.service.KakaoService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,7 +26,21 @@ public class HomeController {
     public String signPage() { return "sign"; }
 
     @GetMapping("/my-page")
-    public String myPage() { return "my-page"; }
+    public String myPage(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
+        ProfileResponseDto profileResponseDto = new ProfileResponseDto(userDetails.getUser());
+        // model 필요한 데이터 담아서 반환
+        model.addAttribute("users", profileResponseDto);
+        return "my-page";
+    }
+
+    @GetMapping("/user/profile")
+    public String userInfoUpdate() { return "userInfoUpdate"; }
+
+    @GetMapping("/user/profile/password")
+    public String passwordUpdate() { return "passwordUpdate"; }
+
+    @GetMapping("/user/sign-out")
+    public String signoutPage() { return "sign-out"; }
 
     @GetMapping("/user/kakao/callback")
     public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
@@ -34,6 +52,6 @@ public class HomeController {
         cookie.setPath("/");
         response.addCookie(cookie);
 
-        return "redirect:/board";
+        return "redirect:/web";
     }
 }

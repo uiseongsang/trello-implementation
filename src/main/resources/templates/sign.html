@@ -108,14 +108,7 @@
                 url:"/api/user/login",
                 data: JSON.stringify(data), // http body data
                 contentType:"application/json",
-            }).done(function (res, status, xhr){
-                const token = xhr.getResponseHeader('Authorization');
-                Cookies.set('Authorization', token, {path: '/'})
-
-                $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                    jqXHR.setRequestHeader('Authorization', token);
-                });
-
+            }).done(function (res){
                 alert("로그인이 완료되었습니다.")
                 location.href = host + '/web'
             }).fail(function (request, status, error){
