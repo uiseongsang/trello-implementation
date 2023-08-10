@@ -14,12 +14,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AwsS3ServiceImpl implements AwsS3Service{
     private final AmazonS3Client amazonS3Client;
-    private final Long MAX_UPLOAD_SIZE = 10L;
+    private final Long MAX_UPLOAD_SIZE = 100000000L;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -45,6 +47,32 @@ public class AwsS3ServiceImpl implements AwsS3Service{
         }
 //        return amazonS3Client.getUrl(bucketName,fileName).toString();
         return fileName;
+    }
+
+    @Override
+    public List<String> uploadFiles(List<MultipartFile> multipartFile) {
+        List<String> fileNameList = new ArrayList<>();
+
+        multipartFile.forEach(file -> {
+            if(file.getSize() > MAX_UPLOAD_SIZE) {
+                throw new MaxUploadSizeExceededException(MAX_UPLOAD_SIZE);
+            }
+
+            String fileName = CommonUtils.buildFileName(file.getOriginalFilename());
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(file.getSize());
+            objectMetadata.setContentType(file.getContentType());
+
+            try(InputStream inputStream = file.getInputStream()) {
+                amazonS3Client.putObject( new PutObjectRequest(bucketName, fileName,inputStream, objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
+            } catch (IOException e) {
+                throw new RuntimeException("파일 업로드가 실패하였습니다");
+            }
+
+            fileNameList.add(fileName);
+        });
+        return fileNameList;
     }
 
     @Override

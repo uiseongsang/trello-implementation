@@ -2,6 +2,8 @@ package com.winner.trelloimplementation.aws.service;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface AwsS3Service {
     /**
      * 파일을 업로드
@@ -10,6 +12,14 @@ public interface AwsS3Service {
      * @return Url 값
      */
     String uploadFile(MultipartFile multipartFile);
+
+    /**
+     * 여러 파일 업로드
+     *
+     * @param multipartFile
+     * @return
+     */
+    List<String> uploadFiles(List<MultipartFile> multipartFile);
 
     /**
      * 파일 삭제
