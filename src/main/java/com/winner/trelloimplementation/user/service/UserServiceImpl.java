@@ -39,20 +39,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<ApiResponseDto> login(LoginRequestDto loginRequestDto, HttpServletResponse response) {
         log.info("login 시도");
-        try {
-            String username = loginRequestDto.getUsername();
-            String password = loginRequestDto.getPassword();
+        String username = loginRequestDto.getUsername();
+        String password = loginRequestDto.getPassword();
 
-            User user = userRepository.findByUsername(username).orElseThrow(
-                    () -> new IllegalArgumentException("등록된 사용자가 없습니다"));
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new IllegalArgumentException("등록된 사용자가 없습니다"));
 
-            if(!passwordEncoder.matches(password, user.getPassword())){
-                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-            }
-
-            response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUsername(),loginRequestDto.getRole()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.ok().body(new ApiResponseDto("로그인에 실패했습니다.", HttpStatus.BAD_REQUEST.value()));
+        if(!passwordEncoder.matches(password, user.getPassword())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUsername(),loginRequestDto.getRole()));

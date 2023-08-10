@@ -113,7 +113,7 @@
                 location.href = host + '/web'
             }).fail(function (request, status, error){
                 alert("로그인에 실패했습니다.");
-                location.href = host + '/api/sign?error'
+                location.href = host + '/api/sign'
             }); //ajax 통신을 이용해서 파라미터를 json으로 변경하여 insert 요청
         }
     }
@@ -144,8 +144,7 @@
                 alert("회원가입이 완료되었습니다.")
                 location.href = host + '/api/sign'
             }).fail(function (request, status, error){
-                alert("로그인에 실패했습니다.");
-                location.href = host + '/api/sign?error'
+                alert("회원가입에 실패했습니다.");
             });
         }
     }
