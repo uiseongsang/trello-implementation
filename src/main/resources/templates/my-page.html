@@ -17,15 +17,15 @@
 <body>
 <nav class="navbar bg-light mb-5">
     <div class="container-fluid d-flex mx-3">
-        <a class="navbar-brand" href="/web">
-            <div class="fs-4 fw-bold">Trello Follow</div>
-        </a>
-        <div class="" id="welcome">
-            <span class="fw-bold" id="username" th:text="${users.username}"></span> 님 접속을 환영합니다.
-        </div>
-        <div class="d-flex justify-content-end">
+        <div class="form-row float-left">
             <a href="/web"><button type="submit" class="btn btn-dark ms-2" id="home-btn">Home</button></a>
             <a href="/api/sign"><button type="submit" class="btn btn-dark ms-2" id="logout-btn">Logout</button></a>
+        </div>
+        <div class="" id="welcome">
+            <div class="fs-4 fw-bold">Trello Follow</div>
+        </div>
+        <div class="d-flex justify-content-end">
+            <span class="fw-bold" id="username" th:text="${users.username}"></span> 님 접속을 환영합니다.
         </div>
     </div>
 </nav>

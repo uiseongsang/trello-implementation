@@ -191,7 +191,7 @@ public class CardControllerTest {
         // given
         Long column = 2L;
         CardRequestDto cardRequestDto = CardRequestDto.builder()
-                .column(column)
+//                .column(column)
                 .build();
         // when
         Long cardNo = 4L;

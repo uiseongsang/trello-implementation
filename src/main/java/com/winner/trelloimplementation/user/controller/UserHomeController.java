@@ -5,7 +5,6 @@ import com.winner.trelloimplementation.common.jwt.JwtUtil;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.ProfileResponseDto;
 import com.winner.trelloimplementation.user.service.KakaoService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,12 +14,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.UnsupportedEncodingException;
+
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class HomeController {
+public class UserHomeController {
 
     private final KakaoService kakaoService;
+    private final JwtUtil jwtUtil;
 
     @GetMapping("/sign")
     public String signPage() { return "sign"; }
@@ -46,11 +48,13 @@ public class HomeController {
     public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
         // code: 카카오 서버로부터 받은 인가 코드 Service 전달 후 인증 처리 및 JWT 반환
         String token = kakaoService.kakaoLogin(code);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
-        // Cookie 생성 및 직접 브라우저에 Set
-        Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, token.substring(7));
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        try {
+            jwtUtil.addJwtToCookie(response.getHeader(JwtUtil.AUTHORIZATION_HEADER), response);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
 
         return "redirect:/web";
     }
