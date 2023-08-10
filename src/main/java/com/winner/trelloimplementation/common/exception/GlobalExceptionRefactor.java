@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.IOException;
 import java.util.List;
@@ -72,5 +74,12 @@ public class GlobalExceptionRefactor {
                 restApiException,
                 HttpStatus.BAD_REQUEST
         );
+    }
+
+    @ExceptionHandler({MaxUploadSizeExceededException.class})
+    protected ResponseEntity<ApiResponseDto> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e) {
+        ApiResponseDto response = new ApiResponseDto("업로드 할 수 있는 파일의 최대 크기는 10MB입니다." + e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }
