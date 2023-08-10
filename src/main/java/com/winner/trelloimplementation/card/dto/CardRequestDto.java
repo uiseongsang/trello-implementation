@@ -12,8 +12,7 @@ public class CardRequestDto {
     private String color;
 
     @Builder
-    public CardRequestDto (Long column, String title, String description, String deadline, String color) {
-        this.column = column;
+    public CardRequestDto (String title, String description, String deadline, String color) {
         this.title = title;
         this.description = description;
         this.deadline = deadline;

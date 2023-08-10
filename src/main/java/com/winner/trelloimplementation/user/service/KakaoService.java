@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Random;
 import java.util.UUID;
 
 @Slf4j(topic = "KAKAO Login")
@@ -112,13 +113,14 @@ public class KakaoService {
 
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
         Long id = jsonNode.get("id").asLong();
-        String nickname = jsonNode.get("properties")
+        String username = jsonNode.get("properties")
                 .get("nickname").asText();
+        String nickname = getRandomCode(8);
         String email = jsonNode.get("kakao_account")
                 .get("email").asText();
 
-        log.info("카카오 사용자 정보: " + id + ", " + nickname + ", " + email);
-        return new KakaoUserInfoDto(id, nickname, email);
+        log.info("카카오 사용자 정보: " + id + ", " + username + ", " + nickname + "," + email);
+        return new KakaoUserInfoDto(id, username, nickname, email);
     }
 
     private User registerKakaoUserIfNeeded(KakaoUserInfoDto kakaoUserInfo) {
@@ -143,11 +145,26 @@ public class KakaoService {
                 // email: kakao email
                 String email = kakaoUserInfo.getEmail();
 
-                kakaoUser = new User(kakaoUserInfo.getNickname(), encodedPassword, email, UserRoleEnum.USER, kakaoId);
+                kakaoUser = new User(kakaoUserInfo.getUsername(), kakaoUserInfo.getNickname(), encodedPassword, email, UserRoleEnum.USER, kakaoId);
             }
 
             userRepository.save(kakaoUser);
         }
         return kakaoUser;
+    }
+
+    public String getRandomCode(int length) {
+        // alphaNum에 특수문자를 추가하여 커스텀이 가능하다.
+        String alphaNum = "abcdefghijklmnopqrstuvwxyz0123456789";
+        int alphaNumLength = alphaNum.length();
+
+        Random random = new Random();
+
+        StringBuffer code = new StringBuffer();
+        for (int i = 0; i < length; i++) {
+            code.append(alphaNum.charAt(random.nextInt(alphaNumLength)));
+        }
+
+        return code.toString();
     }
 }
