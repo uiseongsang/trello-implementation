@@ -42,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
 
         commentRepository.delete(comment);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDto("댓글 삭제 완료", 200));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("댓글 삭제 완료", 200));
     }
 
     @Override
