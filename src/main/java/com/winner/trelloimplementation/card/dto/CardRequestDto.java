@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class CardRequestDto {
+    private Long column;
     private String title;
     private String description;
     private String deadline;
