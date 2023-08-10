@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="/css/sign.css">
+    <script src="/js/sign.js"></script>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"
+            integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Trello Follow Log-In</title>
+</head>
+<body>
+<div class="cont">
+    <div class="form sign-in">
+        <h2>Sign In</h2>
+        <label>
+            <span>User Id</span>
+            <input type="text" name="username" id="inputUsername">
+        </label>
+        <label>
+            <span>Password</span>
+            <input type="password" name="password" id="inputPassword">
+        </label>
+        <button class="submit" type="button" id="btn-login">Sign In</button>
+        <p class="forgot-pass">Forgot Password ?</p>
+
+        <div class="social-media">
+            <ul>
+                <button onclick="location.href='https://kauth.kakao.com/oauth/authorize?client_id=3a94933819924124b9c1cd5213aa1759&redirect_uri=http://localhost:8080/api/user/kakao/callback&response_type=code'"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111466.png"></button>
+            </ul>
+        </div>
+    </div>
+
+    <div class="sub-cont">
+        <div class="img">
+            <div class="img-text m-up">
+                <h2>New here?</h2>
+                <p>Sign up and discover great amount of new opportunities!</p>
+            </div>
+            <div class="img-text m-in">
+                <h2>One of us?</h2>
+                <p>If you already have an account, just sign in. We've missed you!</p>
+            </div>
+            <div class="img-btn">
+                <span class="m-up">Sign Up</span>
+                <span class="m-in">Sign In</span>
+            </div>
+        </div>
+        <div class="form sign-up">
+            <h2>Sign Up</h2>
+            <label>
+                <span>UserId</span>
+                <input type="text" name="username" id="inputUsername2">
+            </label>
+            <label>
+                <span>NickName</span>
+                <input type="text" name="nickname" id="inputNickname">
+            </label>
+            <label>
+                <span>Password</span>
+                <input type="password" name="password" id="inputPassword2">
+            </label>
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" id="inputEmail">
+            </label>
+            <label>
+                <span>Introduction</span>
+                <input type="text" name="introduction" id="inputIntroduction">
+            </label>
+            <button type="button" class="submit" id="btn-signup">Sign Up Now</button>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // 토큰 삭제
+        Cookies.remove('Authorization', {path: '/'});
+    });
+
+    const href = location.href;
+    const queryString = href.substring(href.indexOf("?") + 1)
+    if (queryString === 'error') {
+        const errorDiv = document.getElementById('login-failed');
+        errorDiv.style.display = 'block';
+    }
+
+    const host = 'http://' + window.location.host;
+
+    let idx = {
+        init: function () {
+            $("#btn-login").on("click", () => {
+                this.login();
+            });
+    },
+        login: function () {
+            let data = {
+                username: $('#inputUsername').val(),
+                password: $('#inputPassword').val()
+            };
+
+            $.ajax({
+                // 로그인 수행 요청
+                type: "POST",
+                url:"/api/user/login",
+                data: JSON.stringify(data), // http body data
+                contentType:"application/json",
+            }).done(function (res){
+                alert("로그인이 완료되었습니다.")
+                location.href = host + '/web'
+            }).fail(function (request, status, error){
+                alert("로그인에 실패했습니다.");
+                location.href = host + '/api/sign?error'
+            }); //ajax 통신을 이용해서 파라미터를 json으로 변경하여 insert 요청
+        }
+    }
+    idx.init();
+
+    let index = {
+        init: function () {
+            $("#btn-signup").on("click", () => {
+                this.signup();
+            });
+        },
+
+        signup: function () {
+            let data = {
+                username: $('#inputUsername2').val(),
+                nickname: $('#inputNickname').val(),
+                password: $('#inputPassword2').val(),
+                email: $('#inputEmail').val(),
+                introduction: $('#inputIntroduction').val()
+            }
+            $.ajax({
+                type: "POST",
+                url:"/api/user/signup",
+                data: JSON.stringify(data), // http body data
+                contentType:"application/json",
+                dataType:"json"
+            }).done(function(res){
+                alert("회원가입이 완료되었습니다.")
+                location.href = host + '/api/sign'
+            }).fail(function (request, status, error){
+                alert("로그인에 실패했습니다.");
+                location.href = host + '/api/sign?error'
+            });
+        }
+    }
+    index.init();
+</script>
+</body>
+</html>
