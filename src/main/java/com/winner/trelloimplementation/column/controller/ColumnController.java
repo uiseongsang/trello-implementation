@@ -45,7 +45,7 @@ public class ColumnController {
     @PatchMapping("/board/{boardNo}/column/{currentPosition}/change-column/{newPosition}")
     public ResponseEntity<ApiResponseDto> move(@PathVariable Long boardNo, @PathVariable Long currentPosition, @PathVariable Long newPosition) {
         columnService.move(boardNo, currentPosition, newPosition);
-        return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 이동이 되엇습니다", HttpStatus.OK.value()));
+        return ResponseEntity.status(200).body(new ApiResponseDto("컬럼이 이동이 되었습니다", HttpStatus.OK.value()));
 
     }
 
