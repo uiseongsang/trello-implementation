@@ -135,7 +135,7 @@ public class ColumnControllerTest {
     void deleteColumn () throws Exception {
         // given
         // when
-        Long columnNo = 6L;
+        Long columnNo = 4L;
         //then
         mvc.perform(delete(  "/api/column/" + columnNo)
                         .contentType(MediaType.APPLICATION_JSON) //보내는 데이터의 타입을 명시
