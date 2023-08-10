@@ -10,11 +10,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.IOException;
 import java.util.List;
 
+@RestControllerAdvice
 public class GlobalExceptionRefactor {
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<ApiResponseDto> handleException(IllegalArgumentException ex) {
@@ -79,7 +81,7 @@ public class GlobalExceptionRefactor {
     @ExceptionHandler({MaxUploadSizeExceededException.class})
     protected ResponseEntity<ApiResponseDto> handleMaxUploadSizeExceededException(
             MaxUploadSizeExceededException e) {
-        ApiResponseDto response = new ApiResponseDto("업로드 할 수 있는 파일의 최대 크기는 10MB입니다." + e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        ApiResponseDto response = new ApiResponseDto("업로드 할 수 있는 파일의 최대 크기는 10MB 입니다.", HttpStatus.BAD_REQUEST.value());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

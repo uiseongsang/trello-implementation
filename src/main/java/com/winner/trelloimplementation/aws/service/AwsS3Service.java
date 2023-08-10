@@ -12,6 +12,13 @@ public interface AwsS3Service {
     String uploadFile(MultipartFile multipartFile);
 
     /**
+     * 파일 삭제
+     *
+     * @param fileName 삭제할 파일 이름
+     */
+    void deleteFile(String fileName);
+
+    /**
      * 파일이 들어있는지 확인
      *
      * @param multipartFile 검증할 파일

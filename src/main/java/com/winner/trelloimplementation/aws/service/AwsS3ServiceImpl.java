@@ -2,6 +2,7 @@ package com.winner.trelloimplementation.aws.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.winner.trelloimplementation.common.s3.CommonUtils;
@@ -18,12 +19,16 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class AwsS3ServiceImpl implements AwsS3Service{
     private final AmazonS3Client amazonS3Client;
+    private final Long MAX_UPLOAD_SIZE = 10L;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     @Override
     public String uploadFile(MultipartFile multipartFile) throws MaxUploadSizeExceededException {
+        if(multipartFile.getSize() > MAX_UPLOAD_SIZE) {
+            throw new MaxUploadSizeExceededException(MAX_UPLOAD_SIZE);
+        }
 
         String fileName = CommonUtils.buildFileName(multipartFile.getOriginalFilename());
 
@@ -38,8 +43,13 @@ public class AwsS3ServiceImpl implements AwsS3Service{
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드가 실패하였습니다");
         }
+//        return amazonS3Client.getUrl(bucketName,fileName).toString();
+        return fileName;
+    }
 
-        return amazonS3Client.getUrl(bucketName,fileName).toString();
+    @Override
+    public void deleteFile(String fileName) {
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
     }
 
     @Override
