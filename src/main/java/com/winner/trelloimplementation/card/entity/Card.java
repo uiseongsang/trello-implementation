@@ -7,6 +7,7 @@ import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.cardMember.entity.CardMember;
 import com.winner.trelloimplementation.column.entity.ColumnEntity;
 import com.winner.trelloimplementation.comment.entity.Comment;
+import com.winner.trelloimplementation.common.entity.TimeStamped;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @Table(name = "cards")
-public class Card {
+public class Card extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +39,9 @@ public class Card {
 
     @Column(nullable = false)
     private Long position;
+
+    @Column(nullable = false)
+    private boolean isdeadline = false;
 
     @ManyToOne
     @JoinColumn(name = "user_no")
@@ -82,5 +86,9 @@ public class Card {
 
     public void setPosition(Long position) {
         this.position = position;
+    }
+
+    public void setIsdeadline(Boolean isdeadline) {
+        this.isdeadline = isdeadline;
     }
 }
