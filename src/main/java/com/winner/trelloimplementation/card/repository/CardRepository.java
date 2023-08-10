@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<List<Card>> findByColumnEntity(ColumnEntity column);
     Optional<Card> findByColumnEntityAndId(ColumnEntity column, Long id);
+
+    Optional<List<Card>> findByDeadlineIsNotNullAndIsdeadlineFalse();
 }
