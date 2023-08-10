@@ -100,7 +100,7 @@ public class CommentControllerTest {
     void deleteComment () throws Exception {
         // given
         // when
-        Long commentNo = 3L;
+        Long commentNo = 2L;
         //then
         mvc.perform(delete("/api/comment/" + commentNo)
                         .contentType(MediaType.APPLICATION_JSON) //보내는 데이터의 타입을 명시
