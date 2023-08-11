@@ -50,12 +50,24 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void createBoard(User user, CreateBoardRequestDto createBoardRequestDto) {
         // 로그인한 회원이 존재하는지 확인
-        userRepository.findById(user.getId()).orElseThrow(
+        User existingUser = userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("회원이 존재하지 않습니다.")
         );
 
         // createBoard 받아온 정보로 Board 생성
         Board board = new Board(createBoardRequestDto.getTitle(), createBoardRequestDto.getDescription(), createBoardRequestDto.getColor());
+
+        // 이미 같은 이름의 보드가 존재하는지 확인
+        List<Board> existingBoards = boardRepository.findByTitle(createBoardRequestDto.getTitle());
+        if (!existingBoards.isEmpty()) {
+            for (Board tmpBoard : existingBoards) {
+                boolean boardMemberExists = boardMemberRepository.existsByIdAndUserId(tmpBoard.getId(), existingUser.getId());
+                if (boardMemberExists) {
+                    throw new IllegalArgumentException("이미 같은 이름의 보드를 생성하셨습니다.");
+                }
+            }
+        }
+
         // 해당 보드를 만들었기 때문에 보드 멤버에 ADMIN 권한 주고 삽입
         BoardMember member = new BoardMember(user, board, MemberRoleEnum.ADMIN);
         // 보드에 보드멤버 연관관계 매핑
@@ -79,7 +91,17 @@ public class BoardServiceImpl implements BoardService {
         if (!board.getUser().getUsername().equals(user.getUsername())) {
             throw new IllegalArgumentException("게시글을 작성한 유저가 아닙니다.");
         }
-        // 해당 보드의 생성자면 수정
+
+        List<Board> alreadyBoards = boardRepository.findByTitle(modifyBoardRequestDto.getTitle());
+        if (!alreadyBoards.isEmpty()) {
+            for (Board tmpBoard : alreadyBoards) {
+                boolean boardMemberExists = boardMemberRepository.existsByIdAndUserId(tmpBoard.getId(), user.getId());
+                if (boardMemberExists) {
+                    throw new IllegalArgumentException("이미 같은 이름의 보드가 존재합니다.");
+                }
+            }
+        }
+
         board.update(modifyBoardRequestDto);
     }
 
@@ -190,5 +212,18 @@ public class BoardServiceImpl implements BoardService {
             throw new IllegalArgumentException("유효 기간이 만료된 링크입니다.");
         }
         return email;
+    }
+
+    @Override
+    public Long getUserIdFromUsername(User user, String username) {
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new NullPointerException("로그인이 되어 있지 않습니다.")
+        );
+        
+        User findUser = userRepository.findByUsername(username).orElseThrow(
+                () -> new NullPointerException("로그인이 되어 있지 않습니다.")
+        );
+
+        return findUser.getId();
     }
 }

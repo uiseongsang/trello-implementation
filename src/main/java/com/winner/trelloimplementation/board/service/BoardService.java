@@ -54,4 +54,11 @@ public interface BoardService {
      */
     void sendEmailToInviteUser(Long boardNo, EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException;
 
+    /**
+     * 유저 네임으로 아이디 리턴해주는 함수
+     * @param user 로그인한 유저
+     * @param username 받은 유저 네임
+     * @return
+     */
+    Long getUserIdFromUsername(User user, String username);
 }
