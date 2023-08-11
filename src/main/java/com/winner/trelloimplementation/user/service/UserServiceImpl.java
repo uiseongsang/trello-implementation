@@ -128,11 +128,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<ApiResponseDto> signout(User user, SignoutRequestDto signoutRequestDto, HttpServletResponse response, Authentication authResult) throws ServletException, IOException {
-        if (passwordEncoder.matches(signoutRequestDto.getPassword(), user.getPassword())) {
-            userRepository.delete(user);
-            return ResponseEntity.status(200).body(new ApiResponseDto("회원탈퇴 성공", HttpStatus.OK.value()));
+        if (user.getUsername().startsWith("kakao")) {
+            if (signoutRequestDto.getPassword().equals(user.getEmail())) {
+                userRepository.delete(user);
+                jwtUtil.deleteCookie(response, authResult);
+                return ResponseEntity.status(200).body(new ApiResponseDto("회원탈퇴 성공",HttpStatus.OK.value()));
+            } else {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
         } else {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            if (passwordEncoder.matches(signoutRequestDto.getPassword(), user.getPassword())) {
+                userRepository.delete(user);
+                jwtUtil.deleteCookie(response, authResult);
+                return ResponseEntity.status(200).body(new ApiResponseDto("회원탈퇴 성공", HttpStatus.OK.value()));
+            } else {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
         }
     }
 }

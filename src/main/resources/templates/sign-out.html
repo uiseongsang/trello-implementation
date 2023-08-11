@@ -92,6 +92,7 @@
     <div class="container">
       <div class="mb-5 fs-3 fw-bold">회원탈퇴</div>
       <div class="row mt-4 d-flex justify-content-center">
+        <div>*카카오 유저라면 Email 을 입력해 주세요.</div>
         <form onsubmit="return false;" class="col-6">
           <input type="text" name="password" id="password" placeholder="현재 비밀번호" class="form-control mt-3 shadow border-0 p-3"/>
         </form>
@@ -114,7 +115,7 @@
       success: function(response) {
         Swal.fire({
           icon: 'success',                         // Alert 타입
-          title: '변경 완료!'        // Alert 제목
+          title: '회원탈퇴 완료!'        // Alert 제목
         }).then((result) => {
           if (result.isConfirmed) {
             window.location.href = "http://localhost:8080/api/sign";
@@ -124,7 +125,7 @@
       error: function(xhr, status, error) {
         Swal.fire({
           icon: 'error',                         // Alert 타입
-          title: '변경 실패!'        // Alert 제목
+          title: '회원탈퇴 실패!'        // Alert 제목
         }).then((result) => {
           if (result.isConfirmed) {
             window.location.href = "http://localhost:8080/api/user/sign-out";
