@@ -52,6 +52,7 @@ public class Card extends TimeStamped {
     private ColumnEntity columnEntity;
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
+    @OrderBy("id ASC")
     private Set<Comment> commentList = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "card", cascade = CascadeType.REMOVE)
