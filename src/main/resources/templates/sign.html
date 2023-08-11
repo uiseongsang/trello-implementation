@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" type="text/css" href="/css/sign.css">
+    <meta charset="UTF-8">
     <script src="/js/sign.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/sign.css">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"
             integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js"></script>
-    <meta charset="UTF-8">
     <title>Trello Follow Log-In</title>
 </head>
 <body>
@@ -76,6 +75,12 @@
     </div>
 </div>
 <script>
+    document.querySelector('.img-btn').addEventListener('click', function()
+        {
+            document.querySelector('.cont').classList.toggle('s-signup')
+        }
+    );
+
     $(document).ready(function () {
         // 토큰 삭제
         Cookies.remove('Authorization', {path: '/'});
@@ -95,7 +100,7 @@
             $("#btn-login").on("click", () => {
                 this.login();
             });
-    },
+        },
         login: function () {
             let data = {
                 username: $('#inputUsername').val(),
