@@ -82,6 +82,16 @@ public class BoardController {
 
     }
 
+    @GetMapping("/board/{username}")
+    public Long getUserIdFromUsername (@AuthenticationPrincipal UserDetailsImpl userDetailsImpl, @PathVariable String username) {
+        return boardServiceImpl.getUserIdFromUsername(userDetailsImpl.getUser(), username);
+    }
+
+    @GetMapping("/board/{boardNo}/members")
+    public List<GetBoardMemberResponseDto> getBoardMembers (@AuthenticationPrincipal UserDetailsImpl userDetailsImpl, @PathVariable Long boardNo) {
+        return boardServiceImpl.getBoardMembers(userDetailsImpl.getUser(), boardNo);
+    }
+
 //    @GetMapping ("/board/invitation/{boardNo}")
 //    public void checkUserInfo (@PathVariable Long boardNo, @RequestParam("email") String email) {
 //        // 우선 해당 유저가 존재하는지 확인

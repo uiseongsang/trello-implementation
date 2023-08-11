@@ -33,6 +33,61 @@
     .offcanvas.show {
       display: block;
     }
+
+    /* 모달 배경 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 모달 내용 */
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 모달 닫기 버튼 */
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+
+    /* 모달 내용의 입력 폼 스타일링 */
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="color"],
+    button[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button[type="submit"] {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -68,7 +123,26 @@
       <div class="logo"><i class="fab fa-trello"></i> Trello</div>
     </div>
     <div class="right">
-      <div class="btn"><i class="fas fa-plus"></i></div>
+      <div class="btn" id="addBoardBtn"><i class="fas fa-plus"> create</i></div>
+      <!-- 모달 창 -->
+      <div id="myModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <form id="boardForm">
+            <label for="boardAddTitle">보드 제목:</label>
+            <input type="text" id="boardAddTitle" name="boardAddTitle">
+
+            <label for="boardAddDescription">보드 설명:</label>
+            <textarea id="boardAddDescription" name="boardAddDescription"></textarea>
+
+            <label for="boardAddColor">보드 색상:</label>
+            <input type="color" id="boardAddColor" name="boardAddColor">
+
+            <button type="submit">보드 생성</button>
+          </form>
+        </div>
+      </div>
+
       <div class="btn"><i class="fas fa-info-circle"></i></div>
       <div class="btn"><i class="far fa-bell"></i></div>
       <div class="btn"><i class="fas fa-cog"></i></div>
@@ -81,9 +155,28 @@
     <header class="board-header">
       <div class="left">
         <div class="title" id="boardTitle"></div>
-        <div class="btn"><i class="far fa-star"></i></div>
-        <div class="btn">Personal</div>
-        <div class="btn btn-text"><i class="fas fa-lock"></i> Private</div>
+        <div class="btn btn-member"><i class="fa-solid fa-user-group"></i></div>
+        <div class="btn btn-edit-board" data-bs-toggle="modal" data-bs-target="#editBoardModal"><i class="fa-solid fa-pen-to-square"></i></div>
+        <!-- 모달 창 -->
+        <div class="modal" id="editBoardModal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="editBoardForm">
+              <label for="editBoardTitle">보드 제목:</label>
+              <input type="text" id="editBoardTitle" name="editBoardTitle">
+
+              <label for="editBoardDescription">보드 설명:</label>
+              <textarea id="editBoardDescription" name="editBoardDescription"></textarea>
+
+              <label for="editBoardColor">보드 색상:</label>
+              <input type="color" id="editBoardColor" name="editBoardColor">
+
+              <button type="submit">보드 수정</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="btn btn-delete-board"><i class="fa-solid fa-trash"></i></div>
       </div>
       <div class="right">
         <div class="btn btn-text"><i class="fas fa-male"></i> Butler</div>
@@ -112,6 +205,8 @@
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.5.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     document.cookie.replace("jwt=", "Bearer ");
@@ -121,27 +216,84 @@
         fetchBoardDetails(firstBoardId);
       }
     });
+
+    const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
+    const offcanvasTrigger = document.querySelector('[data-bs-toggle="offcanvas"]');
+
+    offcanvasTrigger.addEventListener('click', function () {
+      if (!offcanvas.isShown) {
+        offcanvas.show();
+      } else {
+        offcanvas.hide();
+      }
+    });
+
+    let isCreatingBoard = false; // 보드 생성 중인지 여부
+
+    $("#boardForm").submit(async function (event) {
+      event.preventDefault();
+
+      if (isCreatingBoard) {
+        return; // 이미 보드 생성 중이면 중복 요청 방지
+      }
+
+      isCreatingBoard = true;
+
+      var title = $("#boardAddTitle").val();
+      var description = $("#boardAddDescription").val();
+      var color = $("#boardAddColor").val();
+
+      var requestData = {
+        // createBoardRequestDto에 필요한 데이터를 여기에 추가
+        "title": title,
+        "description": description,
+        "color": color
+      };
+
+      try {
+        const response = await $.ajax({
+          type: "POST",
+          url: "/api/board",
+          contentType: "application/json",
+          data: JSON.stringify(requestData),
+          xhrFields: {
+            withCredentials: true // 쿠키 포함
+          }
+        });
+
+        alert("Board 생성 성공");
+        $("#myModal").css("display", "none");
+
+        // 생성된 보드의 ID를 사용하여 해당 보드의 상세 내용 가져오기
+        fetchBoardDetailsAndUpdateList(response.id);
+
+      } catch (error) {
+        alert("오류: " + error.responseText);
+      } finally {
+        isCreatingBoard = false;
+      }
+    });
   });
 
-  const root = document.documentElement,
-      colorIn = document.getElementById('app-color');
-
-  // Color selection
-  colorIn.addEventListener('input', function () {
-    const color = this.value;
-    root.style.setProperty('--app-col', color);
-  })
-
-  const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
-  const offcanvasTrigger = document.querySelector('[data-bs-toggle="offcanvas"]');
-
-  offcanvasTrigger.addEventListener('click', function () {
-    if (!offcanvas.isShown) {
-      offcanvas.show();
-    } else {
-      offcanvas.hide();
+  async function fetchBoardDetailsAndUpdateList(boardId) {
+    try {
+      await fetchBoardDetails(boardId);
+      await updateBoardList();
+    } catch (error) {
+      console.error('Error fetching board details and updating list:', error);
     }
-  });
+  }
+
+  async function updateBoardList(newBoardId) {
+    try {
+      const data = await getBoardListInOffcanvas();
+
+      // 새로 생성된 보드 ID를 사용하여 해당 보드의 상세 내용 가져오기
+      fetchBoardDetails(newBoardId);
+    } catch (error) {
+      console.error('Error updating board list:', error);
+    }
+  }
 
   async function getBoardListInOffcanvas() {
     try {
@@ -153,15 +305,35 @@
         },
       });
       const data = await response.json();
+      const username = extractUserIdFromJwtCookie(); // 현재 로그인한 사용자의 아이디 추출
+
+      const userIdFromUsername = await fetch('/api/board/' + username, {
+        credentials: 'same-origin',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      const userIdFromUsernameData = await userIdFromUsername.json(); // JSON 데이터로 변환
 
       const offcanvasBody = document.querySelector('.offcanvas-body');
       offcanvasBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
+
       data.forEach(board => {
         const boardCol = document.createElement('div');
         boardCol.className = 'list';
-        boardCol.innerHTML = `
-        <button class="btn btn-primary" type="button" data-board-id="${board.id}">${board.title}</button>
-      `;
+        const boardButton = document.createElement('button');
+        boardButton.className = 'btn btn-primary';
+        boardButton.type = 'button';
+        boardButton.dataset.boardId = board.id;
+        boardButton.dataset.userId = board.user_id; // userId 추가
+        boardButton.textContent = board.title;
+
+        if (userIdFromUsernameData === board.user_id) boardButton.textContent += ` (ADMIN)`;
+        else boardButton.textContent += ` (MEMBER)`;
+
+        boardCol.appendChild(boardButton);
         offcanvasBody.appendChild(boardCol);
       });
 
@@ -169,7 +341,17 @@
       boardButtons.forEach(button => {
         button.addEventListener('click', () => {
           const boardId = button.dataset.boardId;
-          fetchBoardDetails(boardId);
+          const userId = button.dataset.userId; // userId 사용
+          fetchBoardDetails(boardId, userId); // fetchBoardDetails에 userId도 전달
+          $(".btn-edit-board").click(function () {
+            editBoardDetails(boardId);
+          });
+          $(".btn-delete-board").click(function () {
+            deleteBoardDetails(boardId);
+          });
+          $(".btn-member").click(function () {
+            window.location.href = '/web/boardMember/' + boardId;
+          });
         });
       });
 
@@ -565,6 +747,9 @@
       const boardTitle = document.getElementById('boardTitle');
       boardTitle.textContent = `${data.title}`;
 
+      const color = data.color;
+      root.style.setProperty('--app-col', color);
+
       const boardBody = document.querySelector('.board-body');
       boardBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
 
@@ -577,7 +762,6 @@
 
         const list = document.createElement('div');
         list.className = 'list';
-        list.id = column.id;
 
         const listTitle = document.createElement('h4');
         listTitle.className = 'list-title';
@@ -622,6 +806,232 @@
       boardBody.appendChild(boardSection);
     })
     .catch(error => console.error('Error fetching board details:', error));
+  }
+
+  $(document).ready(function () {
+    // 모달 열기 버튼 클릭 시
+    $("#addBoardBtn").click(function () {
+      $("#myModal").css("display", "block");
+    });
+
+    // 보드 수정 모달 열기 버튼 클릭 시
+    $(".btn-edit-board").click(function () {
+      $("#editBoardModal").css("display", "block");
+    });
+
+    // 모달 닫기 버튼 클릭 시
+    $(".close").click(function () {
+      $("#myModal").css("display", "none");
+    });
+
+    // 모달 외부 클릭 시 닫기
+    $(window).click(function (event) {
+      if (event.target.id === "myModal") {
+        $("#myModal").css("display", "none");
+      }
+    });
+
+    // 수정 모달 닫기 버튼 클릭 시
+    $(".close").click(function () {
+      $("#editBoardModal").css("display", "none");
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+    });
+
+    // 수정 모달 외부 클릭 시 닫기
+    $(window).click(function (event) {
+      if (event.target.id === "editBoardModal") {
+        $("#editBoardModal").css("display", "none");
+        $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+        $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+      }
+    });
+
+    // 폼 제출 시
+    $("#boardForm").submit(async function (event) {
+      event.preventDefault();
+
+      if (isCreatingBoard) {
+        return; // 이미 보드 생성 중이면 중복 요청 방지
+      }
+
+      isCreatingBoard = true;
+
+      var title = $("#boardAddTitle").val();
+      var description = $("#boardAddDescription").val();
+      var color = $("#boardAddColor").val();
+
+      var requestData = {
+        // createBoardRequestDto에 필요한 데이터를 여기에 추가
+        "title": title,
+        "description": description,
+        "color": color
+      };
+
+      try {
+        const response = await $.ajax({
+          type: "POST",
+          url: "/api/board",
+          contentType: "application/json",
+          data: JSON.stringify(requestData),
+          xhrFields: {
+            withCredentials: true // 쿠키 포함
+          }
+        });
+
+        alert("Board 생성 성공");
+        $("#myModal").css("display", "none");
+
+        // 생성된 보드의 ID를 사용하여 해당 보드의 상세 내용 가져오기
+        fetchBoardDetailsAndUpdateList(response.id);
+      } catch (error) {
+        alert("오류: " + error.responseText);
+      } finally {
+        isCreatingBoard = false;
+      }
+    });
+  });
+
+  function extractUserIdFromJwtCookie() {
+    // 현재 쿠키 문자열을 가져옵니다.
+    const cookieString = document.cookie;
+
+    // 쿠키가 비어있다면 null을 반환합니다.
+    if (!cookieString) {
+      return null;
+    }
+
+    // 쿠키 문자열을 세미콜론(;)으로 분리하여 각 쿠키 항목을 배열로 만듭니다.
+    const cookieItems = cookieString.split(';');
+
+    // "Authorization" 쿠키 값을 찾습니다.
+    let authCookieValue = null;
+    for (const item of cookieItems) {
+      const trimmedItem = item.trim();
+      if (trimmedItem.startsWith("Authorization=")) {
+        authCookieValue = trimmedItem.substr("Authorization=".length);
+        break;
+      }
+    }
+
+    // "Authorization" 쿠키가 없으면 null을 반환합니다.
+    if (!authCookieValue) {
+      return null;
+    }
+
+    // 쿠키 값에서 "Bearer " 부분을 제거합니다.
+    const jwtToken = authCookieValue.replace("Bearer ", "");
+
+    try {
+      // JWT 디코딩
+      const [, payloadBase64] = jwtToken.split('.');
+      const decodedPayload = JSON.parse(atob(payloadBase64));
+
+      if (decodedPayload && decodedPayload.sub) {
+        return decodedPayload.sub;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('JWT 디코딩 오류:', error);
+      return null;
+    }
+  }
+
+  const root = document.documentElement,
+      colorIn = document.getElementById('app-color');
+
+  // Color selection
+  colorIn.addEventListener('input', function() {
+    const color = this.value;
+    root.style.setProperty('--app-col', color);
+  })
+
+  async function updateBoardDetails(boardId, updatedData) {
+    try {
+      const response = await fetch(`/api/board/${boardId}`, {
+        credentials: 'same-origin',
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (response.ok) {
+        // 텍스트 메시지 대신 알림창으로 메시지 표시
+        alert('Board updated successfully');
+
+        // 업데이트 성공 후 일정 시간(예: 1.5초) 후에 페이지 새로고침
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Error updating board: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error updating board:', error);
+    }
+  }
+
+  function editBoardDetails(boardId) {
+
+    if (!boardId) {
+      console.error('Unable to determine board ID');
+      return;
+    }
+
+    $("#editBoardModal").css("display", "block");
+
+    // Submit updated board details
+    $("#editBoardForm").off('submit').on('submit', async function (event) {
+      event.preventDefault();
+
+      const updatedTitle = $("#editBoardTitle").val();
+      const updatedDescription = $("#editBoardDescription").val();
+      const updatedColor = $("#editBoardColor").val();
+
+      const updatedData = {
+        title: updatedTitle,
+        description: updatedDescription,
+        color: updatedColor,
+      };
+
+      updateBoardDetails(boardId, updatedData);
+
+      // Close the modal
+      $("#editBoardModal").css("display", "none");
+      $(".modal-backdrop").remove();
+      $(".modal").removeClass("show");
+    });
+  }
+
+  async function deleteBoardDetails(boardId) {
+    try {
+      const response = await fetch(`/api/board/${boardId}`, {
+        credentials: 'same-origin',
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // 텍스트 메시지 대신 알림창으로 메시지 표시
+        alert('Board delete successfully');
+
+        // 업데이트 성공 후 일정 시간(예: 1.5초) 후에 페이지 새로고침
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Error updating board: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error updating board:', error);
+    }
   }
 
   function saveCard(saveButton, columnId) {
