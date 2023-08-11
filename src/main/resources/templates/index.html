@@ -642,9 +642,7 @@
         alert('Board delete successfully');
 
         // 업데이트 성공 후 일정 시간(예: 1.5초) 후에 페이지 새로고침
-        setTimeout(() => {
-          location.reload();
-        }, 1500);
+        updateBoardList();
       } else {
         const errorText = await response.text();
         throw new Error(`Error updating board: ${errorText}`);
