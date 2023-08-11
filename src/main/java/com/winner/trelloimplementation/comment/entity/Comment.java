@@ -2,6 +2,7 @@ package com.winner.trelloimplementation.comment.entity;
 
 import com.winner.trelloimplementation.comment.dto.CommentRequestDto;
 import com.winner.trelloimplementation.card.entity.Card;
+import com.winner.trelloimplementation.common.entity.TimeStamped;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Table(name = "comments")
-public class Comment {
+public class Comment extends TimeStamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

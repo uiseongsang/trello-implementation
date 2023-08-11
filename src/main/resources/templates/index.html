@@ -12,9 +12,11 @@
         rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
         crossorigin="anonymous">
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
           crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
   <title>Trello</title>
   <style>
     .offcanvas {
@@ -110,7 +112,6 @@
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.5.0/js/bootstrap.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     document.cookie.replace("jwt=", "Bearer ");
@@ -179,6 +180,378 @@
     }
   }
 
+  function openModal(cardId) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.tabIndex = cardId;
+    let innerHtml = ``
+    fetch(`/api/card/${cardId}`, {
+      credentials: 'same-origin',
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+     .then(response => response.json())
+     .then(card => {
+       innerHtml += `
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" data-card-id="${card.id}">${card.title}</h5>
+           <button type="button" class="btn btn-primary edit-button-title" id="editTitle${card.id}" onclick="editTitleButton(${card.id})">Edit</button>
+  <button type="button" class="btn btn-primary save-button-title d-none" id="saveTitle${card.id}" onclick="saveTitleButton(${card.id})">Save</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="item-container">
+            <label for="cardColor">Card Color:</label>
+            <div class="item-content">
+              <select id="cardColor" disabled>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+              </select>
+              <button type="button" class="btn btn-primary edit-button" id="editColor">Edit</button>
+              <button type="button" class="btn btn-primary save-button d-none" id="saveColor">Save</button>
+            </div>
+          </div>
+
+          <div class="item-container">
+            <label for="dueDate">Deadline</label>
+            <div class="item-content">
+              <input type="datetime-local" id="dueDate" disabled>
+              <button type="button" class="btn btn-primary edit-button" id="editDueDate">Edit</button>
+              <button type="button" class="btn btn-primary save-button d-none" id="saveDueDate">Save</button>
+            </div>
+          </div>
+
+          <div class="item-container">
+            <label for="description">Description:</label>
+            <div class="item-content">
+              <textarea id="description" disabled>${card.description}</textarea>
+              <button type="button" class="btn btn-primary edit-button" id="editDescription">Edit</button>
+              <button type="button" class="btn btn-primary save-button d-none" id="saveDescription">Save</button>
+            </div>
+          </div>
+
+          <div class="item-container">
+            <label for="comment">Comment:</label>
+            <div class="item-content">
+              <input type="text" id="comment" placeholder="Enter your comment">
+              <button type="button" class="btn btn-primary add-comment-button" id="addComment">Add Comment</button>
+            </div>
+          </div>
+
+            <div class="item-container">
+            <label for="commentList">Comments:</label>
+            <div class="item-content" id="commentList">
+              <!-- 댓글 목록이 여기에 표시될 것입니다. -->
+
+  `;
+       // 모달 댓글 목록 추가
+
+       if(card.commentList.length > 0) {
+         for (let comment of card.commentList) {
+           innerHtml += `
+          <div class="commentInfo${comment.id}">
+      <p>${comment.content}</p>
+      <div class="commentButtons">
+        <button type="button" class="btn btn-sm btn-primary edit-comment-button" data-comment-id="${comment.id}">Edit</button>
+        <button type="button" class="btn btn-sm btn-danger delete-comment-button" data-comment-id="${comment.id}">Delete</button>
+      </div>
+    </div>
+         `
+         }
+       }
+
+       // 모달 푸터 추가
+       innerHtml += `
+            </div>
+          </div>
+        </div>
+       <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" id="delete-card-Button" onclick="deleteCard(${card.columnNo}, ${card.id})">Delete</button>
+        </div>
+      </div>
+    </div>
+       `
+        modal.innerHTML += innerHtml;
+       // 모달을 body에 추가
+       document.body.appendChild(modal);
+
+       // 모달을 열기 위한 이벤트 리스너 추가
+       modal.addEventListener('shown.bs.modal', () => {
+         modal.classList.add('show');
+       });
+
+       modal.addEventListener('shown.bs.modal', () => {
+         const colorSelect = modal.querySelector('#cardColor');
+         if (card.color == null || card.color) {
+           colorSelect.value = card.color;
+         }
+
+         // "deadline" 값이 datetime-local 입력란에 대입
+         const deadlineInput = modal.querySelector('#dueDate');
+         if (card.deadline) {
+           deadlineInput.value = card.deadline;
+         }
+       });
+
+       // 모달이 닫힐 때 제거
+       modal.addEventListener('hidden.bs.modal', () => {
+         document.body.removeChild(modal);
+       });
+
+       // 모달 열기
+       const bootstrapModal = new bootstrap.Modal(modal);
+       bootstrapModal.show();
+
+       // Edit 버튼 클릭 시 처리
+       const editButtons = modal.querySelectorAll('.edit-button');
+       editButtons.forEach(editButton => {
+         editButton.addEventListener('click', () => {
+           const container = editButton.parentElement;
+           const saveButton = container.querySelector('.save-button');
+           saveButton.classList.remove('d-none');
+           editButton.classList.add('d-none');
+           const inputElement = container.querySelector('input, select, textarea'); // textarea 추가
+           inputElement.removeAttribute('disabled');
+           inputElement.removeAttribute('readonly'); // readonly 제거
+         });
+       });
+
+
+       modal.addEventListener('click', event => {
+         if (event.target.classList.contains('edit-comment-button')) {
+           const commentId = event.target.getAttribute('data-comment-id');
+           const commentElement = modal.querySelector(`.commentInfo${commentId}`);
+           const commentTextElement = commentElement.querySelector('p');
+           const editInput = document.createElement('input');
+           editInput.type = 'text';
+           editInput.value = commentTextElement.textContent;
+
+           const saveButton = document.createElement('button');
+           saveButton.type = 'button';
+           saveButton.classList.add('btn', 'btn-sm', 'btn-primary', 'save-comment-button');
+           saveButton.textContent = 'Save';
+           saveButton.setAttribute('data-comment-id', commentId); // 여기서 추가
+
+           commentTextElement.replaceWith(editInput);
+           commentElement.querySelector('.commentButtons').appendChild(saveButton);
+
+           event.target.style.display = 'none';
+         } else if (event.target.classList.contains('delete-comment-button')) {
+           const commentId = event.target.getAttribute('data-comment-id');
+           const commentElement = modal.querySelector(`.commentInfo${commentId}`);
+
+           fetch(`/api/comment/${commentId}`, {
+             credentials: 'same-origin',
+             method: 'DELETE',
+             headers: {
+               'Content-Type': 'application/json'
+             },
+           })
+                   .then(response => {
+                     if (response.statusCode == 200) {
+                       alert('Color updated successfully');
+                       // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                     }
+                   })
+                   .catch(error => {
+                     console.error('An error occurred:', error);
+                   });
+           commentElement.remove();
+         } else if (event.target.classList.contains('save-comment-button')) {
+           const commentId = event.target.getAttribute('data-comment-id');
+           const commentElement = event.target.closest(`.commentInfo${commentId}`);
+           const editInput = commentElement.querySelector('input');
+           const updatedComment = editInput.value.trim();
+           if (updatedComment !== '') {
+             fetch(`/api/comment/${commentId}`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ content: updatedComment }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.statusCode == 201) {
+                         alert('Color updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+
+             // 댓글 업데이트 후 UI 업데이트
+             const commentTextElement = document.createElement('p');
+             commentTextElement.textContent = updatedComment;
+
+             editInput.replaceWith(commentTextElement);
+             commentElement.querySelector('.edit-comment-button').style.display = 'inline-block';
+             event.target.remove(); // 저장 버튼 제거
+           }
+         }
+       });
+
+       const addCommentButton = modal.querySelector('#addComment');
+       const commentList = modal.querySelector('#commentList');
+       addCommentButton.addEventListener('click', () => {
+         const commentInput = modal.querySelector('#comment');
+         const comment = commentInput.value.trim();
+         if (comment !== '') {
+           const commentElement = document.createElement('div');
+           commentElement.className = 'comment';
+           commentElement.textContent = comment;
+           fetch(`/api/card/${cardId}/comment`, {
+             credentials: 'same-origin',
+             method: 'POST',
+             body: JSON.stringify({ content: comment }), // 객체를 JSON 문자열로 변환
+             headers: {
+               'Content-Type': 'application/json'
+             },
+           })
+                   .then(response => {
+                     if (response.statusCode == 201) {
+                       alert('Color updated successfully');
+                       // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                     }
+                   })
+                   .catch(error => {
+                     console.error('An error occurred:', error);
+                   });
+           commentList.appendChild(commentElement);
+           commentInput.value = '';
+         }
+       });
+
+       // Save 버튼 클릭 시 처리
+       const saveButtons = modal.querySelectorAll('.save-button');
+       saveButtons.forEach(saveButton => {
+         saveButton.addEventListener('click', () => {
+           const container = saveButton.parentElement;
+           const editButton = container.querySelector('.edit-button');
+           editButton.classList.remove('d-none');
+           saveButton.classList.add('d-none');
+           const inputElement = container.querySelector('input, select, textarea');
+           inputElement.setAttribute('disabled', true);
+
+           // 저장 로직 추가
+           if (inputElement.id === 'cardColor') {
+             const cardColor = inputElement.value;
+             fetch(`/api/card/${cardId}/color`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ color: cardColor }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.statusCode == 200) {
+                         alert('Color updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+           } else if (inputElement.id === 'dueDate') {
+             const deadline = inputElement.value.replace('T', ' ');
+             fetch(`/api/card/${cardId}/deadline`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ deadline: deadline }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.statusCode == 200) {
+                         alert('Color updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+           } else if (inputElement.id === 'description') {
+             const description = inputElement.value;
+             fetch(`/api/card/${cardId}/description`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ description: description }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.statusCode == 200) {
+                         alert('Color updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+             console.log('Description:', description);
+           }
+         });
+       });
+     })
+  }
+
+  function editTitleButton(cardId) {
+    const modalTitle = document.querySelector(`[data-card-id="${cardId}"]`);
+    const titleText = modalTitle.textContent;
+    const titleInput = document.createElement('input');
+    titleInput.type = 'text';
+    titleInput.value = titleText;
+    modalTitle.replaceWith(titleInput);
+
+    const editButton = document.getElementById(`editTitle${cardId}`);
+    const saveButton = document.getElementById(`saveTitle${cardId}`);
+    editButton.classList.add('d-none');
+    saveButton.classList.remove('d-none');
+  }
+
+  function saveTitleButton(cardId) {
+    const modal = document.querySelector('.modal');
+    const titleInput = modal.querySelector('input'); // 수정한 제목을 입력한 input 요소 선택
+    const newTitle = titleInput.value;
+
+    fetch(`/api/card/${cardId}/title`, {
+      credentials: 'same-origin',
+      method: 'PATCH',
+      body: JSON.stringify({ title: newTitle }), // 객체를 JSON 문자열로 변환
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+            .then(response => {
+              if (response.statusCode == 200) {
+                alert('Color updated successfully');
+                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+              }
+            })
+            .catch(error => {
+              console.error('An error occurred:', error);
+            });
+    titleInput.classList.add('d-none'); // 입력 창 숨기기
+
+    const editButton = document.getElementById(`editTitle${cardId}`);
+    const saveButton = document.getElementById(`saveTitle${cardId}`);
+    saveButton.classList.add('d-none');
+    editButton.classList.remove('d-none');
+    location.reload();
+  }
+
+
+
   function fetchBoardDetails(boardId) {
     fetch(`/api/boards/${boardId}`, {
       credentials: 'same-origin',
@@ -204,6 +577,7 @@
 
         const list = document.createElement('div');
         list.className = 'list';
+        list.id = column.id;
 
         const listTitle = document.createElement('h4');
         listTitle.className = 'list-title';
@@ -214,6 +588,10 @@
           const cardDiv = document.createElement('div');
           cardDiv.className = 'card';
           cardDiv.textContent = card.title; // 카드의 제목을 표시
+          cardDiv.id = card.id;
+          cardDiv.addEventListener('click', () => {
+            openModal(card.id); // 모달을 띄우는 함수 호출
+          });
           list.appendChild(cardDiv);
         });
 
@@ -221,7 +599,9 @@
         addCardLink.className = 'btn-list';
         addCardLink.href = '#';
         addCardLink.textContent = '+ Add another card';
+        addCardLink.id = column.id;
         list.appendChild(addCardLink);
+        addCardLink.addEventListener('click', () => addCard(column.id));
 
         boardCol.appendChild(list);
         wrapLists.appendChild(boardCol);
@@ -244,6 +624,92 @@
     .catch(error => console.error('Error fetching board details:', error));
   }
 
+  function saveCard(saveButton, columnId) {
+    const cardElement = saveButton.closest('.card');
+    const cardTitleInput = cardElement.querySelector('input');
+    const cardTitle = cardTitleInput.value.trim(); // 입력된 텍스트 가져오기
+
+    if (cardTitle !== '') {
+      const cardText = document.createElement('p');
+      cardText.textContent = cardTitle;
+
+      fetch(`/api/column/${columnId}/card`, {
+        credentials: 'same-origin',
+        method: 'POST',
+        body: JSON.stringify({ title: cardTitle }), // 객체를 JSON 문자열로 변환
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+              .then(response => {
+                if (response.statusCode == 201) {
+                  alert('save card successfully');
+                  // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                }
+              })
+              .catch(error => {
+                console.error('An error occurred:', error);
+              });
+
+      cardTitleInput.replaceWith(cardText); // 입력 필드 대신 텍스트 요소로 교체
+      saveButton.remove(); // 버튼 삭제
+
+      location.reload();
+    }
+  }
+
+  function addCard(columnId) {
+    const column = document.querySelector(`.list[id="${columnId}"]`);
+
+    const newCard = document.createElement('div');
+    newCard.className = 'card';
+
+    const cardTitleInput = document.createElement('input');
+    cardTitleInput.type = 'text';
+    cardTitleInput.placeholder = 'Enter card title';
+
+    const saveButton = document.createElement('button');
+    saveButton.textContent = 'Save';
+    saveButton.addEventListener('click', function() {
+      saveCard(saveButton, columnId); // saveButton을 인자로 넘겨서 호출
+    });
+
+    newCard.appendChild(cardTitleInput);
+    newCard.appendChild(saveButton);
+
+    // "Add another card" 링크를 감싸는 div 요소 생성
+    const addCardContainer = document.createElement('div');
+    addCardContainer.className = 'add-card-container';
+
+    // "Add another card" 링크를 div 요소 안으로 이동
+    const addCardLink = column.querySelector('.btn-list');
+    addCardContainer.appendChild(addCardLink);
+
+    // 새로운 카드와 "Add another card" 링크를 순서대로 삽입
+    column.appendChild(newCard);
+    column.appendChild(addCardContainer);
+  }
+
+  function deleteCard(columnNo, cardNo) {
+    fetch(`/api/column/${columnNo}/card/${cardNo}`, {
+      credentials: 'same-origin',
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+            .then(response => {
+              if (response.statusCode == 200) {
+                alert('delete card successfully');
+                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+              }
+              location.reload();
+            })
+            .catch(error => {
+              console.error('An error occurred:', error);
+            });
+  }
 </script>
+
 </body>
 </html>
