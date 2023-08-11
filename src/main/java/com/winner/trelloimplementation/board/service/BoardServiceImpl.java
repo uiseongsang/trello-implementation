@@ -123,11 +123,9 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public GetOneBoardResponseDto getOneBoard(User user, Long boardNo) {
         // 해당 보드에 속해 있는 유저인지 확인
-        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo);
-        // 해당 보드의 멤버가 아니면 예외 처리
-        if (boardMember == null) {
-            throw new NullPointerException("해당 보드에 유저가 가입되어 있지 않거나, 해당 보드가 존재하지 않습니다.");
-        }
+        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo).orElseThrow(
+                () -> new NullPointerException("해당 보드에 유저가 가입되어 있지 않거나, 해당 보드가 존재하지 않습니다.")
+        );
         // 해당 보드의 존재여부 확인
         Board board = boardRepository.findById(boardNo).orElseThrow(
                 () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
@@ -165,12 +163,15 @@ public class BoardServiceImpl implements BoardService {
                 () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
         );
         // 해당 유저가 해당 보드의 멤버인지 확인
-        BoardMember findMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo);
+        BoardMember findMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo).orElse(null);
         // 만약 멤버가 아닌데 해당 유저는 가입된 상태면 -> 해당 보드의 멤버로 추가
+
         if (findMember == null) {
+
             BoardMember boardMember = new BoardMember(user, board, MemberRoleEnum.MEMBER);
 
             boardMemberRepository.save(boardMember);
+
         }
 
         // 받는 사람 이메일 주소
@@ -221,9 +222,19 @@ public class BoardServiceImpl implements BoardService {
         );
         
         User findUser = userRepository.findByUsername(username).orElseThrow(
-                () -> new NullPointerException("로그인이 되어 있지 않습니다.")
+                () -> new NullPointerException("해당 이름을 가진 유저가 존재하지 않습니다.")
         );
 
         return findUser.getId();
+    }
+
+    @Override
+    public List<GetBoardMemberResponseDto> getBoardMembers(User user, Long boardNo) {
+
+        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo).orElse(null);
+
+
+
+        return null;
     }
 }

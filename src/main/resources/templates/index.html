@@ -153,7 +153,7 @@
     <header class="board-header">
       <div class="left">
         <div class="title" id="boardTitle"></div>
-        <div class="btn"><i class="far fa-star"></i></div>
+        <div class="btn btn-member"><i class="fa-solid fa-user-group"></i></div>
         <div class="btn btn-edit-board" data-bs-toggle="modal" data-bs-target="#editBoardModal"><i class="fa-solid fa-pen-to-square"></i></div>
         <!-- 모달 창 -->
         <div class="modal" id="editBoardModal">
@@ -174,7 +174,7 @@
           </div>
         </div>
 
-        <div class="btn btn-text"><i class="fas fa-lock"></i> Private</div>
+        <div class="btn btn-delete-board"><i class="fa-solid fa-trash"></i></div>
       </div>
       <div class="right">
         <div class="btn btn-text"><i class="fas fa-male"></i> Butler</div>
@@ -343,6 +343,12 @@
           fetchBoardDetails(boardId, userId); // fetchBoardDetails에 userId도 전달
           $(".btn-edit-board").click(function () {
             editBoardDetails(boardId);
+          });
+          $(".btn-delete-board").click(function () {
+            deleteBoardDetails(boardId);
+          });
+          $(".btn-member").click(function () {
+            window.location.href = '/web/boardMember/' + boardId;
           });
         });
       });
@@ -564,6 +570,7 @@
   async function updateBoardDetails(boardId, updatedData) {
     try {
       const response = await fetch(`/api/board/${boardId}`, {
+        credentials: 'same-origin',
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -618,6 +625,33 @@
       $(".modal-backdrop").remove();
       $(".modal").removeClass("show");
     });
+  }
+
+  async function deleteBoardDetails(boardId) {
+    try {
+      const response = await fetch(`/api/board/${boardId}`, {
+        credentials: 'same-origin',
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // 텍스트 메시지 대신 알림창으로 메시지 표시
+        alert('Board delete successfully');
+
+        // 업데이트 성공 후 일정 시간(예: 1.5초) 후에 페이지 새로고침
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } else {
+        const errorText = await response.text();
+        throw new Error(`Error updating board: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error updating board:', error);
+    }
   }
 
 </script>

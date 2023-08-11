@@ -61,4 +61,12 @@ public interface BoardService {
      * @return
      */
     Long getUserIdFromUsername(User user, String username);
+
+    /**
+     * 해당 보드에 속한 보드 멤버들의 이메일이랑 권한 가져오는 메서드
+     * @param user
+     * @param boardNo
+     * @return
+     */
+    List<GetBoardMemberResponseDto> getBoardMembers(User user, Long boardNo);
 }
