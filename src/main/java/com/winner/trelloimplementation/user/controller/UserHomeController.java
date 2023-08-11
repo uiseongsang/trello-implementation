@@ -5,6 +5,7 @@ import com.winner.trelloimplementation.common.jwt.JwtUtil;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.ProfileResponseDto;
 import com.winner.trelloimplementation.user.service.KakaoService;
+import com.winner.trelloimplementation.user.userlog.UserLog;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -43,6 +44,11 @@ public class UserHomeController {
 
     @GetMapping("/user/sign-out")
     public String signoutPage() { return "sign-out"; }
+
+    @GetMapping("/user/logview")
+    public String logView() throws Exception {
+        return UserLog.fileReader();
+    }
 
     @GetMapping("/user/kakao/callback")
     public String kakaoLogin(@RequestParam String code, HttpServletResponse response) throws JsonProcessingException {
