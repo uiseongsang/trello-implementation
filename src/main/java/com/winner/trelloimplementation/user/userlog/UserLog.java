@@ -2,14 +2,15 @@ package com.winner.trelloimplementation.user.userlog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UserLog {
-    public static String fileReader() {
+    public static ArrayList<String> fileReader() {
         String path = "logs/springStudy.log";
 
         File file = new File(path);
-        String temp = "";
+        ArrayList<String> temp = new ArrayList<>();
         String logline = "";
 
         try {
@@ -18,7 +19,7 @@ public class UserLog {
             {
                 logline = scan.nextLine();
                 if (logline.startsWith("Secured") && !logline.contains("GET")) {
-                    temp += logline;
+                    temp.add(logline);
                 }
             }
         } catch (FileNotFoundException e) {

@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.user.service;
 
+import com.winner.trelloimplementation.board.entity.BoardMember;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.*;
@@ -34,7 +35,7 @@ public interface UserService {
     /**
      * 모든 유저 조회 API
      */
-    List<User> getUserList();
+    List<BoardMember> getUserList();
 
     /**
      * 유저 프로필 조회 API

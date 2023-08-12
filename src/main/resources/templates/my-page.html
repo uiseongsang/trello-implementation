@@ -82,7 +82,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>
             <div class="offcanvas-body">
-                <p>여기에 유저 리스트가 나오고 누르면 해당 유저 마이페이지로 이동</p>
+                <p>여기에 멤버 목록 표시</p>
             </div>
         </div>
     </header>
@@ -97,6 +97,9 @@
             <button th:onclick="|location.href='/api/user/profile'|" class="btn btn-warning ms-2">회원 정보 수정</button>
             <button th:onclick="|location.href='/api/user/profile/password'|" class="btn btn-warning ms-2">비밀번호 수정</button>
             <button th:onclick="|location.href='/api/user/sign-out'|" class="btn btn-warning ms-2">회원탈퇴</button>
+        </div>
+        <div th:each="log : ${logs}" style="text-align: center; margin-top: 5px">
+            <span th:text="${log}"></span>
         </div>
     </main>
 </div>
