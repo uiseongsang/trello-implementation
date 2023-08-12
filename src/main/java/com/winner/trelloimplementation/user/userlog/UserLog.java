@@ -1,12 +1,14 @@
 package com.winner.trelloimplementation.user.userlog;
 
+import com.winner.trelloimplementation.user.entity.User;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class UserLog {
-    public static ArrayList<String> fileReader() {
+    public static ArrayList<String> fileReader(User user) {
         String path = "logs/springStudy.log";
 
         File file = new File(path);
