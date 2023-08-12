@@ -208,19 +208,3 @@ body {
   gap: 1px;
   margin-top: 10px;
 }
-
-.custom-card-title {
-  color: white;
-  border: 1px solid var(--app-col);
-  padding: 5px;
-  border-radius: 5px;
-}
-
-.custom-save-button {
-  background-color: var(--app-col);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}

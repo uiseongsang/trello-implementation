@@ -725,11 +725,11 @@
     const cardTitleInput = document.createElement('input');
     cardTitleInput.type = 'text';
     cardTitleInput.placeholder = 'Enter card title';
-    cardTitleInput.classList.add('custom-card-title');
 
     const saveButton = document.createElement('button');
     saveButton.textContent = 'Save';
-    saveButton.classList.add('custom-save-button');
+    saveButton.style='background-color: rgb(25,118,210)';
+    saveButton.style.color = 'white';
     saveButton.addEventListener('click', function() {
       saveCard(saveButton, columnId); // saveButton을 인자로 넘겨서 호출
     });
