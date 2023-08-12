@@ -162,3 +162,56 @@ body {
   color: var(--app-col);
   cursor: pointer;
 }
+
+#addListContainer {
+  display: grid;
+  grid-gap: 7px;
+  align-items: center;
+  grid-template-columns: auto 1fr max-content max-content;
+}
+
+#newListTitle {
+  padding: 0.5rem;
+  border: none;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+#confirmAddList,
+#cancelAddList {
+  padding: 0.5rem 1rem;
+  background-color: var(--app-col);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875em;
+}
+
+#confirmAddList:hover,
+#cancelAddList:hover {
+  background-color: #1565C0;
+}
+
+#cancelAddList {
+  margin-left: 7px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#cancelAddList:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.button-container {
+  display: flex;
+  gap: 1px;
+  margin-top: 10px;
+}
+
+.card {
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 5px;
+}

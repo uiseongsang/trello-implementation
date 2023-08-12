@@ -23,7 +23,7 @@ public interface CardService {
 
     ResponseEntity<ApiResponseDto> updateTitle(CardRequestDto requestDto, Long cardNo, User user);
 
-    ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user);
+    ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user, Long positionNo);
 
     ResponseEntity<CardDetailResponseDto> getCard(Long cardNo);
 
