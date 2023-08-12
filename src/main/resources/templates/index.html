@@ -1020,7 +1020,7 @@
           </div>
         </div>
        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clossBtn()">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeBtn()">Close</button>
           <button type="button" class="btn btn-danger" id="delete-card-Button" onclick="deleteCard(${card.columnNo}, ${card.id})">Delete</button>
           <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${card.id}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -1508,7 +1508,7 @@
       cardTitleInput.replaceWith(cardText); // 입력 필드 대신 텍스트 요소로 교체
       saveButton.remove(); // 버튼 삭제
 
-      location.reload();
+      fetchBoardDetails(selectedBoardId);
     }
   }
 
@@ -1559,7 +1559,7 @@
                 console.log('delete card successfully');
                 // 여기서 다른 필요한 작업을 수행할 수 있습니다.
               }
-              location.reload();
+              fetchBoardDetails(selectedBoardId);
             })
             .catch(error => {
               console.error('An error occurred:', error);
@@ -1583,7 +1583,7 @@
               } else {
                 alert("숫자로 값을 변경 || 포지션 제한 초과");
               }
-              location.reload();
+              fetchBoardDetails(selectedBoardId);
             })
             .catch(error => {
               alert(`An error occurred: ${error}`);
@@ -1607,18 +1607,18 @@
             .then(response => {
               if (response.status == 200) {
                 alert("카드 컬럼 이동 완료");
+                fetchBoardDetails(selectedBoardId);
               } else {
                 alert("숫자로 값을 변경 || 포지션 위치 제한 초과 || 컬럼 번호 확인");
               }
-              location.reload();
             })
             .catch(error => {
               alert(`An error occurred: ${error}`);
             });
   }
 
-  function clossBtn() {
-    location.reload();
+  function closeBtn() {
+    fetchBoardDetails(selectedBoardId);
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
