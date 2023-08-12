@@ -220,6 +220,8 @@ public class BoardServiceImpl implements BoardService {
         userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("로그인이 되어 있지 않습니다.")
         );
+
+
         
         User findUser = userRepository.findByUsername(username).orElseThrow(
                 () -> new NullPointerException("해당 이름을 가진 유저가 존재하지 않습니다.")
@@ -229,12 +231,30 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<GetBoardMemberResponseDto> getBoardMembers(User user, Long boardNo) {
+    public List<GetBoardMemberResponseDto> getBoardMember(User user) {
 
-        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo).orElse(null);
+        // -> 이거의 보드 아이디들을 가져옴
+        List<BoardMember> boardMembers = boardMemberRepository.findByUserId(user.getId());
 
+        List<GetBoardMemberResponseDto> res = new ArrayList<>();
 
+        for (BoardMember temp : boardMembers) {
+            GetBoardMemberResponseDto tempMember = new GetBoardMemberResponseDto(temp);
+            res.add(tempMember);
+        }
 
-        return null;
+        return res;
+    }
+
+    @Override
+    public Long getBoardIdFromBoardTitle(User user, String boardTitle) {
+
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new NullPointerException("로그인이 되어 있지 않습니다.")
+        );
+
+        Board board = boardRepository.findBoardByTitle(boardTitle);
+
+        return board.getId();
     }
 }

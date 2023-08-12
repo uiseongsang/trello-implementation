@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
     List<Board> findByTitle(String title);
+
+    Board findBoardByTitle(String title);
 }

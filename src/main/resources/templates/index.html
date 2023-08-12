@@ -154,7 +154,8 @@
       <div class="left">
         <div class="title" id="boardTitle"></div>
         <div class="btn btn-member"><i class="fa-solid fa-user-group"></i></div>
-        <div class="btn btn-edit-board" data-bs-toggle="modal" data-bs-target="#editBoardModal"><i class="fa-solid fa-pen-to-square"></i></div>
+        <div class="btn btn-edit-board" data-bs-toggle="modal" data-bs-target="#editBoardModal"><i
+            class="fa-solid fa-pen-to-square"></i></div>
         <!-- 모달 창 -->
         <div class="modal" id="editBoardModal">
           <div class="modal-content">
@@ -206,14 +207,34 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.5.0/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', async function () {
     document.cookie.replace("jwt=", "Bearer ");
-    getBoardListInOffcanvas().then(data => {
-      if (data.length > 0) {
-        const firstBoardId = data[0].id;
-        fetchBoardDetails(firstBoardId);
+    try {
+      const isBoardMemberExist = await isBoardExist(); // 비동기 함수 호출 및 완료 대기
+      const memberCount = isBoardMemberExist.memberCount;
+      const firstBoardId = isBoardMemberExist.firstMemberBoardId;
+      if (memberCount != 0) {
+        // 첫번째 보드 불러오기
+        await fetchBoardDetails(firstBoardId);
+        // 보드 리스트들도 불러오기
+        await getBoardListInOffcanvas();
+      } else {
+        await initPostOneBoard()
+        .then(async () => {
+          const newBoardMember = await isBoardExist();
+          const newBoardId = newBoardMember.firstMemberBoardId;
+          // 첫번째 보드 불러오기
+          await fetchBoardDetails(newBoardId);
+          // 보드 리스트들도 불러오기
+          await getBoardListInOffcanvas();
+        })
+        .catch(error => {
+          console.error('initOneBoardPost 실행 중 오류:', error);
+        });
       }
-    });
+    } catch (error) {
+      console.error('isBoardExist 함수에서 문제가 있습니다. ', error);
+    }
 
     const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
     const offcanvasTrigger = document.querySelector('[data-bs-toggle="offcanvas"]');
@@ -225,74 +246,84 @@
         offcanvas.hide();
       }
     });
-
-    let isCreatingBoard = false; // 보드 생성 중인지 여부
-
-    $("#boardForm").submit(async function (event) {
-      event.preventDefault();
-
-      if (isCreatingBoard) {
-        return; // 이미 보드 생성 중이면 중복 요청 방지
-      }
-
-      isCreatingBoard = true;
-
-      var title = $("#boardAddTitle").val();
-      var description = $("#boardAddDescription").val();
-      var color = $("#boardAddColor").val();
-
-      var requestData = {
-        // createBoardRequestDto에 필요한 데이터를 여기에 추가
-        "title": title,
-        "description": description,
-        "color": color
-      };
-
-      try {
-        const response = await $.ajax({
-          type: "POST",
-          url: "/api/board",
-          contentType: "application/json",
-          data: JSON.stringify(requestData),
-          xhrFields: {
-            withCredentials: true // 쿠키 포함
-          }
-        });
-
-        alert("Board 생성 성공");
-        $("#myModal").css("display", "none");
-
-        // 생성된 보드의 ID를 사용하여 해당 보드의 상세 내용 가져오기
-        fetchBoardDetailsAndUpdateList(response.id);
-
-      } catch (error) {
-        alert("오류: " + error.responseText);
-      } finally {
-        isCreatingBoard = false;
-      }
-    });
   });
 
-  async function fetchBoardDetailsAndUpdateList(boardId) {
+  async function isBoardExist() {
     try {
-      await fetchBoardDetails(boardId);
-      await updateBoardList();
+      const req = await fetch('/api/board/getMembers', {
+        credentials: 'same-origin',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (req.ok) {
+        const members = await req.json();
+        const memberCount = members.length;
+
+        if (memberCount > 0) {
+          const firstMember = members[0];
+          const firstMemberBoardId = firstMember.board_id;
+
+          return {
+            memberCount: memberCount,
+            firstMemberBoardId: firstMemberBoardId
+          };
+        } else {
+          return {
+            memberCount: 0,
+            firstMemberBoardId: null
+          };
+        }
+      } else {
+        console.error('Failed to fetch board members.');
+        return {
+          memberCount: 0,
+          firstMemberBoardId: null
+        };
+      }
     } catch (error) {
-      console.error('Error fetching board details and updating list:', error);
+      console.error('An error occurred:', error);
+      return {
+        memberCount: 0,
+        firstMemberBoardId: null
+      };
     }
   }
 
-  async function updateBoardList(newBoardId) {
-    try {
-      const data = await getBoardListInOffcanvas();
+  async function initPostOneBoard() {
 
-      // 새로 생성된 보드 ID를 사용하여 해당 보드의 상세 내용 가져오기
-      fetchBoardDetails(newBoardId);
+    var title = "Init Board";
+    var description = "Init Description";
+    var color = "#000000";
+
+    var requestData = {
+      // createBoardRequestDto에 필요한 데이터를 여기에 추가
+      "title": title,
+      "description": description,
+      "color": color
+    };
+
+    try {
+      const response = await $.ajax({
+        type: "POST",
+        url: "/api/board",
+        contentType: "application/json",
+        data: JSON.stringify(requestData),
+        xhrFields: {
+          withCredentials: true // 쿠키 포함
+        }
+      });
+
+      $("#myModal").css("display", "none");
+
     } catch (error) {
-      console.error('Error updating board list:', error);
+      alert("오류: " + error.responseText);
     }
   }
 
+  // 보드 리스트 받아오는 메서드
   async function getBoardListInOffcanvas() {
     try {
       const response = await fetch('/api/boards', {
@@ -328,8 +359,11 @@
         boardButton.dataset.userId = board.user_id; // userId 추가
         boardButton.textContent = board.title;
 
-        if (userIdFromUsernameData === board.user_id) boardButton.textContent += ` (ADMIN)`;
-        else boardButton.textContent += ` (MEMBER)`;
+        if (userIdFromUsernameData === board.user_id) {
+          boardButton.textContent += ` (ADMIN)`;
+        } else {
+          boardButton.textContent += ` (MEMBER)`;
+        }
 
         boardCol.appendChild(boardButton);
         offcanvasBody.appendChild(boardCol);
@@ -341,15 +375,6 @@
           const boardId = button.dataset.boardId;
           const userId = button.dataset.userId; // userId 사용
           fetchBoardDetails(boardId, userId); // fetchBoardDetails에 userId도 전달
-          $(".btn-edit-board").click(function () {
-            editBoardDetails(boardId);
-          });
-          $(".btn-delete-board").click(function () {
-            deleteBoardDetails(boardId);
-          });
-          $(".btn-member").click(function () {
-            window.location.href = '/web/boardMember/' + boardId;
-          });
         });
       });
 
@@ -360,74 +385,99 @@
     }
   }
 
-  function fetchBoardDetails(boardId) {
-    fetch(`/api/boards/${boardId}`, {
-      credentials: 'same-origin',
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-    .then(response => response.json())
-    .then(data => {
-      const boardTitle = document.getElementById('boardTitle');
-      boardTitle.textContent = `${data.title}`;
+  // 보드 하나 받아오는 메서드
+  async function fetchBoardDetails(boardId) {
+    try {
+      const boardDetails = await fetch(`/api/boards/${boardId}`, {
+        credentials: 'same-origin',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        const boardTitle = document.getElementById('boardTitle');
+        boardTitle.textContent = `${data.title}`;
 
-      const color = data.color;
-      root.style.setProperty('--app-col', color);
+        console.log("밖에 " + data.id);
 
-      const boardBody = document.querySelector('.board-body');
-      boardBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
-
-      const wrapLists = document.createElement('div');
-      wrapLists.className = 'wrap-lists';
-
-      data.columns.forEach(column => {
-        const boardCol = document.createElement('div');
-        boardCol.className = 'board-col';
-
-        const list = document.createElement('div');
-        list.className = 'list';
-
-        const listTitle = document.createElement('h4');
-        listTitle.className = 'list-title';
-        listTitle.textContent = column.title;
-        list.appendChild(listTitle);
-
-        column.cardList.forEach(card => {
-          const cardDiv = document.createElement('div');
-          cardDiv.className = 'card';
-          cardDiv.textContent = card.title; // 카드의 제목을 표시
-          list.appendChild(cardDiv);
+        // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
+        $(".btn-edit-board").off("click").click(async function () {
+          const dataId = data.id; // data.id 값을 가져옴
+          $("#editBoardModal").css("display", "block");
+          await modifyCurrentBoard(dataId);
         });
 
-        const addCardLink = document.createElement('a');
-        addCardLink.className = 'btn-list';
-        addCardLink.href = '#';
-        addCardLink.textContent = '+ Add another card';
-        list.appendChild(addCardLink);
+        // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
+        $(".btn-delete-board").off("click").click(async function () {
+          const currId = data.id;
+          await deleteCurrentBoard(currId);
+        });
 
-        boardCol.appendChild(list);
-        wrapLists.appendChild(boardCol);
-      });
+        const color = data.color;
+        root.style.setProperty('--app-col', color);
 
-      const addListCol = document.createElement('div');
-      addListCol.className = 'board-col';
-      const addListLink = document.createElement('a');
-      addListLink.className = 'btn-list';
-      addListLink.href = '#';
-      addListLink.textContent = '+ Add another list';
-      addListCol.appendChild(addListLink);
-      wrapLists.appendChild(addListCol);
+        const boardBody = document.querySelector('.board-body');
+        boardBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
 
-      const boardSection = document.createElement('section');
-      boardSection.className = 'board-body';
-      boardSection.appendChild(wrapLists);
-      boardBody.appendChild(boardSection);
-    })
-    .catch(error => console.error('Error fetching board details:', error));
+        const wrapLists = document.createElement('div');
+        wrapLists.className = 'wrap-lists';
+
+        data.columns.forEach(column => {
+          const boardCol = document.createElement('div');
+          boardCol.className = 'board-col';
+
+          const list = document.createElement('div');
+          list.className = 'list';
+
+          const listTitle = document.createElement('h4');
+          listTitle.className = 'list-title';
+          listTitle.textContent = column.title;
+          list.appendChild(listTitle);
+
+          column.cardList.forEach(card => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'card';
+            cardDiv.textContent = card.title; // 카드의 제목을 표시
+            list.appendChild(cardDiv);
+          });
+
+          const addCardLink = document.createElement('a');
+          addCardLink.className = 'btn-list';
+          addCardLink.href = '#';
+          addCardLink.textContent = '+ Add another card';
+          list.appendChild(addCardLink);
+
+          boardCol.appendChild(list);
+          wrapLists.appendChild(boardCol);
+        });
+
+        const addListCol = document.createElement('div');
+        addListCol.className = 'board-col';
+        const addListLink = document.createElement('a');
+        addListLink.className = 'btn-list';
+        addListLink.href = '#';
+        addListLink.textContent = '+ Add another list';
+        addListCol.appendChild(addListLink);
+        wrapLists.appendChild(addListCol);
+
+        const boardSection = document.createElement('section');
+        boardSection.className = 'board-body';
+        boardSection.appendChild(wrapLists);
+        boardBody.appendChild(boardSection);
+      })
+      .catch(error => console.error('Error fetching board details:', error));
+
+      if (boardDetails && boardDetails.ok) {
+        window.location.href = '/web';
+      }
+    } catch (error) {
+      console.error('Error updating board details:', error);
+    }
   }
 
+  // 모달 버튼들 준비
   $(document).ready(function () {
     // 모달 열기 버튼 클릭 시
     $("#addBoardBtn").click(function () {
@@ -435,9 +485,9 @@
     });
 
     // 보드 수정 모달 열기 버튼 클릭 시
-    $(".btn-edit-board").click(function () {
-      $("#editBoardModal").css("display", "block");
-    });
+    // $(".btn-edit-board").click(function () {
+    //   $("#editBoardModal").css("display", "block");
+    // });
 
     // 모달 닫기 버튼 클릭 시
     $(".close").click(function () {
@@ -466,52 +516,52 @@
         $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
       }
     });
-
-    // 폼 제출 시
-    $("#boardForm").submit(async function (event) {
-      event.preventDefault();
-
-      if (isCreatingBoard) {
-        return; // 이미 보드 생성 중이면 중복 요청 방지
-      }
-
-      isCreatingBoard = true;
-
-      var title = $("#boardAddTitle").val();
-      var description = $("#boardAddDescription").val();
-      var color = $("#boardAddColor").val();
-
-      var requestData = {
-        // createBoardRequestDto에 필요한 데이터를 여기에 추가
-        "title": title,
-        "description": description,
-        "color": color
-      };
-
-      try {
-        const response = await $.ajax({
-          type: "POST",
-          url: "/api/board",
-          contentType: "application/json",
-          data: JSON.stringify(requestData),
-          xhrFields: {
-            withCredentials: true // 쿠키 포함
-          }
-        });
-
-        alert("Board 생성 성공");
-        $("#myModal").css("display", "none");
-
-        // 생성된 보드의 ID를 사용하여 해당 보드의 상세 내용 가져오기
-        fetchBoardDetailsAndUpdateList(response.id);
-      } catch (error) {
-        alert("오류: " + error.responseText);
-      } finally {
-        isCreatingBoard = false;
-      }
-    });
   });
 
+  // 보드 생성 모달창 -> 보드 생성하는 로직
+  $("#boardForm").submit(async function (event) {
+    event.preventDefault(); // Prevent default form submission behavior
+
+    // Get values from form inputs
+    const title = $("#boardAddTitle").val();
+    const description = $("#boardAddDescription").val();
+    const color = $("#boardAddColor").val();
+
+    // Create a request data object
+    const requestData = {
+      "title": title,
+      "description": description,
+      "color": color
+    };
+
+    try {
+      const response = await $.ajax({
+        type: "POST",
+        url: "/api/board", // Replace with your API endpoint
+        contentType: "application/json",
+        data: JSON.stringify(requestData),
+        xhrFields: {
+          withCredentials: true // Include cookies
+        }
+      });
+
+      // Close the modal after successful submission
+      $("#myModal").css("display", "none");
+
+      // Optionally, you can fetch and update the board list or perform other actions here
+    } catch (error) {
+      alert("Error: " + error.responseText);
+    } finally {
+      const newCreateBoardMember = await isBoardExist();
+      const newCreateBoardId = newCreateBoardMember.firstMemberBoardId;
+      // 첫번째 보드 불러오기
+      await fetchBoardDetails(newCreateBoardId);
+      // 보드 리스트들도 불러오기
+      await getBoardListInOffcanvas();
+    }
+  });
+
+  // 쿠키 현재 로그인한 유저 아이디 뽑기 (sub에 있음 -> 한글, 영어다 디코딩 되도록 -> 카카오 이슈)
   function extractUserIdFromJwtCookie() {
     // 현재 쿠키 문자열을 가져옵니다.
     const cookieString = document.cookie;
@@ -545,10 +595,12 @@
     try {
       // JWT 디코딩
       const [, payloadBase64] = jwtToken.split('.');
-      const decodedPayload = JSON.parse(atob(payloadBase64));
+      const decodedPayload = decodeURIComponent(escape(atob(jwtToken.split('.')[1])));
 
-      if (decodedPayload && decodedPayload.sub) {
-        return decodedPayload.sub;
+      const payloadObj = JSON.parse(decodedPayload);
+
+      if (payloadObj && payloadObj.sub) {
+        return payloadObj.sub;
       } else {
         return null;
       }
@@ -558,97 +610,82 @@
     }
   }
 
+  // 앱 색깔 지정하는 부분 -> 근데 이게 없으면 수정이나 생성에서도 색깔 반영이 안됨
   const root = document.documentElement,
       colorIn = document.getElementById('app-color');
 
   // Color selection
-  colorIn.addEventListener('input', function() {
+  colorIn.addEventListener('input', function () {
     const color = this.value;
     root.style.setProperty('--app-col', color);
-  })
+  });
+  // ---------------------------------------
 
-  async function updateBoardDetails(boardId, updatedData) {
-    try {
-      const response = await fetch(`/api/board/${boardId}`, {
-        credentials: 'same-origin',
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedData),
-      });
+  async function modifyCurrentBoard (currentBoardId) {
+    console.log("함수 안 : " + currentBoardId);
+    $("#editBoardModal").submit(async function (event) {
+      console.log("함수 안의 안 : " + currentBoardId);
+      event.preventDefault(); // Prevent default form submission behavior
+      const editBoardTitle = $("#editBoardTitle").val();
+      const editBoardDescription = $("#editBoardDescription").val();
+      const editBoardColor = $("#editBoardColor").val();
 
-      if (response.ok) {
-        // 텍스트 메시지 대신 알림창으로 메시지 표시
-        alert('Board updated successfully');
+      // 모달 폼 데이터를 백엔드로 전송
+      try {
+        const response = await fetch(`/api/board/` + currentBoardId, {
+          method: 'PUT',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: editBoardTitle,
+            description: editBoardDescription,
+            color: editBoardColor
+          })
+        });
 
-        // 업데이트 성공 후 일정 시간(예: 1.5초) 후에 페이지 새로고침
-        setTimeout(() => {
-          location.reload();
-        }, 1500);
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Error updating board: ${errorText}`);
+        if (response.ok) {
+          // 백엔드로 데이터 전송 성공 시 UI 업데이트 등의 작업을 수행합니다.
+          console.log('Board data sent successfully.');
+          // 모달을 닫습니다.
+          $("#editBoardModal").css("display", "none");
+          $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+          $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+        } else {
+          console.error('Failed to send board data.');
+        }
+      } catch (error) {
+        console.error('Error sending board data:', error);
+      } finally {
+        await fetchBoardDetails(currentBoardId);
+        // 보드 리스트들도 불러오기
+        await getBoardListInOffcanvas();
       }
-    } catch (error) {
-      console.error('Error updating board:', error);
-    }
-  }
-
-  function editBoardDetails(boardId) {
-
-    if (!boardId) {
-      console.error('Unable to determine board ID');
-      return;
-    }
-
-    $("#editBoardModal").css("display", "block");
-
-    // Submit updated board details
-    $("#editBoardForm").off('submit').on('submit', async function (event) {
-      event.preventDefault();
-
-      const updatedTitle = $("#editBoardTitle").val();
-      const updatedDescription = $("#editBoardDescription").val();
-      const updatedColor = $("#editBoardColor").val();
-
-      const updatedData = {
-        title: updatedTitle,
-        description: updatedDescription,
-        color: updatedColor,
-      };
-
-      updateBoardDetails(boardId, updatedData);
-
-      // Close the modal
-      $("#editBoardModal").css("display", "none");
-      $(".modal-backdrop").remove();
-      $(".modal").removeClass("show");
     });
   }
 
-  async function deleteBoardDetails(boardId) {
+  async function deleteCurrentBoard(currBoardId) {
     try {
-      const response = await fetch(`/api/board/${boardId}`, {
-        credentials: 'same-origin',
+      console.log("삭제 로직 안 : " + currBoardId);
+      const response = await fetch(`/api/board/` + currBoardId, {
         method: 'DELETE',
+        credentials: 'same-origin',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json'
+        }
       });
 
       if (response.ok) {
-        // 텍스트 메시지 대신 알림창으로 메시지 표시
-        alert('Board delete successfully');
-
-        // 업데이트 성공 후 일정 시간(예: 1.5초) 후에 페이지 새로고침
-        updateBoardList();
+        // 백엔드로 데이터 전송 성공 시 UI 업데이트 등의 작업을 수행합니다.
+        console.log('Board delete successfully.');
       } else {
-        const errorText = await response.text();
-        throw new Error(`Error updating board: ${errorText}`);
+        console.error('Failed to send board data.');
       }
     } catch (error) {
-      console.error('Error updating board:', error);
+      console.error('Error sending board data:', error);
+    } finally {
+      window.location.href = '/web';
     }
   }
 
