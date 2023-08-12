@@ -33,11 +33,6 @@ public interface UserService {
     ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto, Long boardNo);
 
     /**
-     * 모든 유저 조회 API
-     */
-    List<BoardMember> getUserList();
-
-    /**
      * 유저 프로필 조회 API
      * @param user 로그인한 유저 프로필 정보
      */

@@ -1,11 +1,15 @@
 package com.winner.trelloimplementation.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.winner.trelloimplementation.board.controller.BoardController;
+import com.winner.trelloimplementation.board.dto.GetBoardMemberResponseDto;
 import com.winner.trelloimplementation.board.entity.BoardMember;
 import com.winner.trelloimplementation.board.repository.BoardMemberRepository;
 import com.winner.trelloimplementation.common.jwt.JwtUtil;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.ProfileResponseDto;
+import com.winner.trelloimplementation.user.entity.User;
+import com.winner.trelloimplementation.user.repository.UserRepository;
 import com.winner.trelloimplementation.user.service.KakaoService;
 import com.winner.trelloimplementation.user.userlog.UserLog;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,7 +33,9 @@ public class UserHomeController {
 
     private final KakaoService kakaoService;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
     private final BoardMemberRepository boardMemberRepository;
+    private final BoardController boardController;
 
     @GetMapping("/sign")
     public String signPage() { return "sign"; }
@@ -35,10 +43,26 @@ public class UserHomeController {
     @GetMapping("/my-page")
     public String myPage(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
         ProfileResponseDto profileResponseDto = new ProfileResponseDto(userDetails.getUser());
+        List<GetBoardMemberResponseDto> boardMembers = boardController.getBoardMembers(userDetails);
 
         // model 필요한 데이터 담아서 반환
         model.addAttribute("users", profileResponseDto);
+        model.addAttribute("members", boardMembers);
         model.addAttribute("logs", UserLog.fileReader(userDetails.getUser()));
+        return "my-page";
+    }
+
+    @GetMapping("/my-page/{username}")
+    public String userPage(@PathVariable String username, Model model) {
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new NullPointerException("등록되지 않은 Username 입니다."));
+        ProfileResponseDto profileResponseDto = new ProfileResponseDto(user);
+        UserDetailsImpl userDetails = new UserDetailsImpl(user);
+        List<GetBoardMemberResponseDto> boardMembers = boardController.getBoardMembers(userDetails);
+
+        // model 필요한 데이터 담아서 반환
+        model.addAttribute("users", profileResponseDto);
+        model.addAttribute("members", boardMembers);
+        model.addAttribute("logs", UserLog.fileReader(user));
         return "my-page";
     }
 
@@ -79,9 +103,17 @@ public class UserHomeController {
             // 서로 같은 보드를 사용 중인지 확인
             if (targetBoardMember.getBoards().getId().equals(boardNo)) {
                 ProfileResponseDto profileResponseDto = new ProfileResponseDto(targetBoardMember.getUser());
+                ArrayList<String> temp = UserLog.fileReader(userDetails.getUser());
+                ArrayList<String> memberLog = new ArrayList<>();
+
+                for (int i = 0; i < temp.size(); i ++) {
+                    if (temp.get(i).startsWith(userDetails.getUser().getUsername())) {
+                        memberLog.add(temp.get(i));
+                    }
+                }
 
                 model.addAttribute("users", profileResponseDto);
-                model.addAttribute("logs", UserLog.fileReader(userDetails.getUser()));
+                model.addAttribute("logs", memberLog);
                 return "my-page";
             } else {
                 throw new IllegalArgumentException("동작을 수행할 권한이 없습니다.");

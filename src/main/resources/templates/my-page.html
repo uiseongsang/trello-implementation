@@ -69,21 +69,7 @@
             <div class="btn"><i class="fas fa-info-circle"></i></div>
             <div class="btn"><i class="far fa-bell"></i></div>
             <div class="btn"><i class="fas fa-cog"></i></div>
-            <div class="btn" type="button" data-bs-toggle="offcanvas"
-                 data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                <i class="fas fa-user-tie"></i>
-            </div>
             <a onclick="logout()" href="/api/sign"><div class="btn" type="submit"><i class="btn">logout</i></div></a>
-        </div>
-
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasRightLabel">Offcanvas right</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <p>여기에 멤버 목록 표시</p>
-            </div>
         </div>
     </header>
     <main class="app-board">
@@ -98,6 +84,7 @@
             <button th:onclick="|location.href='/api/user/profile/password'|" class="btn btn-warning ms-2">비밀번호 수정</button>
             <button th:onclick="|location.href='/api/user/sign-out'|" class="btn btn-warning ms-2">회원탈퇴</button>
         </div>
+        <div th:each="member : ${members}" style="text-align: center; margin-top: 5px"><span th:button="${member.getUser_id()}" onclick="getUserPage()"></span></div>
         <div th:each="log : ${logs}" style="text-align: center; margin-top: 5px">
             <span th:text="${log}"></span>
         </div>
@@ -108,6 +95,10 @@
         // 토큰 삭제
         Cookies.remove('Authorization', {path: '/'});
         window.location.href = host + '/api/sign';
+    }
+
+    function getUserPage() {
+
     }
 </script>
 </body>

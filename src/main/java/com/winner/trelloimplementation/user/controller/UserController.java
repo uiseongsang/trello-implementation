@@ -62,16 +62,6 @@ public class UserController {
         return userServiceImpl.signup(requestDto, boardNo);
     }
 
-    @Operation(summary = "보드멤버 조회 메서드", description = "보드멤버 조회 메서드입니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "bad request operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
-    })
-    @GetMapping("/list")
-    public List<BoardMember> getUserList() {
-        return userServiceImpl.getUserList();
-    }
-
     @Operation(summary = "유저 프로필 조회 메서드", description = "유저 프로필 조회 메서드입니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ProfileResponseDto.class))),

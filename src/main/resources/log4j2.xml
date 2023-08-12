@@ -18,7 +18,7 @@
             <Policies>
                 <TimeBasedTriggeringPolicy modulate="true" interval="1" /><!-- 시간별 로그 파일 생성-->
             </Policies>
-            <DefaultRolloverStrategy max="5" fileIndex="min" /><!-- 롤링 파일 5개 까지 생성 -->
+            <DefaultRolloverStrategy max="3" fileIndex="min" /><!-- 롤링 파일 3개 까지 생성 -->
         </RollingFile>
     </Appenders>
 
