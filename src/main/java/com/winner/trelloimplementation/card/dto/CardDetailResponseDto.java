@@ -23,6 +23,7 @@ public class CardDetailResponseDto {
     private String createdAt;
     private String modifiedAt;
     private Long columnNo;
+    private Long postion;
     private Set<CommentResponseDto> commentList = new LinkedHashSet<>();
     private Set<CardMemberResponseDto> cardMemberList = new LinkedHashSet<>();
 
@@ -35,6 +36,7 @@ public class CardDetailResponseDto {
         this.createdAt = card.getCreatedAtAsString();
         this.modifiedAt = card.getModifiedAtAsString();
         this.columnNo = card.getColumnEntity().getId();
+        this.postion = card.getPosition();
         for(Comment comment : card.getCommentList()) {
             commentList.add(new CommentResponseDto(comment));
         }
