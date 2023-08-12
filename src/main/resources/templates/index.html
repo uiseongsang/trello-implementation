@@ -93,20 +93,16 @@
     <!-- Board -->
     <section class="board-body">
       <div class="wrap-lists" id="wrap-col-list">
-        <!--         첫 번째 열-->
-        <div class="board-col" id="listsContainer">
-          <!-- 첫 번째 리스트 -->
-          <div class="list">
-            <h4 class="list-title">List title</h4>
-            <div class="card">Card 1</div>
-            <a class="btn-list" href="#">+ Add another card</a>
-          </div>
-        </div>
-
-        <div class="board-col" >
-          <!-- 빈 열을 먼저 만들고, 버튼 클릭 시 새 리스트 추가 -->
+        <div class="board-col">
           <div class="list">
             <a class="btn-list" id="addListButton" href="#">+ Add another list</a>
+            <div class="list-container" id="addListContainer" style="display: none;">
+              <input type="text" id="newListTitle" placeholder="Enter list title">
+              <div class="button-container">
+                <button id="confirmAddList">Add list</button>
+                <button id="cancelAddList">Cancel</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -122,12 +118,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.10.2/umd/popper.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.5.0/js/bootstrap.min.js"></script>
 <script>
+  let selectedBoardId = null;
+
   document.addEventListener('DOMContentLoaded', function () {
     document.cookie.replace("jwt=", "Bearer ");
+    // const jwtCookie = document.cookie;
+    // const modifiedJwtCookie = jwtCookie.replace("jwt=", "Bearer ");
     getBoardListInOffcanvas().then(data => {
       if (data.length > 0) {
-        const firstBoardId = data[0].id;
-        fetchBoardDetails(firstBoardId);
+        //const firstBoardId = data[0].id;
+        selectedBoardId = data[0].id;
+        fetchBoardDetails(selectedBoardId);
       }
     });
   });
@@ -177,8 +178,9 @@
       const boardButtons = document.querySelectorAll('.offcanvas-body button');
       boardButtons.forEach(button => {
         button.addEventListener('click', () => {
-          const boardId = button.dataset.boardId;
-          fetchBoardDetails(boardId);
+          selectedBoardId = button.dataset.boardId;
+          // console.log(selectedBoardId);
+          fetchBoardDetails(selectedBoardId);
         });
       });
 
@@ -214,6 +216,7 @@
 
                 const list = document.createElement('div');
                 list.className = 'list';
+                list.id = column.id;
 
                 const listTitle = document.createElement('h4');
                 listTitle.className = 'list-title';
@@ -224,6 +227,10 @@
                   const cardDiv = document.createElement('div');
                   cardDiv.className = 'card';
                   cardDiv.textContent = card.title; // 카드의 제목을 표시
+                  cardDiv.id = card.id;
+                  cardDiv.addEventListener('click', () => {
+                    openModal(card.id); // 모달을 띄우는 함수 호출
+                  });
                   list.appendChild(cardDiv);
                 });
 
@@ -231,20 +238,30 @@
                 addCardLink.className = 'btn-list';
                 addCardLink.href = '#';
                 addCardLink.textContent = '+ Add another card';
+                addCardLink.id = column.id;
                 list.appendChild(addCardLink);
+                addCardLink.addEventListener('click', () => addCard(column.id));
 
                 boardCol.appendChild(list);
                 wrapLists.appendChild(boardCol);
               });
 
-              const addListCol = document.createElement('div');
-              addListCol.className = 'board-col';
-              const addListLink = document.createElement('a');
-              addListLink.className = 'btn-list';
-              addListLink.href = '#';
-              addListLink.textContent = '+ Add another list';
-              addListCol.appendChild(addListLink);
-              wrapLists.appendChild(addListCol);
+              const boardCol2HTML = `
+                                  <div class="board-col">
+                                    <div class="list">
+                                      <a href="#" class="btn-list" id="addListButton" onclick="clickBtn()">+ Add another list</a>
+                                      <div class="list-container" id="addListContainer" style="display: none;">
+                                        <input type="text" id="newListTitle" placeholder="Enter list title">
+                                        <div class="button-container">
+                                          <button id="confirmAddList">Add list</button>
+                                          <button id="cancelAddList">Cancel</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  `;
+              const boardCol2  = document.createRange().createContextualFragment(boardCol2HTML);
+              wrapLists.appendChild(boardCol2);
 
               const boardSection = document.createElement('section');
               boardSection.className = 'board-body';
@@ -254,65 +271,89 @@
             .catch(error => console.error('Error fetching board details:', error));
   }
 
+  function clickBtn() {
+    $('#addListContainer').css('display', 'block');
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const wrapLists = document.getElementById('wrap-col-list');
-    const sortableLists = new Sortable(wrapLists, {
-      group: 'lists',    // 그룹을 지정하여 리스트끼리만 이동 가능하도록 설정
-      handle: '.list-title', // 리스트 제목을 드래그 핸들로 사용
-      animation: 150,    // 드래그 애니메이션 시간 (밀리초)
-      onMove: (event) => {
-        const toIndex = event.toIndex;
-        const addListIndex = wrapLists.querySelectorAll('.board-col').length - 1; // Add another list 아이템의 인덱스
-
-        // 움직이려는 위치가 Add another list 아이템 뒤로 갈 경우 움직임을 제한
-        if (toIndex >= addListIndex) {
-          return false;
-        }
-      },
+    $('#cancelAddList').on('click', function() {
+      $('#addListContainer').css('display', 'none');
     });
-  });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const addListButton = document.getElementById('addListButton');
-    const listsContainer = document.getElementById('wrap-col-list');
+    $('#confirmAddList').on('click', function() {
+      const newListTitle = $('#newListTitle').val(); // 새 리스트 제목을 가져옴
 
-    addListButton.addEventListener('click', () => {
-      const newColumnContainer = document.createElement('div');
-      newColumnContainer.className = 'column-container';
+      createColumn(newListTitle) // Create the column and wait for its completion
+          .then(response => {
+            // Successfully created the column, fetch board details
+            fetchBoardDetails(selectedBoardId);
+          })
+          .catch(error => {
+            // Handle error if column creation fails
+            console.error('Error creating column:', error);
+          });
+    });
+  }
 
-      const newListCol = document.createElement('div');
-      newListCol.className = 'board-col';
+  //
+  //     const lastColumnContainer = $('#wrap-col-list .board-col:first-child');
+  //     if (lastColumnContainer.length > 0) {
+  //       lastColumnContainer.after(newColumnContainer);
+  //     } else {
+  //       $('#wrap-col-list').append(newColumnContainer);
+  //     }
+  //
+  //     addListContainer.css('display', 'none');
+  //
+  //     newColumnContainer.append(newListCol);
+  //     newListCol.append(newList);
+  //
+  //     const addCardButton = newList.find('.btn-list');
+  //
+  //     addCardButton.on('click', function() {
+  //       const newCard = $('<div>').addClass('card').text('New Card');
+  //       newList.append(newCard);
+  //     });
+  //   });
 
-      const newList = document.createElement('div');
-      newList.className = 'list';
-      newList.innerHTML = `
-      <h4 class="list-title">List</h4>
-      <a class="btn-list" href="#">+ Add another card</a>
-    `;
+  //     document.addEventListener('DOMContentLoaded', () => {
+  //   const wrapLists = document.getElementById('wrap-col-list');
+  //   const sortableLists = new Sortable(wrapLists, {
+  //     group: 'lists',    // 그룹을 지정하여 리스트끼리만 이동 가능하도록 설정
+  //     handle: '.list-title', // 리스트 제목을 드래그 핸들로 사용
+  //     animation: 150,    // 드래그 애니메이션 시간 (밀리초)
+  //     onMove: (event) => {
+  //       const toIndex = event.toIndex;
+  //       const addListIndex = wrapLists.querySelectorAll('.board-col').length - 1; // Add another list 아이템의 인덱스
+  //
+  //       // 움직이려는 위치가 Add another list 아이템 뒤로 갈 경우 움직임을 제한
+  //       if (toIndex >= addListIndex) {
+  //         return false;
+  //       }
+  //     },
+  //   });
+  // });
 
-      const lastColumnContainer = listsContainer.querySelector('.board-col:first-child');
-      if (lastColumnContainer) {
-        lastColumnContainer.insertAdjacentElement('afterend', newColumnContainer);
-      } else {
-        listsContainer.appendChild(newColumnContainer);
-      }
-
-
-      newColumnContainer.appendChild(newListCol);
-      newListCol.appendChild(newList);
-
-      const addCardButton = newList.querySelector('.btn-list');
-
-      addCardButton.addEventListener('click', () => {
-        const newCard = document.createElement('div');
-        newCard.className = 'card';
-        newCard.textContent = 'New Card';
-
-        newList.appendChild(newCard);
+  async function createColumn(columnTitle) {
+    // 백엔드로 AJAX 요청 보내기
+    try {
+      // 백엔드로 AJAX 요청 보내기
+      const response = await $.ajax({
+        url: `/api/board/${selectedBoardId}/column`,
+        type: 'POST',
+        data: JSON.stringify({ title: columnTitle }),
+        contentType: 'application/json'
       });
-    });
-  });
+
+      // 백엔드로부터 성공 응답을 받았을 때 처리
+      console.log('새로운 리스트가 생성되었습니다:', response);
+
+      return response;
+    } catch (error) {
+      // 백엔드로부터 에러 응답을 받았을 때 처리
+      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
+      throw error;
+    }
+  }
+
 </script>
 </body>
 </html>
