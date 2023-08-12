@@ -58,33 +58,12 @@
 <div class="app">
   <header class="app-header">
     <div class="left">
-      <a href="/web"><div class="btn" type="submit"><i class="fas fa-home"></i></div></a>
-      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
-        <i class="fab fa-trello"></i> Boards
-      </button>
-      <a href="/api/my-page"><div class="btn"><i class="fas fa-user-tie"></i></div></a>
+      <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
     </div>
-
-    <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-         id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Trello</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-                aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <p>여기에 보드 리스트들 해놓고 누르면 화면이 아예 해당 보드로 바뀌도록</p>
-      </div>
-    </div>
-
     <div class="center">
       <div class="logo"><i class="fab fa-trello"></i> Trello</div>
     </div>
     <div class="right">
-      <div class="btn"><i class="fas fa-info-circle"></i></div>
-      <div class="btn"><i class="far fa-bell"></i></div>
-      <div class="btn"><i class="fas fa-cog"></i></div>
       <a onclick="logout()" href="/api/sign"><div class="btn" type="submit"><i class="btn">logout</i></div></a>
     </div>
   </header>

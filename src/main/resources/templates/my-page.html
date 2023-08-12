@@ -58,7 +58,7 @@
 <div class="app">
     <header class="app-header">
         <div class="left">
-            <a href="/web"><div class="btn" type="submit"><i class="fas fa-home"></i></div></a>
+            <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
                     data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
                 <i class="fab fa-trello"></i> Boards
@@ -84,7 +84,21 @@
             <div class="btn"><i class="fas fa-info-circle"></i></div>
             <div class="btn"><i class="far fa-bell"></i></div>
             <div class="btn"><i class="fas fa-cog"></i></div>
+            <div class="btn" type="button" data-bs-toggle="offcanvas"
+                 data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                <i class="fas fa-user-tie"></i>
+            </div>
             <a onclick="logout()" href="/api/sign"><div class="btn" type="submit"><i class="btn">logout</i></div></a>
+        </div>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel">Offcanvas right</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <p>여기에 유저 리스트가 나오고 누르면 해당 유저 마이페이지로 이동</p>
+            </div>
         </div>
     </header>
     <main class="app-board">
@@ -106,6 +120,44 @@
         // 토큰 삭제
         Cookies.remove('Authorization', {path: '/'});
         window.location.href = host + '/api/sign';
+    }
+
+    async function getBoardListInOffcanvas() {
+        try {
+            const response = await fetch('/api/boards', {
+                credentials: 'same-origin',
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+            const data = await response.json();
+
+            const offcanvasBody = document.querySelector('.offcanvas-body');
+            offcanvasBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
+            data.forEach(board => {
+                const boardCol = document.createElement('div');
+                boardCol.className = 'list';
+                boardCol.innerHTML = `
+        <button class="btn btn-primary" type="button" data-board-id="${board.id}">${board.title}</button>
+      `;
+                offcanvasBody.appendChild(boardCol);
+            });
+
+            const boardButtons = document.querySelectorAll('.offcanvas-body button');
+            boardButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    selectedBoardId = button.dataset.boardId;
+                    // console.log(selectedBoardId);
+                    fetchBoardDetails(selectedBoardId);
+                });
+            });
+
+            return data; // 데이터 반환
+        } catch (error) {
+            console.error('Error fetching board list:', error);
+            return []; // 에러 발생 시 빈 배열 반환
+        }
     }
 </script>
 </body>
