@@ -7,9 +7,11 @@ import lombok.Getter;
 public class GetBoardListResponseDto {
     private Long id;
     private String title;
+    private Long user_id;
 
     public GetBoardListResponseDto (Board board) {
         this.id = board.getId();
         this.title = board.getTitle();
+        this.user_id = board.getUser().getId();
     }
 }

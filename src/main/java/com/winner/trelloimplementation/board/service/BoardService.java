@@ -3,7 +3,6 @@ package com.winner.trelloimplementation.board.service;
 import com.winner.trelloimplementation.board.dto.*;
 import com.winner.trelloimplementation.user.entity.User;
 import jakarta.mail.MessagingException;
-import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -54,4 +53,27 @@ public interface BoardService {
      */
     void sendEmailToInviteUser(Long boardNo, EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException;
 
+    /**
+     * 유저 네임으로 아이디 리턴해주는 함수
+     * @param user 로그인한 유저
+     * @param username 받은 유저 네임
+     * @return
+     */
+    Long getUserIdFromUsername(User user, String username);
+
+    /**
+     * 해당 보드에 속한 보드 멤버들의 이메일이랑 권한 가져오는 메서드
+     * @param user
+     * @return
+     */
+    List<GetBoardMemberResponseDto> getBoardMember(User user);
+
+    /**
+     * 보드 제목을 주고 새로 저장된 보드 아이디를 가져올 때 사용하는 메서드
+     *
+     * @param user
+     * @param boardTitle
+     * @return
+     */
+    Long getBoardIdFromBoardTitle(User user, String boardTitle);
 }
