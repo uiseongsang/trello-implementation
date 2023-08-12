@@ -215,3 +215,7 @@ body {
   margin-bottom: 10px;
   padding: 5px;
 }
+
+.deadline {
+  opacity: 0.5; /* 원하는 반투명 정도로 조정 */
+}

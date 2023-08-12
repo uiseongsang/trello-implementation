@@ -216,9 +216,13 @@
             <label for="cardColor">Card Color:</label>
             <div class="item-content">
               <select id="cardColor" disabled>
+                <option value="white">White</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
+                <option value="yello">Yello</option>
+                <option value="pink">Pink</option>
+                <option value="purple">Purple</option>
               </select>
               <button type="button" class="btn btn-primary edit-button" id="editColor">Edit</button>
               <button type="button" class="btn btn-primary save-button d-none" id="saveColor">Save</button>
@@ -279,7 +283,7 @@
           </div>
         </div>
        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clossBtn()">Close</button>
           <button type="button" class="btn btn-danger" id="delete-card-Button" onclick="deleteCard(${card.columnNo}, ${card.id})">Delete</button>
           <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${card.id}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -310,6 +314,18 @@
         modal.innerHTML += innerHtml;
        // 모달을 body에 추가
        document.body.appendChild(modal);
+
+       if(card.isdeadline) {
+         const titleEditButton = document.getElementById(`editTitle${card.id}`);
+         const colorEditButton = document.getElementById('editColor');
+         const dateEditButton = document.getElementById('editDueDate');
+         const descEditButton = document.getElementById('editDescription');
+
+         titleEditButton.style.display = 'none';
+         colorEditButton.style.display = 'none';
+         dateEditButton.style.display = 'none';
+         descEditButton.style.display = 'none';
+       }
 
        // 모달을 열기 위한 이벤트 리스너 추가
        modal.addEventListener('shown.bs.modal', () => {
@@ -384,9 +400,11 @@
              },
            })
                    .then(response => {
-                     if (response.statusCode == 200) {
-                       alert('Color updated successfully');
+                     if (response.status == 200) {
+                       console.log('comment successfully');
                        // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                     } else {
+                       alert("자신이 작성한 댓글이 아닙니다");
                      }
                    })
                    .catch(error => {
@@ -408,9 +426,12 @@
                },
              })
                      .then(response => {
-                       if (response.statusCode == 201) {
-                         alert('Color updated successfully');
+                       if (response.status == 201) {
+                         console.log('comment successfully');
                          // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       } else {
+                         alert("자신이 작성한 댓글이 아닙니다");
+                         location.reload();
                        }
                      })
                      .catch(error => {
@@ -446,9 +467,8 @@
              },
            })
                    .then(response => {
-                     if (response.statusCode == 201) {
-                       alert('Color updated successfully');
-                       // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                     if (response.status == 201) {
+                       console.log('comment successfully');
                      }
                    })
                    .catch(error => {
@@ -482,8 +502,8 @@
                },
              })
                      .then(response => {
-                       if (response.statusCode == 200) {
-                         alert('Color updated successfully');
+                       if (response.status == 200) {
+                         console.log('Color updated successfully');
                          // 여기서 다른 필요한 작업을 수행할 수 있습니다.
                        }
                      })
@@ -501,8 +521,8 @@
                },
              })
                      .then(response => {
-                       if (response.statusCode == 200) {
-                         alert('Color updated successfully');
+                       if (response.status == 200) {
+                         console.log('deadline updated successfully');
                          // 여기서 다른 필요한 작업을 수행할 수 있습니다.
                        }
                      })
@@ -520,8 +540,8 @@
                },
              })
                      .then(response => {
-                       if (response.statusCode == 200) {
-                         alert('Color updated successfully');
+                       if (response.status == 200) {
+                         console.log('desc updated successfully');
                          // 여기서 다른 필요한 작업을 수행할 수 있습니다.
                        }
                      })
@@ -573,8 +593,8 @@
       },
     })
             .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
+              if (response.status == 200) {
+                console.log('title updated successfully');
                 // 여기서 다른 필요한 작업을 수행할 수 있습니다.
               }
             })
@@ -627,6 +647,15 @@
           cardDiv.className = 'card';
           cardDiv.textContent = card.title; // 카드의 제목을 표시
           cardDiv.id = card.id;
+          if (card.color == null) {
+            cardDiv.style.background = "white";
+          } else {
+            cardDiv.style.background = card.color;
+          }
+          if (card.isdeadline) {
+            cardDiv.classList.add('deadline'); // CSS 클래스를 추가하여 반투명 처리
+          }
+
           cardDiv.addEventListener('click', () => {
             openModal(card.id); // 모달을 띄우는 함수 호출
           });
@@ -731,8 +760,8 @@
         },
       })
               .then(response => {
-                if (response.statusCode == 201) {
-                  alert('save card successfully');
+                if (response.status == 201) {
+                  console.log('save card successfully');
                   // 여기서 다른 필요한 작업을 수행할 수 있습니다.
                 }
               })
@@ -790,8 +819,8 @@
       },
     })
             .then(response => {
-              if (response.statusCode == 200) {
-                alert('delete card successfully');
+              if (response.status == 200) {
+                console.log('delete card successfully');
                 // 여기서 다른 필요한 작업을 수행할 수 있습니다.
               }
               location.reload();
@@ -850,6 +879,10 @@
             .catch(error => {
               alert(`An error occurred: ${error}`);
             });
+  }
+
+  function clossBtn() {
+    location.reload();
   }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
