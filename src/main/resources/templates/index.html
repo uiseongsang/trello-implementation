@@ -18,7 +18,9 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
           integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
           crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+          crossorigin="anonymous"></script>
   <title>Trello</title>
   <style>
     .offcanvas {
@@ -256,6 +258,8 @@
     offcanvasTrigger.addEventListener('click', function () {
       if (!offcanvas.isShown) {
         offcanvas.show();
+        $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+        $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
       } else {
         offcanvas.hide();
       }
@@ -331,6 +335,8 @@
       });
 
       $("#myModal").css("display", "none");
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
 
     } catch (error) {
       alert("오류: " + error.responseText);
@@ -421,6 +427,8 @@
         $(".btn-edit-board").off("click").click(async function () {
           const dataId = data.id; // data.id 값을 가져옴
           $("#editBoardModal").css("display", "block");
+          $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+          $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
           await modifyCurrentBoard(dataId);
         });
 
@@ -489,7 +497,7 @@
                             </div>
                           </div>
                           `;
-        const boardCol2  = document.createRange().createContextualFragment(boardCol2HTML);
+        const boardCol2 = document.createRange().createContextualFragment(boardCol2HTML);
         wrapLists.appendChild(boardCol2);
 
         const boardSection = document.createElement('section');
@@ -512,6 +520,8 @@
     // 모달 열기 버튼 클릭 시
     $("#addBoardBtn").click(function () {
       $("#myModal").css("display", "block");
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
     });
 
     // 보드 수정 모달 열기 버튼 클릭 시
@@ -522,12 +532,16 @@
     // 모달 닫기 버튼 클릭 시
     $(".close").click(function () {
       $("#myModal").css("display", "none");
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
     });
 
     // 모달 외부 클릭 시 닫기
     $(window).click(function (event) {
       if (event.target.id === "myModal") {
         $("#myModal").css("display", "none");
+        $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+        $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
       }
     });
 
@@ -577,6 +591,8 @@
 
       // Close the modal after successful submission
       $("#myModal").css("display", "none");
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
 
       // Optionally, you can fetch and update the board list or perform other actions here
     } catch (error) {
@@ -649,9 +665,10 @@
     const color = this.value;
     root.style.setProperty('--app-col', color);
   });
+
   // ---------------------------------------
 
-  async function modifyCurrentBoard (currentBoardId) {
+  async function modifyCurrentBoard(currentBoardId) {
     console.log("함수 안 : " + currentBoardId);
     $("#editBoardModal").submit(async function (event) {
       console.log("함수 안의 안 : " + currentBoardId);
@@ -721,12 +738,16 @@
 
   function clickBtn() {
     $('#addListContainer').css('display', 'block');
+    $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+    $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
 
-    $('#cancelAddList').on('click', function() {
+    $('#cancelAddList').on('click', function () {
       $('#addListContainer').css('display', 'none');
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
     });
 
-    $('#confirmAddList').on('click', function() {
+    $('#confirmAddList').on('click', function () {
       const newListTitle = $('#newListTitle').val(); // 새 리스트 제목을 가져옴
 
       createColumn(newListTitle) // Create the column and wait for its completion
@@ -748,7 +769,7 @@
       const response = await $.ajax({
         url: `/api/board/${selectedBoardId}/column`,
         type: 'POST',
-        data: JSON.stringify({ title: columnTitle }),
+        data: JSON.stringify({title: columnTitle}),
         contentType: 'application/json'
       });
 
@@ -762,6 +783,7 @@
       throw error;
     }
   }
+
   function saveCard(saveButton, columnId) {
     const cardElement = saveButton.closest('.card');
     const cardTitleInput = cardElement.querySelector('input');
@@ -774,7 +796,7 @@
       fetch(`/api/column/${columnId}/card`, {
         credentials: 'same-origin',
         method: 'POST',
-        body: JSON.stringify({ title: cardTitle }), // 객체를 JSON 문자열로 변환
+        body: JSON.stringify({title: cardTitle}), // 객체를 JSON 문자열로 변환
         headers: {
           'Content-Type': 'application/json'
         },
@@ -808,9 +830,9 @@
 
     const saveButton = document.createElement('button');
     saveButton.textContent = 'Save';
-    saveButton.style='background-color: rgb(25,118,210)';
+    saveButton.style = 'background-color: rgb(25,118,210)';
     saveButton.style.color = 'white';
-    saveButton.addEventListener('click', function() {
+    saveButton.addEventListener('click', function () {
       saveCard(saveButton, columnId); // saveButton을 인자로 넘겨서 호출
     });
 
@@ -851,7 +873,7 @@
   }
 
   function changeCardPosition(cardNo, columnNo) {
-    const positionInput = document.getElementById('positionInput'+cardNo); // 입력한 숫자를 가져옴
+    const positionInput = document.getElementById('positionInput' + cardNo); // 입력한 숫자를 가져옴
     const newPosition = parseInt(positionInput.value); // 입력한 숫자를 정수로 변환
     console.log(cardNo, columnNo, newPosition)
     fetch(`/api/column/${columnNo}/card/${cardNo}/change-position/${newPosition}`, {
@@ -875,19 +897,21 @@
   }
 
   function changeCardColumnPosition(cardNo) {
-    const changeCardPositionInput = document.getElementById('changeCardPositionInput'+cardNo);
+    const changeCardPositionInput = document.getElementById('changeCardPositionInput' + cardNo);
     const newCardPosition = parseInt(changeCardPositionInput.value);
 
-    const changeColumnPositionInput = document.getElementById('changeColumnPositionInput'+cardNo);
+    const changeColumnPositionInput = document.getElementById('changeColumnPositionInput' + cardNo);
     const newColumnPosition = parseInt(changeColumnPositionInput.value);
 
-    fetch(`api/card/${cardNo}/change-column/${newColumnPosition}/change-position/${newCardPosition}`, {
-      credentials: 'same-origin',
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
+    fetch(
+        `api/card/${cardNo}/change-column/${newColumnPosition}/change-position/${newCardPosition}`,
+        {
+          credentials: 'same-origin',
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
     .then(response => {
       if (response.status == 200) {
         alert("카드 컬럼 이동 완료");
@@ -972,7 +996,7 @@
   `;
       // 모달 댓글 목록 추가
 
-      if(card.commentList.length > 0) {
+      if (card.commentList.length > 0) {
         for (let comment of card.commentList) {
           innerHtml += `
           <div class="commentInfo${comment.id}">
@@ -1065,7 +1089,6 @@
         });
       });
 
-
       modal.addEventListener('click', event => {
         if (event.target.classList.contains('edit-comment-button')) {
           const commentId = event.target.getAttribute('data-comment-id');
@@ -1115,7 +1138,7 @@
             fetch(`/api/comment/${commentId}`, {
               credentials: 'same-origin',
               method: 'PATCH',
-              body: JSON.stringify({ content: updatedComment }), // 객체를 JSON 문자열로 변환
+              body: JSON.stringify({content: updatedComment}), // 객체를 JSON 문자열로 변환
               headers: {
                 'Content-Type': 'application/json'
               },
@@ -1153,7 +1176,7 @@
           fetch(`/api/card/${cardId}/comment`, {
             credentials: 'same-origin',
             method: 'POST',
-            body: JSON.stringify({ content: comment }), // 객체를 JSON 문자열로 변환
+            body: JSON.stringify({content: comment}), // 객체를 JSON 문자열로 변환
             headers: {
               'Content-Type': 'application/json'
             },
@@ -1189,7 +1212,7 @@
             fetch(`/api/card/${cardId}/color`, {
               credentials: 'same-origin',
               method: 'PATCH',
-              body: JSON.stringify({ color: cardColor }), // 객체를 JSON 문자열로 변환
+              body: JSON.stringify({color: cardColor}), // 객체를 JSON 문자열로 변환
               headers: {
                 'Content-Type': 'application/json'
               },
@@ -1208,7 +1231,7 @@
             fetch(`/api/card/${cardId}/deadline`, {
               credentials: 'same-origin',
               method: 'PATCH',
-              body: JSON.stringify({ deadline: deadline }), // 객체를 JSON 문자열로 변환
+              body: JSON.stringify({deadline: deadline}), // 객체를 JSON 문자열로 변환
               headers: {
                 'Content-Type': 'application/json'
               },
@@ -1227,7 +1250,7 @@
             fetch(`/api/card/${cardId}/description`, {
               credentials: 'same-origin',
               method: 'PATCH',
-              body: JSON.stringify({ description: description }), // 객체를 JSON 문자열로 변환
+              body: JSON.stringify({description: description}), // 객체를 JSON 문자열로 변환
               headers: {
                 'Content-Type': 'application/json'
               },
@@ -1280,7 +1303,7 @@
     fetch(`/api/card/${cardId}/title`, {
       credentials: 'same-origin',
       method: 'PATCH',
-      body: JSON.stringify({ title: newTitle }), // 객체를 JSON 문자열로 변환
+      body: JSON.stringify({title: newTitle}), // 객체를 JSON 문자열로 변환
       headers: {
         'Content-Type': 'application/json'
       },
@@ -1304,7 +1327,11 @@
   }
 
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+        crossorigin="anonymous"></script>
 </body>
 </html>
