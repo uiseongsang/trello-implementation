@@ -162,3 +162,10 @@ body {
   color: var(--app-col);
   cursor: pointer;
 }
+
+.card {
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 5px;
+}
