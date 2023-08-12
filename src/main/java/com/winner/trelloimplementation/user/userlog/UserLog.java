@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class UserLog {
-    public static String fileReader() throws Exception{
+    public static String fileReader() {
         String path = "logs/springStudy.log";
 
         File file = new File(path);
@@ -17,16 +17,13 @@ public class UserLog {
             while(scan.hasNextLine())
             {
                 logline = scan.nextLine();
-                if (logline.startsWith("Secured")) {
-                    if (!(logline.contains("/api/sign") || logline.contains("/js") || logline.contains("/css") || logline.contains("/favicon") || logline.contains(""))) {
-                        System.out.println(scan.nextLine());
-                        temp += scan.nextLine();
-                    }
+                if (logline.startsWith("Secured") && !logline.contains("GET")) {
+                    temp += logline;
                 }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            System.out.println("fileReader 에러 : " + e.toString());
+            System.out.println("fileReader 에러 : " + e);
         }
 
         return temp;

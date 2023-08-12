@@ -46,7 +46,7 @@ public class UserHomeController {
     public String signoutPage() { return "sign-out"; }
 
     @GetMapping("/user/logview")
-    public String logView() throws Exception {
+    public String logView() {
         return UserLog.fileReader();
     }
 

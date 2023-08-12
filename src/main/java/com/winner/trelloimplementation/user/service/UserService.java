@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface UserService {
     /**
@@ -29,6 +30,11 @@ public interface UserService {
      * @param requestDto 회원가입 요청 정보
      */
     ResponseEntity<ApiResponseDto> signup(SignupRequestDto requestDto, Long boardNo);
+
+    /**
+     * 모든 유저 조회 API
+     */
+    List<User> getUserList();
 
     /**
      * 유저 프로필 조회 API

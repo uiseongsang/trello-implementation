@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -100,6 +101,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return ResponseEntity.status(201).body(new ApiResponseDto("회원가입 성공", HttpStatus.CREATED.value()));
+    }
+
+    @Override
+    public List<User> getUserList() {
+        return userRepository.findAll();
     }
 
     @Override
