@@ -127,9 +127,14 @@ body {
   border-radius: 4px;
 }
 
-.app-board .board-body .list .list-title {
+.app-board .board-body {
   margin: 0;
 }
+
+/*.dropdownDiv*/
+/*.listTitle {*/
+/*  padding: 0.5rem 1rem;*/
+/*}*/
 
 .app-board .board-body .list .card {
   padding: 0.5rem;
@@ -208,3 +213,10 @@ body {
   gap: 1px;
   margin-top: 10px;
 }
+
+.column-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Adjust as per your requirements. */
+}
+
