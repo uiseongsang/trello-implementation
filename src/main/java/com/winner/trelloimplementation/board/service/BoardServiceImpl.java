@@ -50,12 +50,24 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void createBoard(User user, CreateBoardRequestDto createBoardRequestDto) {
         // 로그인한 회원이 존재하는지 확인
-        userRepository.findById(user.getId()).orElseThrow(
+        User existingUser = userRepository.findById(user.getId()).orElseThrow(
                 () -> new NullPointerException("회원이 존재하지 않습니다.")
         );
 
         // createBoard 받아온 정보로 Board 생성
         Board board = new Board(createBoardRequestDto.getTitle(), createBoardRequestDto.getDescription(), createBoardRequestDto.getColor());
+
+        // 이미 같은 이름의 보드가 존재하는지 확인
+        List<Board> existingBoards = boardRepository.findByTitle(createBoardRequestDto.getTitle());
+        if (!existingBoards.isEmpty()) {
+            for (Board tmpBoard : existingBoards) {
+                boolean boardMemberExists = boardMemberRepository.existsByIdAndUserId(tmpBoard.getId(), existingUser.getId());
+                if (boardMemberExists) {
+                    throw new IllegalArgumentException("이미 같은 이름의 보드를 생성하셨습니다.");
+                }
+            }
+        }
+
         // 해당 보드를 만들었기 때문에 보드 멤버에 ADMIN 권한 주고 삽입
         BoardMember member = new BoardMember(user, board, MemberRoleEnum.ADMIN);
         // 보드에 보드멤버 연관관계 매핑
@@ -79,7 +91,17 @@ public class BoardServiceImpl implements BoardService {
         if (!board.getUser().getUsername().equals(user.getUsername())) {
             throw new IllegalArgumentException("게시글을 작성한 유저가 아닙니다.");
         }
-        // 해당 보드의 생성자면 수정
+
+        List<Board> alreadyBoards = boardRepository.findByTitle(modifyBoardRequestDto.getTitle());
+        if (!alreadyBoards.isEmpty()) {
+            for (Board tmpBoard : alreadyBoards) {
+                boolean boardMemberExists = boardMemberRepository.existsByIdAndUserId(tmpBoard.getId(), user.getId());
+                if (boardMemberExists) {
+                    throw new IllegalArgumentException("이미 같은 이름의 보드가 존재합니다.");
+                }
+            }
+        }
+
         board.update(modifyBoardRequestDto);
     }
 
@@ -101,11 +123,9 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public GetOneBoardResponseDto getOneBoard(User user, Long boardNo) {
         // 해당 보드에 속해 있는 유저인지 확인
-        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo);
-        // 해당 보드의 멤버가 아니면 예외 처리
-        if (boardMember == null) {
-            throw new NullPointerException("해당 보드에 유저가 가입되어 있지 않거나, 해당 보드가 존재하지 않습니다.");
-        }
+        BoardMember boardMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo).orElseThrow(
+                () -> new NullPointerException("해당 보드에 유저가 가입되어 있지 않거나, 해당 보드가 존재하지 않습니다.")
+        );
         // 해당 보드의 존재여부 확인
         Board board = boardRepository.findById(boardNo).orElseThrow(
                 () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
@@ -143,12 +163,15 @@ public class BoardServiceImpl implements BoardService {
                 () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
         );
         // 해당 유저가 해당 보드의 멤버인지 확인
-        BoardMember findMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo);
+        BoardMember findMember = boardMemberRepository.findByUserIdAndBoardsId(user.getId(), boardNo).orElse(null);
         // 만약 멤버가 아닌데 해당 유저는 가입된 상태면 -> 해당 보드의 멤버로 추가
+
         if (findMember == null) {
+
             BoardMember boardMember = new BoardMember(user, board, MemberRoleEnum.MEMBER);
 
             boardMemberRepository.save(boardMember);
+
         }
 
         // 받는 사람 이메일 주소
@@ -190,5 +213,48 @@ public class BoardServiceImpl implements BoardService {
             throw new IllegalArgumentException("유효 기간이 만료된 링크입니다.");
         }
         return email;
+    }
+
+    @Override
+    public Long getUserIdFromUsername(User user, String username) {
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new NullPointerException("로그인이 되어 있지 않습니다.")
+        );
+
+
+        
+        User findUser = userRepository.findByUsername(username).orElseThrow(
+                () -> new NullPointerException("해당 이름을 가진 유저가 존재하지 않습니다.")
+        );
+
+        return findUser.getId();
+    }
+
+    @Override
+    public List<GetBoardMemberResponseDto> getBoardMember(User user) {
+
+        // -> 이거의 보드 아이디들을 가져옴
+        List<BoardMember> boardMembers = boardMemberRepository.findByUserId(user.getId());
+
+        List<GetBoardMemberResponseDto> res = new ArrayList<>();
+
+        for (BoardMember temp : boardMembers) {
+            GetBoardMemberResponseDto tempMember = new GetBoardMemberResponseDto(temp);
+            res.add(tempMember);
+        }
+
+        return res;
+    }
+
+    @Override
+    public Long getBoardIdFromBoardTitle(User user, String boardTitle) {
+
+        userRepository.findById(user.getId()).orElseThrow(
+                () -> new NullPointerException("로그인이 되어 있지 않습니다.")
+        );
+
+        Board board = boardRepository.findBoardByTitle(boardTitle);
+
+        return board.getId();
     }
 }
