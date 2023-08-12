@@ -59,22 +59,7 @@
     <header class="app-header">
         <div class="left">
             <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
-                <i class="fab fa-trello"></i> Boards
-            </button>
-        </div>
-
-        <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-             id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Trello</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-                        aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <p>여기에 보드 리스트들 해놓고 누르면 화면이 아예 해당 보드로 바뀌도록</p>
-            </div>
+            <a href="/web"><button class="btn btn-primary"><i class="fab fa-trello"></i> Boards</button></a>
         </div>
 
         <div class="center">
@@ -120,44 +105,6 @@
         // 토큰 삭제
         Cookies.remove('Authorization', {path: '/'});
         window.location.href = host + '/api/sign';
-    }
-
-    async function getBoardListInOffcanvas() {
-        try {
-            const response = await fetch('/api/boards', {
-                credentials: 'same-origin',
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
-            const data = await response.json();
-
-            const offcanvasBody = document.querySelector('.offcanvas-body');
-            offcanvasBody.innerHTML = ''; // 기존 내용을 비우고 다시 추가
-            data.forEach(board => {
-                const boardCol = document.createElement('div');
-                boardCol.className = 'list';
-                boardCol.innerHTML = `
-        <button class="btn btn-primary" type="button" data-board-id="${board.id}">${board.title}</button>
-      `;
-                offcanvasBody.appendChild(boardCol);
-            });
-
-            const boardButtons = document.querySelectorAll('.offcanvas-body button');
-            boardButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    selectedBoardId = button.dataset.boardId;
-                    // console.log(selectedBoardId);
-                    fetchBoardDetails(selectedBoardId);
-                });
-            });
-
-            return data; // 데이터 반환
-        } catch (error) {
-            console.error('Error fetching board list:', error);
-            return []; // 에러 발생 시 빈 배열 반환
-        }
     }
 </script>
 </body>
