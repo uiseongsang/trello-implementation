@@ -483,13 +483,13 @@
 
           const dropdownHTML = `
           <div class="btn-group">
-            <button type="button" class="btn">...</button>
             <button type="button" class="btn btn-parimary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="visually-hidden">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" onclick="editColumn('${column.id}')">Edit</a></li>
               <li><a class="dropdown-item" href="#" onclick="deleteColumn('${column.id}')">Delete</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#moveColumnModal">Move</a></li>
             </ul>
           </div>
         `;
@@ -873,7 +873,6 @@
     saveButton.textContent = 'Save';
     saveButton.style.backgroundColor = 'var(--app-col)';
     saveButton.style.color = 'white';
-    saveButton.border.color = 'var(--app-col)';
     saveButton.addEventListener('click', function () {
       saveCard(saveButton, columnId); // saveButton을 인자로 넘겨서 호출
     });
