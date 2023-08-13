@@ -127,7 +127,7 @@ body {
   border-radius: 4px;
 }
 
-.app-board .board-body {
+.app-board .board-body .list .list-title {
   margin: 0;
 }
 
@@ -223,3 +223,12 @@ body {
   justify-content: space-between; /* Adjust as per your requirements. */
 }
 
+.btn {
+  background-color: var(--app-col);
+  color: white;
+}
+
+
+.deadline {
+  opacity: 0.5; /* 원하는 반투명 정도로 조정 */
+}

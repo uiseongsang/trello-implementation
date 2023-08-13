@@ -152,4 +152,11 @@ public class ColumnServiceImpl implements ColumnService {
                 () -> new NullPointerException("선택한 보드가 존재하지 않습니다.")
         );
     }
+
+    @Override
+    public ColumnEntity findColumnEntitybyBoardAndPosition(Board board, Long columnPosition) {
+        return columnRepository.findByBoardsAndPosition(board, columnPosition).orElseThrow(
+                () -> new NullPointerException("선택한 컬럼이 존재하지 않습니다.")
+        );
+    }
 }

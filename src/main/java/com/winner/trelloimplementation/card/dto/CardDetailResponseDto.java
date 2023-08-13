@@ -19,6 +19,7 @@ public class CardDetailResponseDto {
     private String title;
     private String description;
     private String deadline;
+    private Boolean isdeadline;
     private String color;
     private String createdAt;
     private String modifiedAt;
@@ -32,6 +33,7 @@ public class CardDetailResponseDto {
         this.title = card.getTitle();
         this.description = card.getDescription();
         this.deadline = card.getDeadline();
+        this.isdeadline = card.isIsdeadline();
         this.color = card.getColor();
         this.createdAt = card.getCreatedAtAsString();
         this.modifiedAt = card.getModifiedAtAsString();

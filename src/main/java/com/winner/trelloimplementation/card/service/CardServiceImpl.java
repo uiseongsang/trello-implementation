@@ -1,5 +1,7 @@
 package com.winner.trelloimplementation.card.service;
 
+import com.winner.trelloimplementation.board.entity.Board;
+import com.winner.trelloimplementation.board.repository.BoardRepository;
 import com.winner.trelloimplementation.card.dto.CardDetailResponseDto;
 import com.winner.trelloimplementation.card.dto.CardRequestDto;
 import com.winner.trelloimplementation.card.dto.CardResponseDto;
@@ -27,6 +29,7 @@ import java.util.Optional;
 public class CardServiceImpl implements CardService {
 
     private final CardRepository cardRepository;
+    private final BoardRepository boardRepository;
 
     private final ColumnServiceImpl columnService;
 
@@ -84,8 +87,12 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user, Long positionNo) {
-        ColumnEntity column = columnService.findColumnEntity(columnNo);
+    public ResponseEntity<ApiResponseDto> switchColumn(Long columnPosition, Long cardNo, User user, Long positionNo, Long boardId) {
+        //ColumnEntity column = columnService.findColumnEntity(columnNo);
+        Board board = boardRepository.findById(boardId).orElseThrow(
+                () -> new NullPointerException("선택 한 보드가 존재하지 않습니다.")
+        );
+        ColumnEntity column = columnService.findColumnEntitybyBoardAndPosition(board,columnPosition);
 
         Optional<List<Card>> cardList = cardRepository.findByColumnEntity(column);
 
