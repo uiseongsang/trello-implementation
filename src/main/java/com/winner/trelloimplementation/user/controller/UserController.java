@@ -1,10 +1,8 @@
 package com.winner.trelloimplementation.user.controller;
 
-import com.winner.trelloimplementation.board.entity.BoardMember;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.*;
-import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.service.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

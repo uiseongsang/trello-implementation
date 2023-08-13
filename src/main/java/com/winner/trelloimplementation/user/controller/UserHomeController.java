@@ -2,13 +2,11 @@ package com.winner.trelloimplementation.user.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.winner.trelloimplementation.board.controller.BoardController;
-import com.winner.trelloimplementation.board.dto.GetBoardMemberResponseDto;
 import com.winner.trelloimplementation.board.entity.BoardMember;
 import com.winner.trelloimplementation.board.repository.BoardMemberRepository;
 import com.winner.trelloimplementation.common.jwt.JwtUtil;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.ProfileResponseDto;
-import com.winner.trelloimplementation.user.entity.User;
 import com.winner.trelloimplementation.user.repository.UserRepository;
 import com.winner.trelloimplementation.user.service.KakaoService;
 import com.winner.trelloimplementation.user.userlog.UserLog;
@@ -24,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
