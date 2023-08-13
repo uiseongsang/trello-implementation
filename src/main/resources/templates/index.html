@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
   <link rel="stylesheet" href="/css/board.css">
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -100,7 +99,7 @@
   <!-- Main Header -->
   <header class="app-header">
     <div class="left">
-      <div class="btn"><i class="fas fa-home"></i></div>
+      <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
       <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
         <i class="fab fa-trello"></i> Boards
@@ -150,7 +149,7 @@
       <div class="btn"><i class="fas fa-info-circle"></i></div>
       <div class="btn"><i class="far fa-bell"></i></div>
       <div class="btn"><i class="fas fa-cog"></i></div>
-      <div class="btn"><i class="fas fa-user-tie"></i></div>
+      <div class="btn" type="button" onclick="getBoardMembersPage()"><i class="fas fa-user-tie"></i></div>
     </div>
   </header>
 
@@ -255,14 +254,19 @@
     const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
     const offcanvasTrigger = document.querySelector('[data-bs-toggle="offcanvas"]');
 
-    offcanvasTrigger.addEventListener('click', function () {
-      if (!offcanvas.isShown) {
-        offcanvas.show();
-        $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
-        $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
-      } else {
-        offcanvas.hide();
-      }
+    offcanvasTrigger.addEventListener('click', function (event) {
+      event.stopPropagation();
+      offcanvas.show();
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+    });
+
+    offcanvas._element.addEventListener('click', function (event) {
+      event.stopPropagation(); // 팝업 내부 영역 클릭 시 이벤트 전파 중단
+    });
+
+    document.addEventListener('click', function () {
+      offcanvas.hide();
     });
   });
 
@@ -426,9 +430,13 @@
         // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
         $(".btn-edit-board").off("click").click(async function () {
           const dataId = data.id; // data.id 값을 가져옴
-          $("#editBoardModal").css("display", "block");
-          $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
-          $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+
+          $("#editBoardModal").show();
+          $("#editBoardModal").css("z-index", 102);
+
+          // $("#editBoardModal").css("display", "block");
+          // $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+          // $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
           await modifyCurrentBoard(dataId);
         });
 
@@ -519,7 +527,8 @@
   $(document).ready(function () {
     // 모달 열기 버튼 클릭 시
     $("#addBoardBtn").click(function () {
-      $("#myModal").css("display", "block");
+      $("#myModal").show();
+      $("#myModal").css("z-index", 102);
       $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
       $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
     });
@@ -699,6 +708,7 @@
           $("#editBoardModal").css("display", "none");
           $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
           $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+          location.reload();
         } else {
           console.error('Failed to send board data.');
         }
@@ -1326,6 +1336,9 @@
     location.reload();
   }
 
+  function getBoardMembersPage() {
+    location.href = '/web/boardMember/' + selectedBoardId;
+  }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
         integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
