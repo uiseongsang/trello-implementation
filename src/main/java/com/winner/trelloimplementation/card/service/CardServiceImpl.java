@@ -84,15 +84,26 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user) {
+    public ResponseEntity<ApiResponseDto> switchColumn(Long columnNo, Long cardNo, User user, Long positionNo) {
         ColumnEntity column = columnService.findColumnEntity(columnNo);
 
-        Long position = getPosition(column);
+        Optional<List<Card>> cardList = cardRepository.findByColumnEntity(column);
 
         Card card = findCard(cardNo);
 
-        card.setPosition(position);
-        card.setColumn(column);
+        if(cardList.isPresent()) {
+            for(Card changeCard : cardList.get()) {
+                if(positionNo <= changeCard.getPosition()) {
+                    changeCard.setPosition(changeCard.getPosition() + 1);
+                }
+            }
+
+            card.setPosition(positionNo);
+            card.setColumn(column);
+        } else {
+            card.setPosition(1L);
+            card.setColumn(column);
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDto("카드 이동 완료", 200));
     }
@@ -129,26 +140,27 @@ public class CardServiceImpl implements CardService {
            throw new IllegalArgumentException("바꿀 카드가 존재하지 않습니다.");
         });
 
+        cardRepository.findByColumnEntityAndPosition(column, changePositionNo).orElseThrow(()->{
+            throw new IllegalArgumentException("바뀔 포지션이 존재하지 않습니다.");
+        });
+
         if (cardsOptional.get().size() < changePositionNo) {
             throw new IllegalArgumentException("카드의 길이를 넘어갔습니다.");
         }
 
         int direction = currentCard.getPosition().compareTo(changePositionNo);
 
-        if (cardsOptional.isPresent()) {
-            List<Card> cards = cardsOptional.get();
-            if (direction > 0) {
-                for (Card cardInfo : cards) {
-                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() > cardInfo.getPosition() || cardInfo.getPosition() <= changePositionNo) {
-                        cardInfo.setPosition(cardInfo.getPosition() + 1);
-                    }
-                }
-            } else {
-                for (Card cardInfo : cards) {
-                    if (!cardInfo.equals(currentCard) && currentCard.getPosition() < cardInfo.getPosition() || cardInfo.getPosition() >= changePositionNo) {
-                        cardInfo.setPosition(cardInfo.getPosition() - 1);
-                    }
-                }
+        if (direction < 0) {
+            // 포지션 하나씩 감소
+            List<Card> cardsToUpdate = cardRepository.findCardsBetweenPositionsByColumn(currentCard.getPosition(), changePositionNo, column);
+            for (Card c : cardsToUpdate) {
+                c.setPosition(c.getPosition() - 1);
+            }
+        } else {
+            // 포지션 하나씩 증가
+            List<Card> cardsToUpdate = cardRepository.findCardsBetweenPositionsByColumn(changePositionNo, currentCard.getPosition(), column);
+            for (Card c : cardsToUpdate) {
+                c.setPosition(c.getPosition() + 1);
             }
         }
 
@@ -204,7 +216,7 @@ public class CardServiceImpl implements CardService {
         if(cards.isPresent()) {
             List<Card> cardList = cards.get();
 
-            position = cardList.size();
+            position = cardList.size()+1;
         } else {
             position = 1L;
         }

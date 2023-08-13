@@ -58,23 +58,8 @@
 <div class="app">
     <header class="app-header">
         <div class="left">
-            <a href="/web"><div class="btn" type="submit"><i class="fas fa-home"></i></div></a>
-            <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
-                <i class="fab fa-trello"></i> Boards
-            </button>
-        </div>
-
-        <div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1"
-             id="offcanvasWithBothOptions" aria-labelledby="offcanvasWithBothOptionsLabel">
-            <div class="offcanvas-header">
-                <h5 class="offcanvas-title" id="offcanvasWithBothOptionsLabel">Trello</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-                        aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body">
-                <p>여기에 보드 리스트들 해놓고 누르면 화면이 아예 해당 보드로 바뀌도록</p>
-            </div>
+            <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
+            <a href="/web"><button class="btn btn-primary"><i class="fab fa-trello"></i> Boards</button></a>
         </div>
 
         <div class="center">
@@ -84,7 +69,7 @@
             <div class="btn"><i class="fas fa-info-circle"></i></div>
             <div class="btn"><i class="far fa-bell"></i></div>
             <div class="btn"><i class="fas fa-cog"></i></div>
-            <a onclick="logout()" href="/api/sign"><div class="btn" type="submit"><i class="btn">logout</i></div></a>
+            <button class="btn btn-primary" onclick="logout()">logout</button>
         </div>
     </header>
     <main class="app-board">
@@ -99,13 +84,26 @@
             <button th:onclick="|location.href='/api/user/profile/password'|" class="btn btn-warning ms-2">비밀번호 수정</button>
             <button th:onclick="|location.href='/api/user/sign-out'|" class="btn btn-warning ms-2">회원탈퇴</button>
         </div>
+        <div th:each="log : ${logs}" style="text-align: center; margin-top: 5px">
+            <span th:text="${log}"></span>
+        </div>
     </main>
 </div>
 <script>
     function logout() {
+        $.ajax({
+            // 로그아웃 수행 요청
+            type: "DELETE",
+            url:"/api/user/logout",
+            contentType:"application/json"
+        }).done(function (res){
+            alert("로그아웃 하셨습니다.")
+            location.href = '/api/sign'
+        })
+
         // 토큰 삭제
-        Cookies.remove('Authorization', {path: '/'});
-        window.location.href = host + '/api/sign';
+        // Cookies.remove('Authorization', {path: '/'});
+        // window.location.href = host + '/api/sign';
     }
 </script>
 </body>

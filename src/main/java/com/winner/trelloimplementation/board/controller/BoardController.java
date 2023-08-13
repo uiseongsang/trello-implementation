@@ -82,11 +82,19 @@ public class BoardController {
 
     }
 
-//    @GetMapping ("/board/invitation/{boardNo}")
-//    public void checkUserInfo (@PathVariable Long boardNo, @RequestParam("email") String email) {
-//        // 우선 해당 유저가 존재하는지 확인
-//        // 존재한다면 -> 해당 이메일을 가진 유저를 BoardMember에 추가 -> 로그인하도록 redirect
-//        // 존재하지 않는다면 -> 회원가입하도록 (이 부분은 따로 만들어야 할 수도) -> 회원가입 후에 해당 이메일을 가진 유저를 BoardMember에 추가
-//        boardServiceImpl.checkUserInfo(boardNo, email);
-//    }
+    @GetMapping("/board/{username}")
+    public Long getUserIdFromUsername (@AuthenticationPrincipal UserDetailsImpl userDetailsImpl, @PathVariable String username) {
+        return boardServiceImpl.getUserIdFromUsername(userDetailsImpl.getUser(), username);
+    }
+
+    @GetMapping("/board/getMembers")
+    public List<GetBoardMemberResponseDto> getBoardMembers (@AuthenticationPrincipal UserDetailsImpl userDetailsImpl) {
+        return boardServiceImpl.getBoardMember(userDetailsImpl.getUser());
+    }
+
+    @GetMapping("/boardTitle/{boardTitle}")
+    public Long getBoardIdFromBoardTitle (@AuthenticationPrincipal UserDetailsImpl userDetailsImpl, @PathVariable String boardTitle) {
+        return boardServiceImpl.getBoardIdFromBoardTitle(userDetailsImpl.getUser(), boardTitle);
+    }
+
 }
