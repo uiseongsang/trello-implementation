@@ -152,8 +152,8 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public void sendEmailToInviteUser(Long boardNo, EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
         // 보낼 링크들 (로그인, 회원 가입) -> 프론트 되면 연결해야할 듯
-        String loginLink = "<a href='http://localhost:8080/api/boards'>";
-        String signupLink = "<a href='http://localhost:8080/api/user/signup'>";
+        String defaultLink = "<a href='http://localhost:8080/web'>";
+        String signupLink = "<a href='http://localhost:8080/api/sign'>";
         // 해당 유저 존재여부 확인 (이메일로) -> 이메일을 받기 때문에 이메일로 확인
         User user = userRepository.findByEmail(emailRequestDto.getEmail()).orElseThrow(
                 () -> new NullPointerException("해당 유저가 존재하지 않습니다.")
@@ -190,7 +190,7 @@ public class BoardServiceImpl implements BoardService {
                 + "<br>"
                 + "<p>아래 링크를 클릭하면 초대된 보드로 이동합니다.<p>"
                 + "<p>회원이 아니시라면 회원 가입부터 해주세요.<p>"
-                + loginLink + "회원 로그인" + "</a><p><p>"
+                + defaultLink + "Trello" + "</a><p><p>"
                 + signupLink  + "회원 가입" + "</a>"
                 + "</div>";
         // 실제로 보낼 이메일 내용 저장
