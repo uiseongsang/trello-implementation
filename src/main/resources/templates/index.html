@@ -741,7 +741,7 @@
       } finally {
         console.log("클릭4");
         await fetchBoardDetails(currentBoardId);
-          // 보드 리스트들도 불러오기
+        // 보드 리스트들도 불러오기
         await getBoardListInOffcanvas();
       }
     });
@@ -990,9 +990,13 @@
             <label for="cardColor">Card Color:</label>
             <div class="item-content">
               <select id="cardColor" disabled>
+                <option value="white">White</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
+                <option value="yello">Yello</option>
+                <option value="pink">Pink</option>
+                <option value="purple">Purple</option>
               </select>
               <button type="button" class="btn btn-primary edit-button" id="editColor">Edit</button>
               <button type="button" class="btn btn-primary save-button d-none" id="saveColor">Save</button>
@@ -1057,7 +1061,7 @@
           <button type="button" class="btn btn-danger" id="delete-card-Button" onclick="deleteCard(${card.columnNo}, ${card.id}, ${boardId})">Delete</button>
           <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${card.id}" data-bs-toggle="dropdown" aria-expanded="false">
-    Dropdown button
+    card move
   </button>
   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${card.id}">
     <li>
@@ -1085,10 +1089,22 @@
       // 모달을 body에 추가
       document.body.appendChild(modal);
 
-      // 모달을 열기 위한 이벤트 리스너 추가
-      modal.addEventListener('shown.bs.modal', () => {
-        modal.classList.add('show');
-      });
+       if(card.isdeadline) {
+         const titleEditButton = document.getElementById(`editTitle${card.id}`);
+         const colorEditButton = document.getElementById('editColor');
+         const dateEditButton = document.getElementById('editDueDate');
+         const descEditButton = document.getElementById('editDescription');
+
+         titleEditButton.style.display = 'none';
+         colorEditButton.style.display = 'none';
+         dateEditButton.style.display = 'none';
+         descEditButton.style.display = 'none';
+       }
+
+       // 모달을 열기 위한 이벤트 리스너 추가
+       modal.addEventListener('shown.bs.modal', () => {
+         modal.classList.add('show');
+       });
 
       modal.addEventListener('shown.bs.modal', () => {
         const colorSelect = modal.querySelector('#cardColor');
@@ -1149,46 +1165,51 @@
           const commentId = event.target.getAttribute('data-comment-id');
           const commentElement = modal.querySelector(`.commentInfo${commentId}`);
 
-          fetch(`/api/comment/${commentId}`, {
-            credentials: 'same-origin',
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          })
-          .then(response => {
-            if (response.statusCode == 200) {
-              alert('Color updated successfully');
-              // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-            }
-          })
-          .catch(error => {
-            console.error('An error occurred:', error);
-          });
-          commentElement.remove();
-        } else if (event.target.classList.contains('save-comment-button')) {
-          const commentId = event.target.getAttribute('data-comment-id');
-          const commentElement = event.target.closest(`.commentInfo${commentId}`);
-          const editInput = commentElement.querySelector('input');
-          const updatedComment = editInput.value.trim();
-          if (updatedComment !== '') {
-            fetch(`/api/comment/${commentId}`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({content: updatedComment}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 201) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
+           fetch(`/api/comment/${commentId}`, {
+             credentials: 'same-origin',
+             method: 'DELETE',
+             headers: {
+               'Content-Type': 'application/json'
+             },
+           })
+                   .then(response => {
+                     if (response.status == 200) {
+                       console.log('comment successfully');
+                       // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                     } else {
+                       alert("자신이 작성한 댓글이 아닙니다");
+                     }
+                   })
+                   .catch(error => {
+                     console.error('An error occurred:', error);
+                   });
+           commentElement.remove();
+         } else if (event.target.classList.contains('save-comment-button')) {
+           const commentId = event.target.getAttribute('data-comment-id');
+           const commentElement = event.target.closest(`.commentInfo${commentId}`);
+           const editInput = commentElement.querySelector('input');
+           const updatedComment = editInput.value.trim();
+           if (updatedComment !== '') {
+             fetch(`/api/comment/${commentId}`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ content: updatedComment }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 201) {
+                         console.log('comment successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       } else {
+                         alert("자신이 작성한 댓글이 아닙니다");
+                         location.reload();
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
 
             // 댓글 업데이트 후 UI 업데이트
             const commentTextElement = document.createElement('p');
@@ -1201,36 +1222,35 @@
         }
       });
 
-      const addCommentButton = modal.querySelector('#addComment');
-      const commentList = modal.querySelector('#commentList');
-      addCommentButton.addEventListener('click', () => {
-        const commentInput = modal.querySelector('#comment');
-        const comment = commentInput.value.trim();
-        if (comment !== '') {
-          const commentElement = document.createElement('div');
-          commentElement.className = 'comment';
-          commentElement.textContent = comment;
-          fetch(`/api/card/${cardId}/comment`, {
-            credentials: 'same-origin',
-            method: 'POST',
-            body: JSON.stringify({content: comment}), // 객체를 JSON 문자열로 변환
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          })
-          .then(response => {
-            if (response.statusCode == 201) {
-              alert('Color updated successfully');
-              // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-            }
-          })
-          .catch(error => {
-            console.error('An error occurred:', error);
-          });
-          commentList.appendChild(commentElement);
-          commentInput.value = '';
-        }
-      });
+       const addCommentButton = modal.querySelector('#addComment');
+       const commentList = modal.querySelector('#commentList');
+       addCommentButton.addEventListener('click', () => {
+         const commentInput = modal.querySelector('#comment');
+         const comment = commentInput.value.trim();
+         if (comment !== '') {
+           const commentElement = document.createElement('div');
+           commentElement.className = 'comment';
+           commentElement.textContent = comment;
+           fetch(`/api/card/${cardId}/comment`, {
+             credentials: 'same-origin',
+             method: 'POST',
+             body: JSON.stringify({ content: comment }), // 객체를 JSON 문자열로 변환
+             headers: {
+               'Content-Type': 'application/json'
+             },
+           })
+                   .then(response => {
+                     if (response.status == 201) {
+                       console.log('comment successfully');
+                     }
+                   })
+                   .catch(error => {
+                     console.error('An error occurred:', error);
+                   });
+           commentList.appendChild(commentElement);
+           commentInput.value = '';
+         }
+       });
 
       // Save 버튼 클릭 시 처리
       const saveButtons = modal.querySelectorAll('.save-button');
@@ -1243,69 +1263,69 @@
           const inputElement = container.querySelector('input, select, textarea');
           inputElement.setAttribute('disabled', true);
 
-          // 저장 로직 추가
-          if (inputElement.id === 'cardColor') {
-            const cardColor = inputElement.value;
-            fetch(`/api/card/${cardId}/color`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({color: cardColor}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
-          } else if (inputElement.id === 'dueDate') {
-            const deadline = inputElement.value.replace('T', ' ');
-            fetch(`/api/card/${cardId}/deadline`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({deadline: deadline}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
-          } else if (inputElement.id === 'description') {
-            const description = inputElement.value;
-            fetch(`/api/card/${cardId}/description`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({description: description}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
-            console.log('Description:', description);
-          }
-        });
-      });
-    })
+           // 저장 로직 추가
+           if (inputElement.id === 'cardColor') {
+             const cardColor = inputElement.value;
+             fetch(`/api/card/${cardId}/color`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ color: cardColor }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 200) {
+                         console.log('Color updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+           } else if (inputElement.id === 'dueDate') {
+             const deadline = inputElement.value.replace('T', ' ');
+             fetch(`/api/card/${cardId}/deadline`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ deadline: deadline }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 200) {
+                         console.log('deadline updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+           } else if (inputElement.id === 'description') {
+             const description = inputElement.value;
+             fetch(`/api/card/${cardId}/description`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ description: description }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 200) {
+                         console.log('desc updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+             console.log('Description:', description);
+           }
+         });
+       });
+     })
   }
 
   function moveCardWithinColumn(cardId) {
