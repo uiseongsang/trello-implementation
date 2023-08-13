@@ -48,9 +48,9 @@ public class CardController {
         return cardServiceImpl.updateColor(requestDto, cardNo, userDetails.getUser());
     }
 
-    @PatchMapping("/card/{cardNo}/change-column/{columnNo}/change-position/{positionNo}")
-    public ResponseEntity<ApiResponseDto> switchColumn(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long columnNo, @PathVariable Long positionNo) {
-        return cardServiceImpl.switchColumn(columnNo, cardNo, userDetails.getUser(), positionNo);
+    @PatchMapping("/card/{cardNo}/board/{boardNo}/change-column/{columnNo}/change-position/{positionNo}")
+    public ResponseEntity<ApiResponseDto> switchColumn(@PathVariable Long cardNo, @AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long columnNo, @PathVariable Long positionNo, @PathVariable Long boardNo) {
+        return cardServiceImpl.switchColumn(columnNo, cardNo, userDetails.getUser(), positionNo, boardNo);
     }
 
     @PatchMapping("/column/{columnNo}/card/{cardNo}/change-position/{changePositionNo}")

@@ -945,7 +945,7 @@
     const newColumnPosition = parseInt(changeColumnPositionInput.value);
 
     fetch(
-        `api/card/${cardNo}/change-column/${newColumnPosition}/change-position/${newCardPosition}`,
+        `api/card/${cardNo}/board/${selectedBoardId}/change-column/${newColumnPosition}/change-position/${newCardPosition}`,
         {
           credentials: 'same-origin',
           method: 'PATCH',

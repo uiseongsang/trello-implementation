@@ -24,6 +24,8 @@ public interface ColumnRepository extends JpaRepository<ColumnEntity, Long> {
 
     Optional<ColumnEntity> findByBoardsAndPosition(Board board, Long currentPosition);
 
+
+
     @Query("SELECT c FROM ColumnEntity c WHERE c.boards = :board AND c.position BETWEEN :currentPosition AND :newPosition ORDER BY c.position")
     List<ColumnEntity> findColumnsBetweenPositionsByBoard(@Param("currentPosition") Long currentPosition, @Param("newPosition") Long newPosition, @Param("board") Board board);
 
