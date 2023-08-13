@@ -99,7 +99,7 @@
   <!-- Main Header -->
   <header class="app-header">
     <div class="left">
-      <a href="/web"><div class="btn"><i class="fas fa-home"></i></div></a>
+      <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
       <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
         <i class="fab fa-trello"></i> Boards
@@ -149,7 +149,7 @@
       <div class="btn"><i class="fas fa-info-circle"></i></div>
       <div class="btn"><i class="far fa-bell"></i></div>
       <div class="btn"><i class="fas fa-cog"></i></div>
-      <a href="/api/my-page"><div class="btn"><i class="fas fa-user-tie"></i></div></a>
+      <div class="btn" type="button" onclick="getBoardMembersPage()"><i class="fas fa-user-tie"></i></div>
     </div>
   </header>
 
@@ -698,6 +698,7 @@
           $("#editBoardModal").css("display", "none");
           $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
           $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+          location.reload();
         } else {
           console.error('Failed to send board data.');
         }
@@ -1325,6 +1326,9 @@
     location.reload();
   }
 
+  function getBoardMembersPage() {
+    location.href = '/web/boardMember/' + selectedBoardId;
+  }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
         integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"

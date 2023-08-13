@@ -64,7 +64,7 @@
       <div class="logo"><i class="fab fa-trello"></i> Trello</div>
     </div>
     <div class="right">
-      <a onclick="logout()" href="/api/sign"><div class="btn" type="submit"><i class="btn">logout</i></div></a>
+      <button class="btn btn-primary" onClick="logout()">logout</button>
     </div>
   </header>
   <main class="app-board">
@@ -113,6 +113,18 @@
         });
       }
     });
+  }
+
+  function logout() {
+    $.ajax({
+      // 로그아웃 수행 요청
+      type: "DELETE",
+      url:"/api/user/logout",
+      contentType:"application/json"
+    }).done(function (res){
+      alert("로그아웃 하셨습니다.")
+      location.href = '/api/sign'
+    })
   }
 </script>
 </html>

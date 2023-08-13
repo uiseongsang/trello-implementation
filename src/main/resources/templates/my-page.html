@@ -69,7 +69,7 @@
             <div class="btn"><i class="fas fa-info-circle"></i></div>
             <div class="btn"><i class="far fa-bell"></i></div>
             <div class="btn"><i class="fas fa-cog"></i></div>
-            <a onclick="logout()" href="/api/sign"><div class="btn" type="submit"><i class="btn">logout</i></div></a>
+            <button class="btn btn-primary" onclick="logout()">logout</button>
         </div>
     </header>
     <main class="app-board">
@@ -84,7 +84,6 @@
             <button th:onclick="|location.href='/api/user/profile/password'|" class="btn btn-warning ms-2">비밀번호 수정</button>
             <button th:onclick="|location.href='/api/user/sign-out'|" class="btn btn-warning ms-2">회원탈퇴</button>
         </div>
-        <div th:each="member : ${members}" style="text-align: center; margin-top: 5px"><span th:button="${member.getUser_id()}" onclick="getUserPage()"></span></div>
         <div th:each="log : ${logs}" style="text-align: center; margin-top: 5px">
             <span th:text="${log}"></span>
         </div>
@@ -92,13 +91,19 @@
 </div>
 <script>
     function logout() {
+        $.ajax({
+            // 로그아웃 수행 요청
+            type: "DELETE",
+            url:"/api/user/logout",
+            contentType:"application/json"
+        }).done(function (res){
+            alert("로그아웃 하셨습니다.")
+            location.href = '/api/sign'
+        })
+
         // 토큰 삭제
-        Cookies.remove('Authorization', {path: '/'});
-        window.location.href = host + '/api/sign';
-    }
-
-    function getUserPage() {
-
+        // Cookies.remove('Authorization', {path: '/'});
+        // window.location.href = host + '/api/sign';
     }
 </script>
 </body>

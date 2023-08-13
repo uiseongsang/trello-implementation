@@ -22,6 +22,8 @@ public class UserLog {
                 logline = scan.nextLine();
                 if (logline.startsWith("Secured") && !logline.contains("GET")) {
                     temp.add(user.getUsername() + " " + logline);
+                } else if (logline.startsWith(user.getUsername())) {
+                    temp.add(logline);
                 }
             }
         } catch (FileNotFoundException e) {

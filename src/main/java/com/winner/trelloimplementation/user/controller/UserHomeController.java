@@ -43,26 +43,10 @@ public class UserHomeController {
     @GetMapping("/my-page")
     public String myPage(@AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
         ProfileResponseDto profileResponseDto = new ProfileResponseDto(userDetails.getUser());
-        List<GetBoardMemberResponseDto> boardMembers = boardController.getBoardMembers(userDetails);
 
         // model 필요한 데이터 담아서 반환
         model.addAttribute("users", profileResponseDto);
-        model.addAttribute("members", boardMembers);
         model.addAttribute("logs", UserLog.fileReader(userDetails.getUser()));
-        return "my-page";
-    }
-
-    @GetMapping("/my-page/{username}")
-    public String userPage(@PathVariable String username, Model model) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new NullPointerException("등록되지 않은 Username 입니다."));
-        ProfileResponseDto profileResponseDto = new ProfileResponseDto(user);
-        UserDetailsImpl userDetails = new UserDetailsImpl(user);
-        List<GetBoardMemberResponseDto> boardMembers = boardController.getBoardMembers(userDetails);
-
-        // model 필요한 데이터 담아서 반환
-        model.addAttribute("users", profileResponseDto);
-        model.addAttribute("members", boardMembers);
-        model.addAttribute("logs", UserLog.fileReader(user));
         return "my-page";
     }
 
@@ -90,6 +74,7 @@ public class UserHomeController {
         return "redirect:/web";
     }
 
+    // 다른 보드멤버의 개인정보를 담은 마이페이지 불러오기 메서드
     @GetMapping("/board/{boardNo}/anotherUser/{userid}")
     public String getAnotherMemberInfo(@PathVariable Long boardNo, @PathVariable Long userid, @AuthenticationPrincipal UserDetailsImpl userDetails, Model model) {
         // 현재 로그인한 사용자의 보드멤버 정보

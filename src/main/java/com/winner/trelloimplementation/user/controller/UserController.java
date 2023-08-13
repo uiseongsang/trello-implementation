@@ -47,7 +47,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "bad request operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
-    @GetMapping("/logout")
+    @DeleteMapping("/logout")
     public ResponseEntity<ApiResponseDto> logout(HttpServletResponse response, Authentication authResult) throws ServletException, IOException {
         return userServiceImpl.logout(response, authResult);
     }
