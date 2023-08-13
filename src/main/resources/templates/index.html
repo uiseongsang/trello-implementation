@@ -470,7 +470,15 @@
           const listTitle = document.createElement('div');
           listTitle.style="font-size:large";
           listTitle.className = 'list-title';
+          listTitle.contentEditable='true';
           listTitle.textContent = column.title;
+          listTitle.addEventListener('keydown', function (evt) {
+              if(evt.key === "Enter") {
+                evt.preventDefault();
+                const newColumnTitle = listTitle.textContent;
+                enterCheck(newColumnTitle, column.id);
+              }
+          });
           columnTitle.appendChild(listTitle);
 
           const dropdownHTML = `
@@ -1359,53 +1367,8 @@
     editButton.classList.remove('d-none');
     location.reload();
   }
-
   function getBoardMembersPage() {
     location.href = '/web/boardMember/' + selectedBoardId;
-  }
-
-  function clickBtn() {
-    $('#addListContainer').css('display', 'block');
-
-    $('#cancelAddList').on('click', function() {
-      $('#addListContainer').css('display', 'none');
-    });
-
-    $('#confirmAddList').on('click', function() {
-      const newListTitle = $('#newListTitle').val(); // 새 리스트 제목을 가져옴
-
-      createColumn(newListTitle) // Create the column and wait for its completion
-              .then(response => {
-                // Successfully created the column, fetch board details
-                fetchBoardDetails(selectedBoardId);
-              })
-              .catch(error => {
-                // Handle error if column creation fails
-                console.error('Error creating column:', error);
-              });
-    });
-  }
-
-  async function createColumn(columnTitle) {
-    // 백엔드로 AJAX 요청 보내기
-    try {
-      // 백엔드로 AJAX 요청 보내기
-      const response = await $.ajax({
-        url: `/api/board/${selectedBoardId}/column`,
-        type: 'POST',
-        data: JSON.stringify({ title: columnTitle }),
-        contentType: 'application/json'
-      });
-
-      // 백엔드로부터 성공 응답을 받았을 때 처리
-      console.log('새로운 리스트가 생성되었습니다:', response);
-
-      return response;
-    } catch (error) {
-      // 백엔드로부터 에러 응답을 받았을 때 처리
-      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
-      throw error;
-    }
   }
 
   async function deleteColumn(columnid) {
@@ -1420,6 +1383,29 @@
 
       // 백엔드로부터 성공 응답을 받았을 때 처리
       console.log('컬럼이 삭제 되었습니다:', response);
+      fetchBoardDetails(selectedBoardId); // 다른 보드에서도 삭제후 바로 삭제 되는지 확인
+
+      return response;
+    } catch (error) {
+      // 백엔드로부터 에러 응답을 받았을 때 처리
+      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
+      throw error;
+    }
+  }
+
+  async function enterCheck(columnTitle,columnId) {
+    // 백엔드로 AJAX 요청 보내기
+    try {
+      // 백엔드로 AJAX 요청 보내기
+      const response = await $.ajax({
+        url: `/api/column/${columnId}`,
+        type: 'PUT',
+        data: JSON.stringify({title: columnTitle}),
+        contentType: 'application/json'
+      });
+
+      // 백엔드로부터 성공 응답을 받았을 때 처리
+      console.log('컬럼이 수정 되었습니다:', response);
       fetchBoardDetails(selectedBoardId); // 다른 보드에서도 삭제후 바로 삭제 되는지 확인
 
       return response;
