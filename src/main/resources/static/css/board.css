@@ -127,7 +127,7 @@ body {
   border-radius: 4px;
 }
 
-.app-board .board-body .list .list-title {
+.app-board .board-body {
   margin: 0;
 }
 
@@ -215,3 +215,11 @@ body {
   margin-bottom: 10px;
   padding: 5px;
 }
+
+
+.column-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Adjust as per your requirements. */
+}
+
