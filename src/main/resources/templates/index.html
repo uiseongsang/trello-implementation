@@ -427,20 +427,15 @@
 
         console.log("밖에 " + data.id);
 
-        // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
         $(".btn-edit-board").off("click").click(async function () {
-          const dataId = data.id; // data.id 값을 가져옴
+          console.log("클릭1");
 
           $("#editBoardModal").show();
           $("#editBoardModal").css("z-index", 102);
 
-          // $("#editBoardModal").css("display", "block");
-          // $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
-          // $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
-          await modifyCurrentBoard(dataId);
+          modifyCurrentBoard(data.id);
         });
 
-        // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
         $(".btn-delete-board").off("click").click(async function () {
           const currId = data.id;
           await deleteCurrentBoard(currId);
@@ -697,12 +692,9 @@
     root.style.setProperty('--app-col', color);
   });
 
-  // ---------------------------------------
-
   async function modifyCurrentBoard(currentBoardId) {
-    console.log("함수 안 : " + currentBoardId);
-    $("#editBoardModal").submit(async function (event) {
-      console.log("함수 안의 안 : " + currentBoardId);
+    console.log("클릭2");
+    $("#editBoardModal").one("submit", async function (event) {
       event.preventDefault(); // Prevent default form submission behavior
       const editBoardTitle = $("#editBoardTitle").val();
       const editBoardDescription = $("#editBoardDescription").val();
@@ -710,6 +702,7 @@
 
       // 모달 폼 데이터를 백엔드로 전송
       try {
+        console.log("클릭3");
         const response = await fetch(`/api/board/` + currentBoardId, {
           method: 'PUT',
           credentials: 'same-origin',
@@ -730,20 +723,20 @@
           $("#editBoardModal").css("display", "none");
           $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
           $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
-          location.reload();
+          // location.reload();
         } else {
           console.error('Failed to send board data.');
         }
       } catch (error) {
         console.error('Error sending board data:', error);
       } finally {
+        console.log("클릭4");
         await fetchBoardDetails(currentBoardId);
-        // 보드 리스트들도 불러오기
+          // 보드 리스트들도 불러오기
         await getBoardListInOffcanvas();
       }
     });
   }
-
   async function deleteCurrentBoard(currBoardId) {
     try {
       console.log("삭제 로직 안 : " + currBoardId);
