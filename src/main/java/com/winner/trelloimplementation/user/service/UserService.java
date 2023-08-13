@@ -1,5 +1,6 @@
 package com.winner.trelloimplementation.user.service;
 
+import com.winner.trelloimplementation.board.entity.BoardMember;
 import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.*;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface UserService {
     /**
