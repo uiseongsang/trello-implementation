@@ -223,3 +223,8 @@ body {
   justify-content: space-between; /* Adjust as per your requirements. */
 }
 
+.btn {
+  background-color: var(--app-col);
+  color: white;
+}
+

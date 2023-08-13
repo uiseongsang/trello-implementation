@@ -100,7 +100,7 @@
   <header class="app-header">
     <div class="left">
       <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
-      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+      <button class="btn" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
         <i class="fab fa-trello"></i> Boards
       </button>
@@ -467,14 +467,15 @@
           columnTitle.className = 'column-title';
           columnTitle.id = 'columnTitle';
 
-          const listTitle = document.createElement('h5');
+          const listTitle = document.createElement('div');
+          listTitle.style="font-size:large";
           listTitle.className = 'list-title';
           listTitle.textContent = column.title;
           columnTitle.appendChild(listTitle);
 
           const dropdownHTML = `
           <div class="btn-group">
-            <button type="button" class="btn btn-primary">...</button>
+            <button type="button" class="btn">...</button>
             <button type="button" class="btn btn-parimary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="visually-hidden">Toggle Dropdown</span>
             </button>
@@ -862,8 +863,9 @@
 
     const saveButton = document.createElement('button');
     saveButton.textContent = 'Save';
-    saveButton.style = 'background-color: rgb(25,118,210)';
+    saveButton.style.backgroundColor = 'var(--app-col)';
     saveButton.style.color = 'white';
+    saveButton.border.color = 'var(--app-col)';
     saveButton.addEventListener('click', function () {
       saveCard(saveButton, columnId); // saveButton을 인자로 넘겨서 호출
     });
