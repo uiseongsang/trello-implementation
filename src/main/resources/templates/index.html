@@ -254,14 +254,19 @@
     const offcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasWithBothOptions'));
     const offcanvasTrigger = document.querySelector('[data-bs-toggle="offcanvas"]');
 
-    offcanvasTrigger.addEventListener('click', function () {
-      if (!offcanvas.isShown) {
-        offcanvas.show();
-        $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
-        $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
-      } else {
-        offcanvas.hide();
-      }
+    offcanvasTrigger.addEventListener('click', function (event) {
+      event.stopPropagation();
+      offcanvas.show();
+      $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+      $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+    });
+
+    offcanvas._element.addEventListener('click', function (event) {
+      event.stopPropagation(); // 팝업 내부 영역 클릭 시 이벤트 전파 중단
+    });
+
+    document.addEventListener('click', function () {
+      offcanvas.hide();
     });
   });
 
@@ -425,9 +430,13 @@
         // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
         $(".btn-edit-board").off("click").click(async function () {
           const dataId = data.id; // data.id 값을 가져옴
-          $("#editBoardModal").css("display", "block");
-          $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
-          $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+
+          $("#editBoardModal").show();
+          $("#editBoardModal").css("z-index", 102);
+
+          // $("#editBoardModal").css("display", "block");
+          // $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+          // $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
           await modifyCurrentBoard(dataId);
         });
 
@@ -518,7 +527,8 @@
   $(document).ready(function () {
     // 모달 열기 버튼 클릭 시
     $("#addBoardBtn").click(function () {
-      $("#myModal").css("display", "block");
+      $("#myModal").show();
+      $("#myModal").css("z-index", 102);
       $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
       $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
     });
