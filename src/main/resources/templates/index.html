@@ -399,7 +399,7 @@
           const boardId = button.dataset.boardId;
           const userId = button.dataset.userId; // userId 사용
           selectedBoardId = button.dataset.boardId;
-          fetchBoardDetails(boardId, userId); // fetchBoardDetails에 userId도 전달
+          fetchBoardDetails(boardId); // fetchBoardDetails에 userId도 전달
         });
       });
 
@@ -463,10 +463,32 @@
           list.className = 'list';
           list.id = column.id;
 
-          const listTitle = document.createElement('h4');
+          const columnTitle = document.createElement('div');
+          columnTitle.className = 'column-title';
+          columnTitle.id = 'columnTitle';
+
+          const listTitle = document.createElement('h5');
           listTitle.className = 'list-title';
           listTitle.textContent = column.title;
-          list.appendChild(listTitle);
+          columnTitle.appendChild(listTitle);
+
+          const dropdownHTML = `
+          <div class="btn-group">
+            <button type="button" class="btn btn-primary">...</button>
+            <button type="button" class="btn btn-parimary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" onclick="editColumn('${column.id}')">Edit</a></li>
+              <li><a class="dropdown-item" href="#" onclick="deleteColumn('${column.id}')">Delete</a></li>
+            </ul>
+          </div>
+        `;
+
+          const dropdownDiv = document.createRange().createContextualFragment(dropdownHTML);
+          listTitle.after(dropdownDiv);
+          columnTitle.appendChild(dropdownDiv);
+          list.appendChild(columnTitle);
 
           column.cardList.forEach(card => {
             const cardDiv = document.createElement('div');
@@ -1339,6 +1361,132 @@
   function getBoardMembersPage() {
     location.href = '/web/boardMember/' + selectedBoardId;
   }
+
+  function clickBtn() {
+    $('#addListContainer').css('display', 'block');
+
+    $('#cancelAddList').on('click', function() {
+      $('#addListContainer').css('display', 'none');
+    });
+
+    $('#confirmAddList').on('click', function() {
+      const newListTitle = $('#newListTitle').val(); // 새 리스트 제목을 가져옴
+
+      createColumn(newListTitle) // Create the column and wait for its completion
+              .then(response => {
+                // Successfully created the column, fetch board details
+                fetchBoardDetails(selectedBoardId);
+              })
+              .catch(error => {
+                // Handle error if column creation fails
+                console.error('Error creating column:', error);
+              });
+    });
+  }
+
+  async function createColumn(columnTitle) {
+    // 백엔드로 AJAX 요청 보내기
+    try {
+      // 백엔드로 AJAX 요청 보내기
+      const response = await $.ajax({
+        url: `/api/board/${selectedBoardId}/column`,
+        type: 'POST',
+        data: JSON.stringify({ title: columnTitle }),
+        contentType: 'application/json'
+      });
+
+      // 백엔드로부터 성공 응답을 받았을 때 처리
+      console.log('새로운 리스트가 생성되었습니다:', response);
+
+      return response;
+    } catch (error) {
+      // 백엔드로부터 에러 응답을 받았을 때 처리
+      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
+      throw error;
+    }
+  }
+
+  async function deleteColumn(columnid) {
+    // 백엔드로 AJAX 요청 보내기
+    try {
+      // 백엔드로 AJAX 요청 보내기
+      const response = await $.ajax({
+        url: `/api/column/${columnid}`,
+        type: 'DELETE',
+        contentType: 'application/json'
+      });
+
+      // 백엔드로부터 성공 응답을 받았을 때 처리
+      console.log('컬럼이 삭제 되었습니다:', response);
+      fetchBoardDetails(selectedBoardId); // 다른 보드에서도 삭제후 바로 삭제 되는지 확인
+
+      return response;
+    } catch (error) {
+      // 백엔드로부터 에러 응답을 받았을 때 처리
+      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
+      throw error;
+    }
+  }
+
+  // 카드 움직이는 Js 코드
+  // async function editColumn(columnid) {
+  //   try {
+  //     // 백엔드로 AJAX 요청 보내기
+  //     const response = await $.ajax({
+  //       url: `/api/column/${columnid}`,
+  //       type: 'PUT',
+  //       data: JSON.stringify({ title: columnTitle }),
+  //       contentType: 'application/json'
+  //     });
+  //
+  //     // 백엔드로부터 성공 응답을 받았을 때 처리
+  //     console.log('새로운 리스트가 생성되었습니다:', response);
+  //
+  //     return response;
+  //   } catch (error) {
+  //     // 백엔드로부터 에러 응답을 받았을 때 처리
+  //     console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
+  //     throw error;
+  //   }
+  // }
+  //
+  //     const lastColumnContainer = $('#wrap-col-list .board-col:first-child');
+  //     if (lastColumnContainer.length > 0) {
+  //       lastColumnContainer.after(newColumnContainer);
+  //     } else {
+  //       $('#wrap-col-list').append(newColumnContainer);
+  //     }
+  //
+  //     addListContainer.css('display', 'none');
+  //
+  //     newColumnContainer.append(newListCol);
+  //     newListCol.append(newList);
+  //
+  //     const addCardButton = newList.find('.btn-list');
+  //
+  //     addCardButton.on('click', function() {
+  //       const newCard = $('<div>').addClass('card').text('New Card');
+  //       newList.append(newCard);
+  //     });
+  //   });
+
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   const wrapLists = document.getElementById('wrap-col-list');
+  //   const sortableLists = new Sortable(wrapLists, {
+  //     group: 'lists',    // 그룹을 지정하여 리스트끼리만 이동 가능하도록 설정
+  //     handle: '.list-title', // 리스트 제목을 드래그 핸들로 사용
+  //     animation: 150,    // 드래그 애니메이션 시간 (밀리초)
+  //     onMove: (event) => {
+  //       const toIndex = event.toIndex;
+  //       const addListIndex = wrapLists.querySelectorAll('.board-col').length - 1; // Add another list 아이템의 인덱스
+  //
+  //       // 움직이려는 위치가 Add another list 아이템 뒤로 갈 경우 움직임을 제한
+  //       if (toIndex >= addListIndex) {
+  //         return false;
+  //       }
+  //     },
+  //   });
+  // });
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
         integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
