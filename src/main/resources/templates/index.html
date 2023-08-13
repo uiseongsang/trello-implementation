@@ -100,7 +100,7 @@
   <header class="app-header">
     <div class="left">
       <a href="/api/my-page"><div class="btn"><i class="fas fa-home"></i></div></a>
-      <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+      <button class="btn" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
         <i class="fab fa-trello"></i> Boards
       </button>
@@ -462,20 +462,29 @@
           columnTitle.className = 'column-title';
           columnTitle.id = 'columnTitle';
 
-          const listTitle = document.createElement('h5');
+          const listTitle = document.createElement('div');
+          listTitle.style="font-size:large";
           listTitle.className = 'list-title';
+          listTitle.contentEditable='true';
           listTitle.textContent = column.title;
+          listTitle.addEventListener('keydown', function (evt) {
+              if(evt.key === "Enter") {
+                evt.preventDefault();
+                const newColumnTitle = listTitle.textContent;
+                enterCheck(newColumnTitle, column.id);
+              }
+          });
           columnTitle.appendChild(listTitle);
 
           const dropdownHTML = `
           <div class="btn-group">
-            <button type="button" class="btn btn-primary">...</button>
             <button type="button" class="btn btn-parimary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="visually-hidden">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu">
               <li><a class="dropdown-item" href="#" onclick="editColumn('${column.id}')">Edit</a></li>
               <li><a class="dropdown-item" href="#" onclick="deleteColumn('${column.id}')">Delete</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#moveColumnModal">Move</a></li>
             </ul>
           </div>
         `;
@@ -491,7 +500,7 @@
             cardDiv.textContent = card.title; // 카드의 제목을 표시
             cardDiv.id = card.id;
             cardDiv.addEventListener('click', () => {
-              openModal(card.id); // 모달을 띄우는 함수 호출
+              openModal(card.id, data.id); // 모달을 띄우는 함수 호출
             });
             list.appendChild(cardDiv);
           });
@@ -502,7 +511,7 @@
           addCardLink.textContent = '+ Add another card';
           addCardLink.id = column.id;
           list.appendChild(addCardLink);
-          addCardLink.addEventListener('click', () => addCard(column.id));
+          addCardLink.addEventListener('click', () => addCard(column.id, data.id));
 
           boardCol.appendChild(list);
           wrapLists.appendChild(boardCol);
@@ -732,7 +741,7 @@
       } finally {
         console.log("클릭4");
         await fetchBoardDetails(currentBoardId);
-          // 보드 리스트들도 불러오기
+        // 보드 리스트들도 불러오기
         await getBoardListInOffcanvas();
       }
     });
@@ -809,7 +818,7 @@
     }
   }
 
-  function saveCard(saveButton, columnId) {
+  function saveCard(saveButton, columnId, boardId) {
     const cardElement = saveButton.closest('.card');
     const cardTitleInput = cardElement.querySelector('input');
     const cardTitle = cardTitleInput.value.trim(); // 입력된 텍스트 가져오기
@@ -827,23 +836,21 @@
         },
       })
       .then(response => {
-        if (response.statusCode == 201) {
-          alert('save card successfully');
-          // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-        }
+        $(".modal").css("display", "none");
+        $(".modal-backdrop").remove();
+        $(".modal").removeClass("show");
+        fetchBoardDetails(boardId);
+
+        cardTitleInput.replaceWith(cardText); // 입력 필드 대신 텍스트 요소로 교체
+        saveButton.remove(); // 버튼 삭제
       })
       .catch(error => {
         console.error('An error occurred:', error);
       });
-
-      cardTitleInput.replaceWith(cardText); // 입력 필드 대신 텍스트 요소로 교체
-      saveButton.remove(); // 버튼 삭제
-
-      location.reload();
     }
   }
 
-  function addCard(columnId) {
+  function addCard(columnId, boardId) {
     const column = document.querySelector(`.list[id="${columnId}"]`);
 
     const newCard = document.createElement('div');
@@ -855,10 +862,10 @@
 
     const saveButton = document.createElement('button');
     saveButton.textContent = 'Save';
-    saveButton.style = 'background-color: rgb(25,118,210)';
+    saveButton.style.backgroundColor = 'var(--app-col)';
     saveButton.style.color = 'white';
     saveButton.addEventListener('click', function () {
-      saveCard(saveButton, columnId); // saveButton을 인자로 넘겨서 호출
+      saveCard(saveButton, columnId, boardId); // saveButton을 인자로 넘겨서 호출
     });
 
     newCard.appendChild(cardTitleInput);
@@ -877,7 +884,7 @@
     column.appendChild(addCardContainer);
   }
 
-  function deleteCard(columnNo, cardNo) {
+  function deleteCard(columnNo, cardNo, boardId) {
     fetch(`/api/column/${columnNo}/card/${cardNo}`, {
       credentials: 'same-origin',
       method: 'DELETE',
@@ -886,18 +893,17 @@
       },
     })
     .then(response => {
-      if (response.statusCode == 200) {
-        alert('delete card successfully');
-        // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-      }
-      location.reload();
+      $(".modal").css("display", "none");
+      $(".modal-backdrop").remove();
+      $(".modal").removeClass("show");
+      fetchBoardDetails(boardId);
     })
     .catch(error => {
       console.error('An error occurred:', error);
     });
   }
 
-  function changeCardPosition(cardNo, columnNo) {
+  function changeCardPosition(cardNo, columnNo, boardId) {
     const positionInput = document.getElementById('positionInput' + cardNo); // 입력한 숫자를 가져옴
     const newPosition = parseInt(positionInput.value); // 입력한 숫자를 정수로 변환
     console.log(cardNo, columnNo, newPosition)
@@ -914,14 +920,17 @@
       } else {
         alert("숫자로 값을 변경 || 포지션 제한 초과");
       }
-      location.reload();
+      $(".modal").css("display", "none");
+      $(".modal-backdrop").remove();
+      $(".modal").removeClass("show");
+      fetchBoardDetails(boardId);
     })
     .catch(error => {
       alert(`An error occurred: ${error}`);
     });
   }
 
-  function changeCardColumnPosition(cardNo) {
+  function changeCardColumnPosition(cardNo, boardId) {
     const changeCardPositionInput = document.getElementById('changeCardPositionInput' + cardNo);
     const newCardPosition = parseInt(changeCardPositionInput.value);
 
@@ -929,7 +938,7 @@
     const newColumnPosition = parseInt(changeColumnPositionInput.value);
 
     fetch(
-        `api/card/${cardNo}/change-column/${newColumnPosition}/change-position/${newCardPosition}`,
+        `api/card/${cardNo}/board/${selectedBoardId}/change-column/${newColumnPosition}/change-position/${newCardPosition}`,
         {
           credentials: 'same-origin',
           method: 'PATCH',
@@ -943,14 +952,17 @@
       } else {
         alert("숫자로 값을 변경 || 포지션 위치 제한 초과 || 컬럼 번호 확인");
       }
-      location.reload();
+      $(".modal").css("display", "none");
+      $(".modal-backdrop").remove();
+      $(".modal").removeClass("show");
+      fetchBoardDetails(boardId);
     })
     .catch(error => {
       alert(`An error occurred: ${error}`);
     });
   }
 
-  function openModal(cardId) {
+  function openModal(cardId, boardId) {
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.tabIndex = cardId;
@@ -969,8 +981,8 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" data-card-id="${card.id}">${card.title}</h5>
-           <button type="button" class="btn btn-primary edit-button-title" id="editTitle${card.id}" onclick="editTitleButton(${card.id})">Edit</button>
-  <button type="button" class="btn btn-primary save-button-title d-none" id="saveTitle${card.id}" onclick="saveTitleButton(${card.id})">Save</button>
+           <button type="button" class="btn btn-primary edit-button-title" id="editTitle${card.id}" onclick="editTitleButton(${card.id}, ${boardId})">Edit</button>
+  <button type="button" class="btn btn-primary save-button-title d-none" id="saveTitle${card.id}" onclick="saveTitleButton(${card.id}, ${boardId})">Save</button>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -978,9 +990,13 @@
             <label for="cardColor">Card Color:</label>
             <div class="item-content">
               <select id="cardColor" disabled>
+                <option value="white">White</option>
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
+                <option value="yello">Yello</option>
+                <option value="pink">Pink</option>
+                <option value="purple">Purple</option>
               </select>
               <button type="button" class="btn btn-primary edit-button" id="editColor">Edit</button>
               <button type="button" class="btn btn-primary save-button d-none" id="saveColor">Save</button>
@@ -1042,17 +1058,17 @@
         </div>
        <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-danger" id="delete-card-Button" onclick="deleteCard(${card.columnNo}, ${card.id})">Delete</button>
+          <button type="button" class="btn btn-danger" id="delete-card-Button" onclick="deleteCard(${card.columnNo}, ${card.id}, ${boardId})">Delete</button>
           <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton${card.id}" data-bs-toggle="dropdown" aria-expanded="false">
-    Dropdown button
+    card move
   </button>
   <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton${card.id}">
     <li>
       <div class="dropdown-item">
         <p>변경 할 카드 포지션</p>
         <input type="text" id="positionInput${card.id}" placeholder="Enter text">
-        <button class="btn btn-primary" onclick="changeCardPosition(${card.id},${card.columnNo})">이동하기</button>
+        <button class="btn btn-primary" onclick="changeCardPosition(${card.id},${card.columnNo}, ${boardId})">이동하기</button>
       </div>
     </li>
     <li>
@@ -1060,7 +1076,7 @@
         <p>카드 이동 할 컬럼 번호</p>
         <input type="text" id="changeColumnPositionInput${card.id}" placeholder="도착지 컬럼의 번호">
         <input type="text" id="changeCardPositionInput${card.id}" placeholder="도착지 카드의 포지션">
-        <button class="btn btn-primary" onclick="changeCardColumnPosition(${card.id})">이동하기</button>
+        <button class="btn btn-primary" onclick="changeCardColumnPosition(${card.id}, ${boardId})">이동하기</button>
       </div>
     </li>
   </ul>
@@ -1073,10 +1089,22 @@
       // 모달을 body에 추가
       document.body.appendChild(modal);
 
-      // 모달을 열기 위한 이벤트 리스너 추가
-      modal.addEventListener('shown.bs.modal', () => {
-        modal.classList.add('show');
-      });
+       if(card.isdeadline) {
+         const titleEditButton = document.getElementById(`editTitle${card.id}`);
+         const colorEditButton = document.getElementById('editColor');
+         const dateEditButton = document.getElementById('editDueDate');
+         const descEditButton = document.getElementById('editDescription');
+
+         titleEditButton.style.display = 'none';
+         colorEditButton.style.display = 'none';
+         dateEditButton.style.display = 'none';
+         descEditButton.style.display = 'none';
+       }
+
+       // 모달을 열기 위한 이벤트 리스너 추가
+       modal.addEventListener('shown.bs.modal', () => {
+         modal.classList.add('show');
+       });
 
       modal.addEventListener('shown.bs.modal', () => {
         const colorSelect = modal.querySelector('#cardColor');
@@ -1137,46 +1165,51 @@
           const commentId = event.target.getAttribute('data-comment-id');
           const commentElement = modal.querySelector(`.commentInfo${commentId}`);
 
-          fetch(`/api/comment/${commentId}`, {
-            credentials: 'same-origin',
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          })
-          .then(response => {
-            if (response.statusCode == 200) {
-              alert('Color updated successfully');
-              // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-            }
-          })
-          .catch(error => {
-            console.error('An error occurred:', error);
-          });
-          commentElement.remove();
-        } else if (event.target.classList.contains('save-comment-button')) {
-          const commentId = event.target.getAttribute('data-comment-id');
-          const commentElement = event.target.closest(`.commentInfo${commentId}`);
-          const editInput = commentElement.querySelector('input');
-          const updatedComment = editInput.value.trim();
-          if (updatedComment !== '') {
-            fetch(`/api/comment/${commentId}`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({content: updatedComment}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 201) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
+           fetch(`/api/comment/${commentId}`, {
+             credentials: 'same-origin',
+             method: 'DELETE',
+             headers: {
+               'Content-Type': 'application/json'
+             },
+           })
+                   .then(response => {
+                     if (response.status == 200) {
+                       console.log('comment successfully');
+                       // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                     } else {
+                       alert("자신이 작성한 댓글이 아닙니다");
+                     }
+                   })
+                   .catch(error => {
+                     console.error('An error occurred:', error);
+                   });
+           commentElement.remove();
+         } else if (event.target.classList.contains('save-comment-button')) {
+           const commentId = event.target.getAttribute('data-comment-id');
+           const commentElement = event.target.closest(`.commentInfo${commentId}`);
+           const editInput = commentElement.querySelector('input');
+           const updatedComment = editInput.value.trim();
+           if (updatedComment !== '') {
+             fetch(`/api/comment/${commentId}`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ content: updatedComment }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 201) {
+                         console.log('comment successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       } else {
+                         alert("자신이 작성한 댓글이 아닙니다");
+                         location.reload();
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
 
             // 댓글 업데이트 후 UI 업데이트
             const commentTextElement = document.createElement('p');
@@ -1189,36 +1222,35 @@
         }
       });
 
-      const addCommentButton = modal.querySelector('#addComment');
-      const commentList = modal.querySelector('#commentList');
-      addCommentButton.addEventListener('click', () => {
-        const commentInput = modal.querySelector('#comment');
-        const comment = commentInput.value.trim();
-        if (comment !== '') {
-          const commentElement = document.createElement('div');
-          commentElement.className = 'comment';
-          commentElement.textContent = comment;
-          fetch(`/api/card/${cardId}/comment`, {
-            credentials: 'same-origin',
-            method: 'POST',
-            body: JSON.stringify({content: comment}), // 객체를 JSON 문자열로 변환
-            headers: {
-              'Content-Type': 'application/json'
-            },
-          })
-          .then(response => {
-            if (response.statusCode == 201) {
-              alert('Color updated successfully');
-              // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-            }
-          })
-          .catch(error => {
-            console.error('An error occurred:', error);
-          });
-          commentList.appendChild(commentElement);
-          commentInput.value = '';
-        }
-      });
+       const addCommentButton = modal.querySelector('#addComment');
+       const commentList = modal.querySelector('#commentList');
+       addCommentButton.addEventListener('click', () => {
+         const commentInput = modal.querySelector('#comment');
+         const comment = commentInput.value.trim();
+         if (comment !== '') {
+           const commentElement = document.createElement('div');
+           commentElement.className = 'comment';
+           commentElement.textContent = comment;
+           fetch(`/api/card/${cardId}/comment`, {
+             credentials: 'same-origin',
+             method: 'POST',
+             body: JSON.stringify({ content: comment }), // 객체를 JSON 문자열로 변환
+             headers: {
+               'Content-Type': 'application/json'
+             },
+           })
+                   .then(response => {
+                     if (response.status == 201) {
+                       console.log('comment successfully');
+                     }
+                   })
+                   .catch(error => {
+                     console.error('An error occurred:', error);
+                   });
+           commentList.appendChild(commentElement);
+           commentInput.value = '';
+         }
+       });
 
       // Save 버튼 클릭 시 처리
       const saveButtons = modal.querySelectorAll('.save-button');
@@ -1231,69 +1263,69 @@
           const inputElement = container.querySelector('input, select, textarea');
           inputElement.setAttribute('disabled', true);
 
-          // 저장 로직 추가
-          if (inputElement.id === 'cardColor') {
-            const cardColor = inputElement.value;
-            fetch(`/api/card/${cardId}/color`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({color: cardColor}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
-          } else if (inputElement.id === 'dueDate') {
-            const deadline = inputElement.value.replace('T', ' ');
-            fetch(`/api/card/${cardId}/deadline`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({deadline: deadline}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
-          } else if (inputElement.id === 'description') {
-            const description = inputElement.value;
-            fetch(`/api/card/${cardId}/description`, {
-              credentials: 'same-origin',
-              method: 'PATCH',
-              body: JSON.stringify({description: description}), // 객체를 JSON 문자열로 변환
-              headers: {
-                'Content-Type': 'application/json'
-              },
-            })
-            .then(response => {
-              if (response.statusCode == 200) {
-                alert('Color updated successfully');
-                // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-              }
-            })
-            .catch(error => {
-              console.error('An error occurred:', error);
-            });
-            console.log('Description:', description);
-          }
-        });
-      });
-    })
+           // 저장 로직 추가
+           if (inputElement.id === 'cardColor') {
+             const cardColor = inputElement.value;
+             fetch(`/api/card/${cardId}/color`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ color: cardColor }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 200) {
+                         console.log('Color updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+           } else if (inputElement.id === 'dueDate') {
+             const deadline = inputElement.value.replace('T', ' ');
+             fetch(`/api/card/${cardId}/deadline`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ deadline: deadline }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 200) {
+                         console.log('deadline updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+           } else if (inputElement.id === 'description') {
+             const description = inputElement.value;
+             fetch(`/api/card/${cardId}/description`, {
+               credentials: 'same-origin',
+               method: 'PATCH',
+               body: JSON.stringify({ description: description }), // 객체를 JSON 문자열로 변환
+               headers: {
+                 'Content-Type': 'application/json'
+               },
+             })
+                     .then(response => {
+                       if (response.status == 200) {
+                         console.log('desc updated successfully');
+                         // 여기서 다른 필요한 작업을 수행할 수 있습니다.
+                       }
+                     })
+                     .catch(error => {
+                       console.error('An error occurred:', error);
+                     });
+             console.log('Description:', description);
+           }
+         });
+       });
+     })
   }
 
   function moveCardWithinColumn(cardId) {
@@ -1306,7 +1338,7 @@
     console.log(`Moving card ${cardId} outside the column`);
   }
 
-  function editTitleButton(cardId) {
+  function editTitleButton(cardId, boardId) {
     const modalTitle = document.querySelector(`[data-card-id="${cardId}"]`);
     const titleText = modalTitle.textContent;
     const titleInput = document.createElement('input');
@@ -1320,7 +1352,7 @@
     saveButton.classList.remove('d-none');
   }
 
-  function saveTitleButton(cardId) {
+  function saveTitleButton(cardId, boardId) {
     const modal = document.querySelector('.modal');
     const titleInput = modal.querySelector('input'); // 수정한 제목을 입력한 input 요소 선택
     const newTitle = titleInput.value;
@@ -1334,69 +1366,21 @@
       },
     })
     .then(response => {
-      if (response.statusCode == 200) {
-        alert('Color updated successfully');
-        // 여기서 다른 필요한 작업을 수행할 수 있습니다.
-      }
+      titleInput.classList.add('d-none'); // 입력 창 숨기기
+
+      const editButton = document.getElementById(`editTitle${cardId}`);
+      const saveButton = document.getElementById(`saveTitle${cardId}`);
+      saveButton.classList.add('d-none');
+      editButton.classList.remove('d-none');
+
+      fetchBoardDetails(boardId);
     })
     .catch(error => {
       console.error('An error occurred:', error);
     });
-    titleInput.classList.add('d-none'); // 입력 창 숨기기
-
-    const editButton = document.getElementById(`editTitle${cardId}`);
-    const saveButton = document.getElementById(`saveTitle${cardId}`);
-    saveButton.classList.add('d-none');
-    editButton.classList.remove('d-none');
-    location.reload();
   }
-
   function getBoardMembersPage() {
     location.href = '/web/boardMember/' + selectedBoardId;
-  }
-
-  function clickBtn() {
-    $('#addListContainer').css('display', 'block');
-
-    $('#cancelAddList').on('click', function() {
-      $('#addListContainer').css('display', 'none');
-    });
-
-    $('#confirmAddList').on('click', function() {
-      const newListTitle = $('#newListTitle').val(); // 새 리스트 제목을 가져옴
-
-      createColumn(newListTitle) // Create the column and wait for its completion
-              .then(response => {
-                // Successfully created the column, fetch board details
-                fetchBoardDetails(selectedBoardId);
-              })
-              .catch(error => {
-                // Handle error if column creation fails
-                console.error('Error creating column:', error);
-              });
-    });
-  }
-
-  async function createColumn(columnTitle) {
-    // 백엔드로 AJAX 요청 보내기
-    try {
-      // 백엔드로 AJAX 요청 보내기
-      const response = await $.ajax({
-        url: `/api/board/${selectedBoardId}/column`,
-        type: 'POST',
-        data: JSON.stringify({ title: columnTitle }),
-        contentType: 'application/json'
-      });
-
-      // 백엔드로부터 성공 응답을 받았을 때 처리
-      console.log('새로운 리스트가 생성되었습니다:', response);
-
-      return response;
-    } catch (error) {
-      // 백엔드로부터 에러 응답을 받았을 때 처리
-      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
-      throw error;
-    }
   }
 
   async function deleteColumn(columnid) {
@@ -1411,6 +1395,29 @@
 
       // 백엔드로부터 성공 응답을 받았을 때 처리
       console.log('컬럼이 삭제 되었습니다:', response);
+      fetchBoardDetails(selectedBoardId); // 다른 보드에서도 삭제후 바로 삭제 되는지 확인
+
+      return response;
+    } catch (error) {
+      // 백엔드로부터 에러 응답을 받았을 때 처리
+      console.error('새로운 리스트 생성 중 오류가 발생했습니다:', error);
+      throw error;
+    }
+  }
+
+  async function enterCheck(columnTitle,columnId) {
+    // 백엔드로 AJAX 요청 보내기
+    try {
+      // 백엔드로 AJAX 요청 보내기
+      const response = await $.ajax({
+        url: `/api/column/${columnId}`,
+        type: 'PUT',
+        data: JSON.stringify({title: columnTitle}),
+        contentType: 'application/json'
+      });
+
+      // 백엔드로부터 성공 응답을 받았을 때 처리
+      console.log('컬럼이 수정 되었습니다:', response);
       fetchBoardDetails(selectedBoardId); // 다른 보드에서도 삭제후 바로 삭제 되는지 확인
 
       return response;

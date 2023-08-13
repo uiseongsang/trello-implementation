@@ -74,4 +74,13 @@ public interface ColumnService {
      * @return 찾은 보드
      */
     Board findBoard(Long boardNo);
+
+    /**
+     * 해당 보드의 컬럼의 포지션 찾기
+     *
+     * @param board 찾을 컬럼의 board
+     * @param columnPosition 찾을 컬럼의 포지션
+     * @return 찾은 컬럼
+     */
+    ColumnEntity findColumnEntitybyBoardAndPosition(Board board,Long columnPosition);
 }
