@@ -218,6 +218,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.5.0/js/bootstrap.min.js"></script>
 <script>
+  let selectedBoardId = null;
   document.addEventListener('DOMContentLoaded', async function () {
     document.cookie.replace("jwt=", "Bearer ");
     try {
@@ -231,6 +232,7 @@
         await getBoardListInOffcanvas();
 
         selectedBoardId = firstBoardId;
+
       } else {
         await initPostOneBoard()
         .then(async () => {
@@ -397,9 +399,8 @@
       boardButtons.forEach(button => {
         button.addEventListener('click', () => {
           const boardId = button.dataset.boardId;
-          const userId = button.dataset.userId; // userId 사용
           selectedBoardId = button.dataset.boardId;
-          fetchBoardDetails(boardId, userId); // fetchBoardDetails에 userId도 전달
+          fetchBoardDetails(boardId);
         });
       });
 
@@ -426,19 +427,6 @@
         boardTitle.textContent = `${data.title}`;
 
         console.log("밖에 " + data.id);
-
-        // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
-        $(".btn-edit-board").off("click").click(async function () {
-          const dataId = data.id; // data.id 값을 가져옴
-
-          $("#editBoardModal").show();
-          $("#editBoardModal").css("z-index", 102);
-
-          // $("#editBoardModal").css("display", "block");
-          // $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
-          // $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
-          await modifyCurrentBoard(dataId);
-        });
 
         // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
         $(".btn-delete-board").off("click").click(async function () {
@@ -522,6 +510,18 @@
       console.error('Error updating board details:', error);
     }
   }
+
+  // .btn-edit-board 버튼에 대한 클릭 이벤트 핸들러
+  $(".btn-edit-board").off("click").click(async function () {
+
+    $("#editBoardModal").show();
+    $("#editBoardModal").css("z-index", 102);
+
+    // $("#editBoardModal").css("display", "block");
+    // $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
+    // $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
+    await modifyCurrentBoard(selectedBoardId);
+  });
 
   // 모달 버튼들 준비
   $(document).ready(function () {
@@ -678,7 +678,6 @@
   // ---------------------------------------
 
   async function modifyCurrentBoard(currentBoardId) {
-    console.log("함수 안 : " + currentBoardId);
     $("#editBoardModal").submit(async function (event) {
       console.log("함수 안의 안 : " + currentBoardId);
       event.preventDefault(); // Prevent default form submission behavior
@@ -708,19 +707,22 @@
           $("#editBoardModal").css("display", "none");
           $(".modal-backdrop").remove(); // 모달 백드롭을 제거합니다
           $(".modal").removeClass("show"); // 모든 모달의 'show' 클래스를 제거합니다
-          location.reload();
+          // location.reload();
         } else {
           console.error('Failed to send board data.');
         }
       } catch (error) {
         console.error('Error sending board data:', error);
       } finally {
+
         await fetchBoardDetails(currentBoardId);
-        // 보드 리스트들도 불러오기
+          // 보드 리스트들도 불러오기
         await getBoardListInOffcanvas();
       }
     });
   }
+
+
 
   async function deleteCurrentBoard(currBoardId) {
     try {
