@@ -43,6 +43,7 @@ public class UserHomeController {
 
         // model 필요한 데이터 담아서 반환
         model.addAttribute("users", profileResponseDto);
+        model.addAttribute("oldlogs", UserLog.fullUserLog(userDetails.getUser()));
         model.addAttribute("logs", UserLog.fileReader(userDetails.getUser()));
         return "my-page";
     }

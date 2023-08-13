@@ -4,6 +4,7 @@ import com.winner.trelloimplementation.common.dto.ApiResponseDto;
 import com.winner.trelloimplementation.common.security.UserDetailsImpl;
 import com.winner.trelloimplementation.user.dto.*;
 import com.winner.trelloimplementation.user.service.UserServiceImpl;
+import com.winner.trelloimplementation.user.userlog.UserLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 @RestController
@@ -45,7 +47,12 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "bad request operation", content = @Content(schema = @Schema(implementation = ApiResponseDto.class)))
     })
     @DeleteMapping("/logout")
-    public ResponseEntity<ApiResponseDto> logout(HttpServletResponse response, Authentication authResult) throws ServletException, IOException {
+    public ResponseEntity<ApiResponseDto> logout(HttpServletResponse response, Authentication authResult, @AuthenticationPrincipal UserDetailsImpl userDetails) throws ServletException, IOException {
+        UserLog.saveLogs(userDetails.getUser());
+
+        try(FileOutputStream fos = new FileOutputStream(UserLog.logPath, false)) {
+        } catch (IOException e) { e.printStackTrace(); }
+
         return userServiceImpl.logout(response, authResult);
     }
 
