@@ -1126,6 +1126,7 @@
       // 모달이 닫힐 때 제거
       modal.addEventListener('hidden.bs.modal', () => {
         document.body.removeChild(modal);
+        fetchBoardDetails(boardId);
       });
 
       // 모달 열기

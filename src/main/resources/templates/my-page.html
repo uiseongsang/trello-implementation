@@ -84,6 +84,9 @@
             <button th:onclick="|location.href='/api/user/profile/password'|" class="btn btn-warning ms-2">비밀번호 수정</button>
             <button th:onclick="|location.href='/api/user/sign-out'|" class="btn btn-warning ms-2">회원탈퇴</button>
         </div>
+        <div th:each="oldlog : ${oldlogs}" style="text-align: center; margin-top: 5px">
+        <span th:text="${oldlog}"></span>
+        </div>
         <div th:each="log : ${logs}" style="text-align: center; margin-top: 5px">
             <span th:text="${log}"></span>
         </div>
