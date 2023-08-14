@@ -499,6 +499,11 @@
             cardDiv.className = 'card';
             cardDiv.textContent = card.title; // 카드의 제목을 표시
             cardDiv.id = card.id;
+            if (card.color == null) {
+              cardDiv.style.background = "white";
+            } else {
+              cardDiv.style.background = card.color;
+            }
             cardDiv.addEventListener('click', () => {
               openModal(card.id, data.id); // 모달을 띄우는 함수 호출
             });
@@ -994,7 +999,6 @@
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
-                <option value="yello">Yello</option>
                 <option value="pink">Pink</option>
                 <option value="purple">Purple</option>
               </select>
